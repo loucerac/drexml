@@ -24,7 +24,7 @@ import dotenv
 dotenv_file_path = Path(dotenv.find_dotenv())
 project_path = dotenv_file_path.parent
 
-# LOAD USER ENVIRONMET VARIABLES
+# LOAD USER ENVIRONMENT VARIABLES
 dotenv.load_dotenv(dotenv_file_path)
 DATA_PATH = Path(os.environ.get("DATA_PATH"))
 NUM_CPUS = int(os.environ.get("NUM_CPUS"))
