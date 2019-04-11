@@ -11,6 +11,7 @@ Basic IO functionallity for Achilles cell line predictions.
 import os
 import multiprocessing
 import itertools
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
@@ -18,13 +19,19 @@ import numpy as np
 import dotenv
 
 
-dotenv_filepath = dotenv.find_dotenv()
-dotenv.load_dotenv(dotenv_filepath)
-project_path = os.path.dirname(dotenv_filepath)
+dotenv_file_path = Path(dotenv.find_dotenv())
+project_path = dotenv_file_path.parent
 
-DATA_PATH = os.getenv("DATA_PATH")
-NUM_CPUS = int(os.getenv("NUM_CPUS"))
-USE_GPU = bool(os.getenv("USE_GPU"))
+# LOAD USER ENVIRONMET VARIABLES
+dotenv.load_dotenv(dotenv_file_path)
+DATA_PATH = Path(os.environ.get("DATA_PATH"))
+NUM_CPUS = int(os.environ.get("NUM_CPUS"))
+USE_GPU = bool(os.environ.get("USE_GPU"))
+
+genes_fname = "genes.rds.feather"
+pathvals_fname = "expreset_pathvals.rds.feather"
+expression_fname = "expreset_Hinorm.rds.feather"
+circuits_fname = "circuits.rds.feather"
 
 
 def load_metadata():
@@ -41,8 +48,6 @@ def load_metadata():
     metadata = pd.read_csv(fpath, index_col=0)
 
     return metadata
-
-
 
 
 def get_disease_data(disease):
