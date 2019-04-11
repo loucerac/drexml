@@ -36,7 +36,7 @@ expression_fname = "expreset_Hinorm.rds.feather"
 circuits_fname = "circuits.rds.feather"
 
 
-def load_pathvals():
+def load_circuits():
 
     circuits = feather.read_dataframe(DATA_PATH.joinpath(circuits_fname))
     circuits.set_index("index", drop=True, inplace=True)
