@@ -226,3 +226,9 @@ tags
 *.model
 *.out
 notebooks/7.0_test_outlier.ipynb
+
+notebooks/sandbox_20190301/
+notebooks/.DS_Store
+notebooks/._.DS_Store
+notebooks/._relevance_v2.py
+notebooks/._run.sbatch
