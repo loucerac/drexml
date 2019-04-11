@@ -16,6 +16,8 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+import feather
+
 import dotenv
 
 
@@ -32,6 +34,26 @@ genes_fname = "genes.rds.feather"
 pathvals_fname = "expreset_pathvals.rds.feather"
 expression_fname = "expreset_Hinorm.rds.feather"
 circuits_fname = "circuits.rds.feather"
+
+
+def load_pathvals():
+
+    circuits = feather.read_dataframe(DATA_PATH.joinpath(circuits_fname))
+    circuits.set_index("index", drop=True, inplace=True)
+    circuits.index = circuits.index.astype(str)
+    circuits.replace({"FALSE": False, "TRUE": True}, inplace=True)
+
+    return circuits
+
+def load_genes():
+
+    genes = feather.read_dataframe(DATA_PATH.joinpath(genes_fname))
+    genes.set_index("index", drop=True, inplace=True)
+    genes.index = genes.index.astype(str)
+    genes.replace({"FALSE": False, "TRUE": True}, inplace=True)
+
+    return genes
+
 
 
 def load_metadata():
