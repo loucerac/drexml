@@ -55,6 +55,7 @@ def load_genes():
     return genes
 
 def load_expression():
+
     expression = feather.read_dataframe(DATA_PATH.joinpath(expression_fname))
     expression.columns = expression.columns.str.replace("X", "")
     expression.set_index("index", drop=True, inplace=True)
@@ -62,6 +63,7 @@ def load_expression():
     return expression
 
 def load_pathvals():
+    
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
 
