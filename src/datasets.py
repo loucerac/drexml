@@ -63,27 +63,11 @@ def load_expression():
     return expression
 
 def load_pathvals():
-    
+
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
 
     return pathvals
-
-def load_metadata():
-    """Load HORD metadata as a DataFrame.
-
-    Returns
-    -------
-    pandas.DataFrame
-        [n_samples x n_features] metadata DataFrame.
-    """
-
-    file_name = "sample_info.csv"
-    fpath = os.path.join(RAW_PATH, file_name)
-    metadata = pd.read_csv(fpath, index_col=0)
-
-    return metadata
-
 
 def get_disease_data(disease):
 
