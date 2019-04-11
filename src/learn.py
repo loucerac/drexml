@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from xgboost.core     import XGBoostError
 from lightgbm.sklearn import LightGBMError
 
+from sklearn.ensemble import RandomForestRegressor
+
 
 def plot_feature_importances(clf, X_train, y_train=None, 
                              top_n=10, figsize=(8,8), print_table=False, 
@@ -73,3 +75,23 @@ def plot_feature_importances(clf, X_train, y_train=None,
         display(feat_imp.sort_values(by='importance', ascending=False))
         
     return feat_imp
+
+class BoMorf(object):
+
+    def __init__(self, n_jobs=1, copy_X_train=True, random_state=None):
+        self.n_jobs = n_jobs
+        self.copy_X_train=True,
+        self.random_state=random_state
+
+    def fit(self, X, y=None):
+        # validate X, y
+        X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
+
+        self.fit_()
+
+    def fit_(self):
+        estimator = RandomForestRegressor(n_jobs=self.n_jobs)
+        space = [Integer(1, 5, name='max_depth'),
+             Integer(1, n_features, name='max_features'),
+             Integer(2, 100, name='min_samples_split'),
+             Integer(1, 100, name='min_samples_leaf')]
