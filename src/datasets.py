@@ -31,7 +31,6 @@ NUM_CPUS = int(os.environ.get("NUM_CPUS"))
 USE_GPU = bool(os.environ.get("USE_GPU"))
 
 genes_fname = "genes.rds.feather"
-pathvals_fname = "expreset_pathvals.rds.feather"
 expression_fname = "expreset_Hinorm.rds.feather"
 
 
@@ -53,7 +52,9 @@ def get_pathvals_fname(disease):
 
     return pathvals_fname
 
-def load_circuits(circuits_fname):
+def load_circuits(disease):
+
+    circuits_fname = get_circuits_fname(disease)
 
     circuits = feather.read_dataframe(DATA_PATH.joinpath(circuits_fname))
     circuits.set_index("index", drop=True, inplace=True)
@@ -79,8 +80,9 @@ def load_expression():
 
     return expression
 
-def load_pathvals(pathvals_fname):
+def load_pathvals(disease):
 
+    pathvals_fname = get_pathvals_fname(disease)
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
 
@@ -88,6 +90,17 @@ def load_pathvals(pathvals_fname):
 
 def get_disease_data(disease):
 
-    gene_expression, pathvals, metadata = [], [], []
+    # Load data
+    gene_expression = load_expression()
+    pathvals = load_pathvals(disease)
+    path_metadata = load_circuits(disease)
+    gene_metadata = load_circuits(disease)
 
-    return gene_expression, pathvals, metadata
+    # Filter data
+    target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
+    gene_expression = gene_expression[target_gene_ids]
+    disease_circuits = path_metadata.loc[path_metadata]
+    pathvals = pathvals.loc[:, disease_circuits]
+
+
+    return gene_expression, pathvals, path_metadata, gene_metadata
