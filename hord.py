@@ -14,20 +14,20 @@ import warnings
 warnings.warn = warn
 
 import os
+from pathlib import Path
+from datetime import datetime
 import click
 import pickle
 import traceback
 from src.datasets import get_disease_data
-from src.learn import TabularClassifier
-from src.plot import plot_model
-from src.autoxgb  import OptimizedXGB
-from src.utils import get_out_path, get_tissue_cell_line
+from src.learn import BoMorf
 import numpy as np
 import sklearn
 from sklearn.metrics import average_precision_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 from timeit import default_timer as timer
+from sklearn.model_selection import train_test_split
 
 from dotenv import find_dotenv, load_dotenv
 
@@ -36,7 +36,7 @@ dotenv_filepath = find_dotenv()
 load_dotenv(dotenv_filepath)
 project_path = os.path.dirname(dotenv_filepath)
 
-DATA_PATH = os.getenv("DATA_PATH")
+DATA_PATH = Path(os.environ.get("DATA_PATH"))
 NUM_CPUS = int(os.getenv("NUM_CPUS"))
 USE_GPU = bool(os.getenv("USE_GPU"))
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='sklearn')
@@ -44,8 +44,9 @@ warnings.filterwarnings('ignore', category=DeprecationWarning, module='sklearn')
 @click.command()
 @click.option('--disease', default="fanconi", help='which disease to test')
 @click.option('--model', default="morf", help='ML model')
-@click.option('--train', is_flag=True, help='train')
-def hord(disease, model, train):
+@click.option('--mode', deafult="split", help='Train/test mode')
+@click.option('--seed', deafult=42, type=int, help='Random seed')
+def hord(disease, model, mode, seed):
     """HORD multi-task module.
     
     Parameters
@@ -54,35 +55,28 @@ def hord(disease, model, train):
         Disease to train/test.
     model : str
         Which ML model to use.
-    train : bool
-        Flag (Defaults to False. If true, train a model).
+    mode : str
+        Select mode for train/test from ["split"]
+    seed : int
+        Seed for random number generator.
     """
-
-    gene_expression, path_vals, metadata = get_disease_data(disease)
 
     print("Working on disease {}".format(disease))
 
-    X_train, X_test, y_train, y_test = load_data(which, mode)
+    X_train, X_test, Y_train, Y_test = get_mode_data(disease, mode, seed)
+    output_folder = get_output_folder(disease, mode, model)
 
-    if train:
-        model, name = get_model(name)
+    model, name = get_model(model)
+    print("Training {} for {} model with {} model".format(disease, mode, model))
+    start = timer()
+    model.fit(X_train.values, Y_train.values)
+    end = timer()
+    print("training finished.")
+    print("Training time {}".format(end - start))
 
-        get_out_path(which, mode, name)
-        
-        print("Training {} for {}".format(name, which))
-        start = timer()
-        model.fit(X_train.values, y_train.values.ravel())
-        end = timer()
-        print("training finished.")
-        print("{} mode {} training time {}".format(which, mode, end - start))
-
-        print("Saving model...")
-        save_model(model, which, mode, name)
-        print("model saved.")
-    else:
-        print("Loading model...")
-        model = load_model(name, which, mode)
-        print("model loaded.")
+    print("Saving model...")
+    save_model(model, disease, mode, name)
+    print("model saved.")
 
     # set plotting context and plot
     print("Saving analysis...")
@@ -95,7 +89,7 @@ def hord(disease, model, train):
     exit(0)
 
 
-def load_data(which, mode):
+def get_mode_data(disease, mode, seed):
     """Helper function to load Achilles data based on a preset mode.
     
     Parameters
@@ -116,39 +110,48 @@ def load_data(which, mode):
         Train and test data.
     """
 
-    print("Loading {} data for {} mode".format(which, mode))
+    print("Perform analysis data for {} mode".format(mode))
 
-    if mode in ["versus", "vs"]:
+    try:
+        expr, pathvals, path_metadata, gene_metadata = get_disease_data(disease)
+    except Exception as e:
+        print("No available data for {} disease".format(disease))
+        print(traceback.format_exc(e))
+        exit("Abort ...")
+
+    if mode.lower() == "split":
         try:
-            X_train, X_test, y_train, y_test = load_versus_dataset(which)
-        except:
-            print("No available data for {} which".format(which))
-            exit("Abort ...")
-    elif mode.lower() == "loco":
-        try:
-            tissue = "_".join(which.split("_")[1:])
-            print(tissue)
-            X_train, X_test, y_train, y_test = build_loco_dataset_single(
-                tissue,
-                which
+            X_train, X_test, Y_train, Y_test = train_test_split(
+                expr,
+                pathvals,
+                test_size=0.33,
+                random_state=seed
             )
-        except Exception as e:
-            print("No available data for {} which".format(which))
-            print(traceback.format_exc(e))
+        except:
+            print("No available data for {} mode".format(mode))
             exit("Abort ...")
     else:
         raise NotImplementedError("{} not yet implemented".format(mode))
 
     print("Train shape: ", X_train.shape, "Test shape: ", X_test.shape)
-    print("Train shape: ", y_train.shape, "Test shape: ", y_test.shape)
+    print("Train shape: ", Y_train.shape, "Test shape: ", Y_test.shape)
       
     if not X_test.shape[0]:
-        raise IOError("No testing data for {}".format(which))
+        raise IOError("No testing data for {}".format(mode))
 
     if not X_train.shape[0]:
-        raise IOError("No training data for {}".format(which))
+        raise IOError("No training data for {}".format(mode))
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, Y_train, Y_test
+
+
+def get_output_folder(disease, mode, model):
+
+    folder_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    out_path = DATA_PATH.joinpath("out", mode, model, folder_name)
+    out_path.mkdir(parents=True, exist_ok=False)
+
+    return out_path
 
 
 def get_model(name: str):
@@ -167,17 +170,11 @@ def get_model(name: str):
         Model name.
     """
 
-    if name.lower() == "lgbm":
-        model = TabularClassifier(verbose=1)
-    elif name.lower() in ["xgb", "xgboost"]:
-        model = OptimizedXGB()
-    elif name.lower() in ["bag", "bbag", "balanced"]:
-        model = BalancedBaggingClassifier(
+    if name.lower() == "bomorf":
+        model = BoMorf(
             n_estimators=NUM_CPUS,
             n_jobs=NUM_CPUS
         )
-
-        name = "bbag"
     
     model.name = name
 
