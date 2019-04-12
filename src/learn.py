@@ -91,22 +91,93 @@ def plot_feature_importances(clf, X_train, y_train=None,
         
     return feat_imp
 
-class BoMorf(object):
+class BoMorf(BaseEstimator, RegressorMixin):
 
-    def __init__(self, n_jobs=1, copy_X_train=True, random_state=None):
+    def __init__(self, name, n_jobs=1, cv=10, n_calls=100, out=None, copy_X_train=True, random_state=None):
+        self.name = name
         self.n_jobs = n_jobs
         self.copy_X_train=True,
         self.random_state=random_state
-
+        self.cv = cv
+        self.n_calls = n_calls
+        self.out = out
+        self.opt = None
+        
     def fit(self, X, y=None):
         # validate X, y
         X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
 
-        self.fit_()
+        self.fit_(X, y)
 
-    def fit_(self):
-        estimator = RandomForestRegressor(n_jobs=self.n_jobs)
-        space = [Integer(1, 5, name='max_depth'),
-             Integer(1, n_features, name='max_features'),
-             Integer(2, 100, name='min_samples_split'),
-             Integer(1, 100, name='min_samples_leaf')]
+    def fit_(self, X, y):
+        estimator = RandomForestRegressor(
+            n_jobs=self.n_jobs,
+            random_state=self.random_state
+            )
+
+        # n_features = y.shape[1]
+        space = [
+            Integer(1, 10, name='max_depth'),
+            Real(0.1, 1.0, name="max_features"),
+            Integer(2, 100, name='min_samples_split'),
+            Integer(1, 100, name='min_samples_leaf'),
+            Categorical([10**2, 500, 10**3, 5000, 10**4], name="n_estimators")]
+
+        @use_named_args(space)
+        def objective(**params):
+            estimator.set_params(**params)
+
+            cv_scores = cross_val_score(
+                estimator, 
+                X,
+                y, 
+                cv=self.cv, 
+                n_jobs=self.n_jobs,
+                scoring="r2"
+            )
+
+            return -np.mean(cv_scores)
+        
+        self.opt =  gp_minimize(
+            objective,
+            space,
+            n_calls=self.n_calls,
+            random_state=self.random_state)
+
+        self.best_model = self.build_model_from_sko(self.opt)
+    
+    def save(self):
+        pass
+
+    @classmethod
+    def load(cls, file_name):
+        # load optimization result
+
+        # load ML model
+        pass
+
+    @staticmethod
+    def build_model_from_sko(opt, n_jobs=1, random_state=42):
+        hyperparameters  = {
+            'max_depth':opt.x[0],
+            'max_features':opt.x[1],
+            'min_samples_split':opt.x[2],
+            'min_samples_leaf':opt.x[3],
+            'n_estimators':opt.x[4]
+        }
+        
+        model = RandomForestRegressor(
+            n_jobs=n_jobs, 
+            random_state=random_state,
+            **hyperparameters
+        )
+        
+        return model
+
+    @staticmethod
+    def get_opt_fname(name):
+        return "{}_sko.pkl".format(name)
+
+    @staticmethod
+    def get_model_fname(name):
+        return "{}_model.pkl".format(name)
