@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle
+
 from lightgbm.sklearn import LightGBMError
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
@@ -102,6 +104,7 @@ class BoMorf(BaseEstimator, RegressorMixin):
         self.n_calls = n_calls
         self.out = out
         self.opt = None
+        self.best_model = None
         
     def fit(self, X, y=None):
         # validate X, y
@@ -145,9 +148,18 @@ class BoMorf(BaseEstimator, RegressorMixin):
             random_state=self.random_state)
 
         self.best_model = self.build_model_from_sko(self.opt)
+
+    def predict(self, X):
+        return self.best_model.predict(X)
+
+    def score(self, X, y):
+        return self.best_model.score(X, y)
     
     def save(self):
-        pass
+        opt_path = self.out.joinpath(self.get_opt_fname)
+
+
+        model_path = self.out.joinpath(self.get_model_fname)
 
     @classmethod
     def load(cls, file_name):
