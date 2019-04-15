@@ -94,12 +94,12 @@ def get_disease_data(disease):
     gene_expression = load_expression()
     pathvals = load_pathvals(disease)
     path_metadata = load_circuits(disease)
-    gene_metadata = load_circuits(disease)
+    gene_metadata = load_genes()
 
     # Filter data
     target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
     gene_expression = gene_expression[target_gene_ids]
-    disease_circuits = path_metadata.loc[path_metadata]
+    disease_circuits = path_metadata.loc[path_metadata.in_desease]
     pathvals = pathvals.loc[:, disease_circuits]
 
 
