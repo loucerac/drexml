@@ -12,4 +12,4 @@ source ~/.bashrc
 conda activate hord
 
 python rf.py
-
+python relevance_v2.py
