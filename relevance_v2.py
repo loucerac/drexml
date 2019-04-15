@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+import sys
 
 from timeit import default_timer as timer
 import feather
@@ -23,7 +23,7 @@ out = "pathways"
 SEED = 42
 DISEASE = "fanconi"
 
-MODE = "model"
+MODE = str(sys.argv[1])
 
 out_dir = os.path.join(".", "rf", DISEASE, "{:02d}".format(version))
 

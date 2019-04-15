@@ -84,7 +84,7 @@ if train:
     estim = HyperoptEstimator(
         regressor=random_forest_regression('morf', n_jobs=24),
         algo=tpe.suggest,
-        max_evals=10,
+        max_evals=1000,
         trial_timeout=120)
 
     start = timer()

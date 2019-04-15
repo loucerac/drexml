@@ -12,4 +12,6 @@ source ~/.bashrc
 conda activate hord
 
 python rf.py
-python relevance_v2.py
+python relevance_v2.py model
+python relevance_v2.py global
+python relevance_v2.py task
