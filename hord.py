@@ -237,6 +237,62 @@ def load_model(which, mode, name):
     return model
 
 
+def run_full(disease, model, sample_metadata, seed):
+    from sklearn.model_selection import RepeatedStratifiedKFold
+    # Load whole data
+    gene_xpr, pathvals, path_metadata, gene_metadata = get_disease_data(disease)
+
+    # Optimize and fit and the whole data
+    model.fit(gene_xpr, pathvals)
+
+    # CV with optimal hyperparameters
+    estimator = model.best_model
+    perform_cv(X, y, estimator, seed, sample_metadata.tissue)
+
+    # Save results
+
+    pass
+
+def perform_cv(X, y, estimator, seed, tissue):
+    from sklearn.model_selection import RepeatedStratifiedKFold
+    from sklearn import metrics
+
+    skf = RepeatedStratifiedKFold(n_splits=10, n_repeats=100, random_state=seed)
+    for train_index, test_index in skf.split(X, tissue):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+
+        estimator.fit(X_train, y_train)
+
+        y_train_hat = estimator.predict(X_train)
+        y_test_hat = estimator.predict(X_test)
+
+        # metrics computation
+        evs_mo_train = metrics.explained_variance_score(
+            y_train,
+            y_train_hat,
+            multioutput="raw_values")
+
+        evs_mo_test = metrics.explained_variance_score(
+            y_test,
+            y_test_hat,
+            multioutput="raw_values"
+        )
+
+        evs_ua_train = metrics.explained_variance_score(
+            y_train,
+            y_train_hat,
+            multioutput="uniform_average"
+        )
+
+        evs_ua_test = metrics.explained_variance_score(
+            y_test,
+            y_test_hat,
+            multioutput="uniform_average"
+        )
+
+
+
 if __name__ == '__main__':
     # pylint: disable=no-value-for-parameter
-    achilles()
+    hord()
