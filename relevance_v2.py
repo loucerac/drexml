@@ -23,7 +23,7 @@ out = "pathways"
 SEED = 42
 DISEASE = "fanconi"
 
-MODE = "gobal"
+MODE = "model"
 
 out_dir = os.path.join(".", "rf", DISEASE, "{:02d}".format(version))
 
