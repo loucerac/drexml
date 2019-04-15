@@ -172,7 +172,7 @@ def get_model(name: str):
 
     if name.lower() == "bomorf":
         model = BoMorf(
-            n_estimators=NUM_CPUS,
+            name="bomorf_01",
             n_jobs=NUM_CPUS
         )
     
