@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import pickle
 
 from lightgbm.sklearn import LightGBMError
@@ -12,13 +13,16 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.multiclass import check_classification_targets
-from sklearn.utils.validation import FLOAT_DTYPES, check_X_y
+from sklearn.utils.validation import FLOAT_DTYPES, check_X_y, check_is_fitted
 from xgboost.core import XGBoostError
 
 from skopt.space import Real, Integer, Categorical
 from skopt.utils import use_named_args
 from skopt import gp_minimize
+from skopt import dump, load
+
 from sklearn.model_selection import cross_val_score
+from sklearn.externals import joblib
 
 from gplearn.genetic import SymbolicTransformer
 from imblearn.ensemble import BalancedBaggingClassifier
@@ -102,44 +106,26 @@ class BoMorf(BaseEstimator, RegressorMixin):
         self.random_state=random_state
         self.cv = cv
         self.n_calls = n_calls
-        self.out = out
+        self.out = self.get_output_folder(out)
         self.opt = None
         self.best_model = None
         
     def fit(self, X, y=None):
         # validate X, y
         X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
+        self.X_train_ = np.copy(X) if self.copy_X_train else X
+        self.y_train_ = np.copy(y) if self.copy_X_train else y
 
         self.fit_(X, y)
 
     def fit_(self, X, y):
-        estimator = RandomForestRegressor(
-            n_jobs=self.n_jobs,
-            random_state=self.random_state
-            )
-
-        # n_features = y.shape[1]
-        space = [
-            Integer(1, 10, name='max_depth'),
-            Real(0.1, 1.0, name="max_features"),
-            Integer(2, 100, name='min_samples_split'),
-            Integer(1, 100, name='min_samples_leaf'),
-            Categorical([10**2, 500, 10**3, 5000, 10**4], name="n_estimators")]
-
-        @use_named_args(space)
-        def objective(**params):
-            estimator.set_params(**params)
-
-            cv_scores = cross_val_score(
-                estimator, 
-                X,
-                y, 
-                cv=self.cv, 
-                n_jobs=self.n_jobs,
-                scoring="r2"
-            )
-
-            return -np.mean(cv_scores)
+        estimator, space, objective = self.get_optimizer(
+            X,
+            y,
+            self.n_jobs,
+            self.cv,
+            self.random_state
+        )
         
         self.opt =  gp_minimize(
             objective,
@@ -147,26 +133,69 @@ class BoMorf(BaseEstimator, RegressorMixin):
             n_calls=self.n_calls,
             random_state=self.random_state)
 
+        self.opt.cv = self.cv
+
         self.best_model = self.build_model_from_sko(self.opt)
+        self.best_model.fit(X, y)
 
     def predict(self, X):
         return self.best_model.predict(X)
 
     def score(self, X, y):
         return self.best_model.score(X, y)
+
+    @property
+    def feature_importances_(self):
+        """Return the feature importances (the higher, the more important the
+           feature).
+        Returns
+        -------
+        feature_importances_ : array, shape = [n_features]
+        """
+
+        check_is_fitted(self.best_model, 'estimators_')
+
+        return self.best_model.feature_importances_
     
-    def save(self):
-        opt_path = self.out.joinpath(self.get_opt_fname)
+    def save(self, out):
+        out = self.get_output_folder(out)
 
+        opt_path = out.joinpath(self.get_opt_fname(self.name))
+        dump(self.opt, opt_path)
 
-        model_path = self.out.joinpath(self.get_model_fname)
+        estimator_path = out.joinpath(self.get_estimator_fname(self.name))
+        joblib.dump(self.best_model, estimator_path)
 
     @classmethod
-    def load(cls, file_name):
-        # load optimization result
-
+    def load(cls, out, name):
+        out = cls.get_output_folder(out)
         # load ML model
-        pass
+        estimator_path = out.joinpath(cls.get_estimator_fname(name))
+        estimator = joblib.load(estimator_path)
+
+        # load optimization result
+        opt_path = out.joinpath(cls.get_opt_fname(name))
+
+        estimator, space, objective = cls.get_optimizer(
+            estimator.X_train,
+            estimator.y_train,
+            estimator.n_jobs,
+            estimator.cv,
+            estimator.random_state
+        )
+        
+        opt = load(opt_path)
+
+        bomorf = cls(
+            name, 
+            n_jobs=estimator.n_jobs,
+            cv=opt.cv, 
+            n_calls=opt.n_calls, 
+            out=out, 
+            copy_X_train=estimator.copy_X_train, 
+            random_state=estimator.random_satate)
+        bomorf.best_model = estimator
+        bomorf.opt = opt
 
     @staticmethod
     def build_model_from_sko(opt, n_jobs=1, random_state=42):
@@ -191,5 +220,43 @@ class BoMorf(BaseEstimator, RegressorMixin):
         return "{}_sko.pkl".format(name)
 
     @staticmethod
-    def get_model_fname(name):
-        return "{}_model.pkl".format(name)
+    def get_estimator_fname(name):
+        return "{}_estimator.pkl".format(name)
+
+    @staticmethod
+    def get_output_folder(out):
+        if out:
+            out = Path(out)
+        return out
+
+    @staticmethod
+    def get_optimizer(X, y, n_jobs, cv, random_state):
+        estimator = RandomForestRegressor(
+            n_jobs=n_jobs,
+            random_state=random_state
+            )
+
+        # n_features = y.shape[1]
+        space = [
+            Integer(1, 10, name='max_depth'),
+            Real(0.1, 1.0, name="max_features"),
+            Integer(2, 100, name='min_samples_split'),
+            Integer(1, 100, name='min_samples_leaf'),
+            Categorical([10**2, 500, 10**3, 5000, 10**4], name="n_estimators")]
+
+        @use_named_args(space)
+        def objective(**params):
+            estimator.set_params(**params)
+
+            cv_scores = cross_val_score(
+                estimator, 
+                X,
+                y, 
+                cv=cv, 
+                n_jobs=n_jobs,
+                scoring="r2"
+            )
+
+            return -np.mean(cv_scores)
+
+        return estimator, space, objective
