@@ -57,7 +57,7 @@ print("loading data")
 
 X, Y, circuits, genes = get_disease_data(DISEASE)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_satet=42)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=SEED)
 
 print("Data loaded for {} disease.".format(DISEASE))
 
