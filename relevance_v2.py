@@ -25,7 +25,7 @@ DISEASE = "fanconi"
 
 MODE = "gobal"
 
-out_dir = os.path.join(".", "rf", DISEASE, version)
+out_dir = os.path.join(".", "rf", DISEASE, "{:02d}".format(version))
 
 name = "hypmorf_{}_{:02d}".format(DISEASE, version)
 
