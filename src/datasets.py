@@ -60,6 +60,7 @@ def load_circuits(disease):
     circuits.set_index("index", drop=True, inplace=True)
     circuits.index = circuits.index.astype(str)
     circuits.replace({"FALSE": False, "TRUE": True}, inplace=True)
+    circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
 
     return circuits
 
@@ -85,6 +86,7 @@ def load_pathvals(disease):
     pathvals_fname = get_pathvals_fname(disease)
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
+    pathvals.index = pathvals.index.str.replace("-", ".").str.replace(" ", ".")
 
     return pathvals
 
