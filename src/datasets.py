@@ -86,6 +86,7 @@ def load_pathvals(disease):
     pathvals_fname = get_pathvals_fname(disease)
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
+    pathvals.index = pathvals.index.astype(str)
     pathvals.index = pathvals.index.str.replace("-", ".").str.replace(" ", ".")
 
     return pathvals
