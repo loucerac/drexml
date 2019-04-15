@@ -26,6 +26,8 @@ DISEASE = "fanconi"
 MODE = "gobal"
 out_dir = os.path.join(".", "rf", DISEASE, version)
 
+os.makedirs(out_dir, exist_ok=True)
+
 name = "hypmorf_{}_{:02d}".format(DISEASE, version)
 
 train = True
