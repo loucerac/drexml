@@ -232,3 +232,5 @@ notebooks/.DS_Store
 notebooks/._.DS_Store
 notebooks/._relevance_v2.py
 notebooks/._run.sbatch
+
+notebooks/rsandbox/
