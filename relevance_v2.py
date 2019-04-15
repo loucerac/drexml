@@ -19,11 +19,13 @@ data_dir = "."
 version = 2
 inp = "targets"
 out = "pathways"
-out_dir = "rf"
+
 SEED = 42
 DISEASE = "fanconi"
 
 MODE = "gobal"
+
+out_dir = os.path.join(".", "rf", DISEASE, version)
 
 name = "hypmorf_{}_{:02d}".format(DISEASE, version)
 

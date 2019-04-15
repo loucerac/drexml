@@ -21,17 +21,16 @@ data_dir = "."
 version = 2
 inp = "targets"
 out = "pathways"
-out_dir = "rf"
 SEED = 42
 DISEASE = "fanconi"
-
 MODE = "gobal"
+out_dir = os.path.join(".", "rf", DISEASE, version)
 
 name = "hypmorf_{}_{:02d}".format(DISEASE, version)
 
 train = True
 
-out_folder = os.path.join(".", "rf")
+out_folder = out_dir
 
 # X_train = feather.read_dataframe(os.path.join(data_dir, "X_train.feather"))
 # X_test = feather.read_dataframe(os.path.join(data_dir, "X_test.feather"))
