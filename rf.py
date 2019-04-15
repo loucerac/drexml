@@ -24,7 +24,7 @@ out = "pathways"
 SEED = 42
 DISEASE = "fanconi"
 MODE = "gobal"
-out_dir = os.path.join(".", "rf", DISEASE, version)
+out_dir = os.path.join(".", "rf", DISEASE, "{:02d}".format(version))
 
 os.makedirs(out_dir, exist_ok=True)
 
