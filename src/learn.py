@@ -119,6 +119,8 @@ class BoMorf(BaseEstimator, RegressorMixin):
         self.fit_(X, y)
 
     def fit_(self, X, y):
+        from skopt.callbacks import VerboseCallback
+
         estimator, space, objective = self.get_optimizer(
             X,
             y,
@@ -130,8 +132,12 @@ class BoMorf(BaseEstimator, RegressorMixin):
         self.opt =  gp_minimize(
             objective,
             space,
+            acq_optimizer="lbfgs",
+            n_jobs=self.n_jobs,
             n_calls=self.n_calls,
-            random_state=self.random_state)
+            random_state=self.random_state,
+            callback=VerboseCallback(n_total=1)
+            )
 
         self.opt.cv = self.cv
 
