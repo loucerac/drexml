@@ -8,6 +8,7 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Basic IO functionallity for Achilles cell line predictions.
 """
 
+import sys
 import os
 import multiprocessing
 import itertools
@@ -32,6 +33,7 @@ USE_GPU = bool(os.environ.get("USE_GPU"))
 
 genes_fname = "genes.rds.feather"
 expression_fname = "expreset_Hinorm.rds.feather"
+clinical_info_fname = "clinical_info_gtex.rds.feather"
 
 
 def get_circuits_fname(disease):
@@ -78,6 +80,7 @@ def load_expression():
     expression = feather.read_dataframe(DATA_PATH.joinpath(expression_fname))
     expression.columns = expression.columns.str.replace("X", "")
     expression.set_index("index", drop=True, inplace=True)
+    expression.index = expression.index.astype(str)
 
     return expression
 
@@ -86,6 +89,7 @@ def load_pathvals(disease):
     pathvals_fname = get_pathvals_fname(disease)
     pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
+    pathvals.index = pathvals.index.astype(str)
     pathvals.columns = (
         pathvals.columns
         .str.replace("-", ".")
@@ -96,16 +100,49 @@ def load_pathvals(disease):
 def get_disease_data(disease):
 
     # Load data
-    gene_expression = load_expression()
+    gene_exp = load_expression()
     pathvals = load_pathvals(disease)
     path_metadata = load_circuits(disease)
     gene_metadata = load_genes()
+    clinical_info = load_clinical_data()
+
+    # test integrity and reorder by sample index
+
+    gene_exp, pathvals = test_integrity(
+        gene_exp, 
+        pathvals, 
+        "Gene expr. and Pathvals")
+    gene_exp, clinical_info = test_integrity(
+        gene_exp, 
+        clinical_info, 
+        "Gene expr. and Clinical data")
 
     # Filter data
     target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
-    gene_expression = gene_expression[target_gene_ids]
+    gene_exp = gene_exp[target_gene_ids]
     disease_circuits = path_metadata.loc[path_metadata.in_disease].index
     pathvals = pathvals.loc[:, disease_circuits]
 
 
-    return gene_expression, pathvals, path_metadata, gene_metadata
+    return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
+
+def load_clinical_data():
+    clinical_info_path = DATA_PATH.joinpath(clinical_info_fname)
+    clinical_info = feather.read_dataframe(clinical_info_path)
+    clinical_info.set_index("index", drop=True, inplace=True)
+    clinical_info.index = clinical_info.index.astype(str)
+
+    return clinical_info
+
+def test_integrity(x, y, msg):
+    if not np.array_equal(x.index.shape, y.index.shape):
+        print(x.index.shape, y.index.shape)
+        sys.exit(msg + " sample index differ in shape.")
+
+    y = y.loc[x.index, :]
+
+    if not x.index.equals(y.index):
+        sys.exit(msg + " different sample indexes.")
+
+    return x, y
+
