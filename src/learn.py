@@ -28,6 +28,9 @@ from gplearn.genetic import SymbolicTransformer
 from imblearn.ensemble import BalancedBaggingClassifier
 from imblearn.metrics import geometric_mean_score
 
+from hpsklearn import HyperoptEstimator, random_forest_regression
+from hyperopt import tpe
+
 
 def plot_feature_importances(clf, X_train, y_train=None, 
                              top_n=10, figsize=(8,8), print_table=False, 
@@ -99,10 +102,11 @@ def plot_feature_importances(clf, X_train, y_train=None,
 
 class BoMorf(BaseEstimator, RegressorMixin):
 
-    def __init__(self, name, n_jobs=1, cv=10, n_calls=100, out=None, copy_X_train=True, random_state=None):
+    def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, out=None, copy_X_train=True, random_state=42):
         self.name = name
+        self.framework = framework
         self.n_jobs = n_jobs
-        self.copy_X_train=True,
+        self.copy_X_train=copy_X_train,
         self.random_state=random_state
         self.cv = cv
         self.n_calls = n_calls
@@ -113,12 +117,47 @@ class BoMorf(BaseEstimator, RegressorMixin):
     def fit(self, X, y=None):
         # validate X, y
         X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
-        self.X_train_ = np.copy(X) if self.copy_X_train else X
-        self.y_train_ = np.copy(y) if self.copy_X_train else y
-
+        
         self.fit_(X, y)
 
     def fit_(self, X, y):
+        if self.framework == "sko":
+            self.fit_sko(X, y)
+        elif self.framework == "hyperopt":
+            self.fit_hyperopt(X, y)
+        
+        self.best_model.fit(X, y)
+        self.best_model.copy_X_train = self.copy_X_train
+        self.best_model.cv = self.cv
+
+        self.best_model.X_train_ = np.copy(X) if self.copy_X_train else X
+        self.best_model.y_train_ = np.copy(y) if self.copy_X_train else y
+
+        self.X_train_ = self.best_model.X_train_
+        self.y_train_ = self.best_model.X_train_
+    
+    def fit_hyperopt(self, X, y):
+
+        estimator = random_forest_regression(
+            self.name, 
+            n_jobs=self.n_jobs,
+            random_state=self.random_state)
+
+        self.opt = HyperoptEstimator(
+            regressor = estimator,
+            algo=tpe.suggest,
+            max_evals=self.n_calls,
+            trial_timeout=None,
+            seed=self.random_state)
+
+        self.opt.fit(X, y)
+
+        self.opt.cv = self.cv 
+        self.opt.n_calls = self.n_calls
+
+        self.best_model = self.opt.best_model()["learner"]
+
+    def fit_sko(self, X, y):
         from skopt.callbacks import VerboseCallback
 
         estimator, space, objective = self.get_optimizer(
@@ -142,7 +181,6 @@ class BoMorf(BaseEstimator, RegressorMixin):
         self.opt.cv = self.cv
 
         self.best_model = self.build_model_from_sko(self.opt)
-        self.best_model.fit(X, y)
 
     def predict(self, X):
         return self.best_model.predict(X)
@@ -165,10 +203,18 @@ class BoMorf(BaseEstimator, RegressorMixin):
     
     def save(self, out):
         out = self.get_output_folder(out)
-
         opt_path = out.joinpath(self.get_opt_fname(self.name))
-        dump(self.opt, opt_path)
-
+        if self.framework == "sko":
+            estimator, space, objective = self.get_optimizer(
+                self.X_train_,
+                self.y_train_,
+                self.n_jobs,
+                self.cv,
+                self.random_state
+            )
+            joblib.dump(self.opt, opt_path)
+        elif self.framework == "hyperopt":
+            joblib.dump(self.opt, opt_path)
         estimator_path = out.joinpath(self.get_estimator_fname(self.name))
         joblib.dump(self.best_model, estimator_path)
 
@@ -177,20 +223,31 @@ class BoMorf(BaseEstimator, RegressorMixin):
         out = cls.get_output_folder(out)
         # load ML model
         estimator_path = out.joinpath(cls.get_estimator_fname(name))
-        estimator = joblib.load(estimator_path)
+        with open(estimator_path, "rb") as f:
+            estimator = joblib.load(f)
 
         # load optimization result
         opt_path = out.joinpath(cls.get_opt_fname(name))
 
-        estimator, space, objective = cls.get_optimizer(
-            estimator.X_train,
-            estimator.y_train,
-            estimator.n_jobs,
-            estimator.cv,
-            estimator.random_state
-        )
-        
-        opt = load(opt_path)
+        if "sko" in name:
+            print(
+                estimator.X_train_.shape, estimator.y_train_.shape,
+                estimator.n_jobs, estimator.cv, estimator.random_state
+            )
+            estimator, space, objective = cls.get_optimizer(
+                estimator.X_train_,
+                estimator.y_train_,
+                estimator.n_jobs,
+                estimator.cv,
+                estimator.random_state
+            )
+
+            print(estimator, space, objective)
+            
+            opt = load(opt_path)
+        elif "hyperopt" in name:
+            with open(opt_path, "rb") as f:
+                opt = joblib.load(f)
 
         bomorf = cls(
             name, 
@@ -199,9 +256,11 @@ class BoMorf(BaseEstimator, RegressorMixin):
             n_calls=opt.n_calls, 
             out=out, 
             copy_X_train=estimator.copy_X_train, 
-            random_state=estimator.random_satate)
+            random_state=estimator.random_state)
         bomorf.best_model = estimator
         bomorf.opt = opt
+
+        return bomorf
 
     @staticmethod
     def build_model_from_sko(opt, n_jobs=1, random_state=42):
@@ -223,7 +282,7 @@ class BoMorf(BaseEstimator, RegressorMixin):
 
     @staticmethod
     def get_opt_fname(name):
-        return "{}_sko.pkl".format(name)
+        return "{}_opt.pkl".format(name)
 
     @staticmethod
     def get_estimator_fname(name):
