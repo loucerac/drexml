@@ -78,7 +78,11 @@ def hord(disease, mlmodel, opt, seed, mode):
 def get_out_path(disease, mlmodel, opt, seed, mode):
 
     out_path = DATA_PATH.joinpath("out", disease, mlmodel, opt, mode, str(seed))
-    out_path.mkdir(parents=True, exist_ok=False)
+    if mode == "train":
+        ok = False
+    elif mode == "test":
+        ok = True
+    out_path.mkdir(parents=True, exist_ok=ok)
 
     return out_path
 
@@ -87,6 +91,15 @@ def run_(disease, mlmodel, opt, seed, mode):
     if mode in ["train", "test"]:
         run_full(disease, mlmodel, opt, seed, mode)
 
+def get_data(disease, mode):
+    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease)
+
+    if mode == "test":
+        gene_xpr = gene_xpr.iloc[:100, :]
+        pathvals = pathvals.iloc[:100, :]
+
+    return gene_xpr, pathvals, circuits, genes, clinical
+
 
 def run_full(disease, mlmodel, opt, seed, mode):
     from sklearn.model_selection import RepeatedStratifiedKFold
@@ -94,28 +107,29 @@ def run_full(disease, mlmodel, opt, seed, mode):
     output_folder = get_out_path(disease, mlmodel, opt, seed, mode)
 
     # Load data
-    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease)
+    gene_xpr, pathvals, circuits, genes, clinical = get_data(disease, mode)
 
     # Get ML model
     model = get_model(mlmodel, opt, mode)
 
     # Optimize and fit using the whole data
-    mlmodel.fit(gene_xpr, pathvals)
-    mlmodel.save(output_folder)
+    model.fit(gene_xpr, pathvals)
+    model.save(output_folder)
 
     # CV with optimal hyperparameters (unbiased performance)
-    estimator = mlmodel.best_model
+    estimator = model.best_model
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
 
     # Save results
-    stats_fname = "cv_stats"
+    stats_fname = "cv_stats.pkl"
     stats_fpath = os.path.join(output_folder, stats_fname)
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
+    print("saved to: {}".format(output_folder))
 
 
 def get_model(mlmodel, opt, mode):
-    name = "_".join(mlmodel, opt)
+    name = "_".join([mlmodel, opt])
     if mlmodel == "morf":
         if mode == "train":
             model = AutoMorf(name=name, framework=opt)
