@@ -24,10 +24,6 @@ from skopt import dump, load
 from sklearn.model_selection import cross_val_score
 from sklearn.externals import joblib
 
-from gplearn.genetic import SymbolicTransformer
-from imblearn.ensemble import BalancedBaggingClassifier
-from imblearn.metrics import geometric_mean_score
-
 from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
 
