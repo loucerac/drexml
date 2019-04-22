@@ -11,7 +11,9 @@
 source ~/.bashrc
 conda activate hord
 
-python rf.py
-python relevance_v2.py model
-python relevance_v2.py global
-python relevance_v2.py task
+python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode test  
+
+# python rf.py
+# python relevance_v2.py model
+# python relevance_v2.py global
+# python relevance_v2.py task
