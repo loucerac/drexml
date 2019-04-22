@@ -141,9 +141,9 @@ def perform_cv(X, y, estimator, seed, tissue):
         y_test_hat = estimator.predict(X_test)
 
         # metrics computation
-        
+
         # Explained variance
-        
+
         evs_mo_train = metrics.explained_variance_score(
             y_train,
             y_train_hat,
@@ -170,9 +170,9 @@ def perform_cv(X, y, estimator, seed, tissue):
             multioutput="uniform_average"
         )
         stats["evs_ua"]["test"].append(evs_ua_test)
-        
+
         # MAE
-        
+
         mae_mo_train = metrics.mean_absolute_error(
             y_train,
             y_train_hat,
@@ -199,9 +199,9 @@ def perform_cv(X, y, estimator, seed, tissue):
             multioutput="uniform_average"
         )
         stats["mae_ua"]["test"].append(mae_ua_test)
-        
+
         # MSE
-        
+
         mse_mo_train = metrics.mean_squared_error(
             y_train,
             y_train_hat,
@@ -228,9 +228,9 @@ def perform_cv(X, y, estimator, seed, tissue):
             multioutput="uniform_average"
         )
         stats["mse_ua"]["test"].append(mse_ua_test)
-        
+
         # MSLE
-        
+
         msle_mo_train = metrics.mean_squared_log_error(
             y_train,
             y_train_hat,
@@ -257,9 +257,9 @@ def perform_cv(X, y, estimator, seed, tissue):
             multioutput="uniform_average"
         )
         stats["msle_ua"]["test"].append(msle_ua_test)
-        
+
         # r2
-        
+
         r2_mo_train = metrics.r2_score(
             y_train,
             y_train_hat,
@@ -293,7 +293,6 @@ def perform_cv(X, y, estimator, seed, tissue):
             stats["relevance"].append(estimator.coef_)
 
     return stats
-
 
 
 if __name__ == '__main__':
