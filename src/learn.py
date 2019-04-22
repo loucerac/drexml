@@ -102,7 +102,7 @@ def plot_feature_importances(clf, X_train, y_train=None,
 
 class AutoMorf(BaseEstimator, RegressorMixin):
 
-    def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, out=None, copy_X_train=True, random_state=42):
+    def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, copy_X_train=True, random_state=42):
         self.name = name
         self.framework = framework
         self.n_jobs = n_jobs
@@ -110,7 +110,6 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.random_state=random_state
         self.cv = cv
         self.n_calls = n_calls
-        self.out = self.get_output_folder(out)
         self.opt = None
         self.best_model = None
 
