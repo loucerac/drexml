@@ -112,8 +112,9 @@ def run_full(disease, mlmodel, opt, seed):
 
 
 def get_model(mlmodel, output):
+    name = "_".join(mlmodel, output)
     if mlmodel == "morf":
-        model = AutoMorf()
+        model = AutoMorf(name=)
 
     return model
 
