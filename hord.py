@@ -50,8 +50,8 @@ warnings.filterwarnings(
 @click.option('--mlmodel', default="morf", help='ML model')
 @click.option('--opt', deafult="hyperopt", help='Train/test mode')
 @click.option('--seed', deafult=42, type=int, help='Random seed')
-@click.option("--train", is_flag=True, help="Train and evaluate or evaluate")
-def hord(disease, mlmodel, opt, seed, train):
+@click.option("--mode", defalt="train", help="Train and evaluate or evaluate")
+def hord(disease, mlmodel, opt, seed, mode):
     """HORD multi-task module.
 
     Parameters
@@ -64,37 +64,40 @@ def hord(disease, mlmodel, opt, seed, train):
         Select optimization mode ["sko", "hpo", None]
     seed : int
         Seed for random number generator.
-    train : bool
+    mode : bool
         Train or load a pre-trained model.
     """
 
     print("Working on disease {}".format(disease))
 
-    run_(disease, mlmodel, opt, seed, train)
+    run_(disease, mlmodel, opt, seed, mode)
 
     exit(0)
 
 
-def get_out_path(disease, mlmodel, opt, seed):
+def get_out_path(disease, mlmodel, opt, seed, mode):
 
-    out_path = DATA_PATH.joinpath("out", disease, mlmodel, opt, str(seed))
+    out_path = DATA_PATH.joinpath("out", disease, mlmodel, opt, mode, str(seed))
     out_path.mkdir(parents=True, exist_ok=False)
 
     return out_path
 
 
-def run_(disease, mlmodel, opt, seed, train):
-    if train:
-        run_full(disease, mlmodel, opt, seed)
+def run_(disease, mlmodel, opt, seed, mode):
+    if mode in ["train", "test"]:
+        run_full(disease, mlmodel, opt, seed, mode)
 
 
-def run_full(disease, mlmodel, opt, seed):
+def run_full(disease, mlmodel, opt, seed, mode):
     from sklearn.model_selection import RepeatedStratifiedKFold
 
-    output_folder = get_out_path(disease, mlmodel, opt, seed)
+    output_folder = get_out_path(disease, mlmodel, opt, seed, mode)
 
     # Load data
     gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease)
+
+    # Get ML model
+    model = get_model(mlmodel, opt, mode)
 
     # Optimize and fit using the whole data
     mlmodel.fit(gene_xpr, pathvals)
@@ -111,10 +114,18 @@ def run_full(disease, mlmodel, opt, seed):
         joblib.dump(cv_stats, f)
 
 
-def get_model(mlmodel, output):
-    name = "_".join(mlmodel, output)
+def get_model(mlmodel, opt, mode):
+    name = "_".join(mlmodel, opt)
     if mlmodel == "morf":
-        model = AutoMorf(name=)
+        if mode == "train":
+            model = AutoMorf(name=name, framework=opt)
+        elif mode == "test":
+            model = AutoMorf(
+                name=name, 
+                framework=opt,
+                n_jobs=NUM_CPUS,
+                cv=2,
+                n_calls=10)
 
     return model
 
