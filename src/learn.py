@@ -100,7 +100,7 @@ def plot_feature_importances(clf, X_train, y_train=None,
 
     return feat_imp
 
-class BoMorf(BaseEstimator, RegressorMixin):
+class AutoMorf(BaseEstimator, RegressorMixin):
 
     def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, out=None, copy_X_train=True, random_state=42):
         self.name = name
@@ -249,7 +249,7 @@ class BoMorf(BaseEstimator, RegressorMixin):
             with open(opt_path, "rb") as f:
                 opt = joblib.load(f)
 
-        bomorf = cls(
+        bomorf = AutoMorf(
             name,
             n_jobs=estimator.n_jobs,
             cv=opt.cv,
