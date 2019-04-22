@@ -1,5 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import warnings
+from dotenv import find_dotenv, load_dotenv
+from sklearn.model_selection import train_test_split
+from timeit import default_timer as timer
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.externals import joblib
+from sklearn.metrics import average_precision_score
+import sklearn
+import numpy as np
+from src.learn import AutoMorf
+from src.datasets import get_disease_data, load_clinical_data
+import traceback
+import pickle
+import click
+from datetime import datetime
+from pathlib import Path
+import os
 """
 Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
 Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
@@ -8,29 +26,12 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Entry CLI point for HORD multi-task framework.
 """
 
+
 def warn(*args, **kwargs):
     pass
-import warnings
+
+
 warnings.warn = warn
-
-import os
-from pathlib import Path
-from datetime import datetime
-import click
-import pickle
-import traceback
-from src.datasets import get_disease_data, load_clinical_data
-from src.learn import BoMorf
-import numpy as np
-import sklearn
-from sklearn.metrics import average_precision_score
-from sklearn.externals import joblib
-import matplotlib.pyplot as plt
-import seaborn as sns
-from timeit import default_timer as timer
-from sklearn.model_selection import train_test_split
-
-from dotenv import find_dotenv, load_dotenv
 
 
 dotenv_filepath = find_dotenv()
