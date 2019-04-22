@@ -41,22 +41,24 @@ project_path = os.path.dirname(dotenv_filepath)
 DATA_PATH = Path(os.environ.get("DATA_PATH"))
 NUM_CPUS = int(os.getenv("NUM_CPUS"))
 USE_GPU = bool(os.getenv("USE_GPU"))
-warnings.filterwarnings('ignore', category=DeprecationWarning, module='sklearn')
+warnings.filterwarnings(
+    'ignore', category=DeprecationWarning, module='sklearn')
+
 
 @click.command()
 @click.option('--disease', default="fanconi", help='which disease to test')
-@click.option('--model', default="morf", help='ML model')
+@click.option('--mlmodel', default="morf", help='ML model')
 @click.option('--opt', deafult="hyperopt", help='Train/test mode')
 @click.option('--seed', deafult=42, type=int, help='Random seed')
 @click.option("--train", is_flag=True, help="Train and evaluate or evaluate")
-def hord(disease, model, opt, seed, train):
+def hord(disease, mlmodel, opt, seed, train):
     """HORD multi-task module.
-    
+
     Parameters
     ----------
     disease : str
         Disease to train/test.
-    model : str
+    mlmodel : str
         Which ML model to use.
     opt : str
         Select optimization mode ["sko", "hpo", None]
@@ -68,36 +70,38 @@ def hord(disease, model, opt, seed, train):
 
     print("Working on disease {}".format(disease))
 
-    run_(disease, model, opt, seed, train)    
- 
+    run_(disease, mlmodel, opt, seed, train)
+
     exit(0)
 
-def get_out_path(disease, model, opt, seed):
 
-    out_path = DATA_PATH.joinpath("out", disease, model, opt, str(seed))
+def get_out_path(disease, mlmodel, opt, seed):
+
+    out_path = DATA_PATH.joinpath("out", disease, mlmodel, opt, str(seed))
     out_path.mkdir(parents=True, exist_ok=False)
 
     return out_path
 
-def run_(disease, model, opt, seed, train):
+
+def run_(disease, mlmodel, opt, seed, train):
     if train:
-        run_full(disease, model, opt, seed)
+        run_full(disease, mlmodel, opt, seed)
 
 
-def run_full(disease, model, opt, seed):
+def run_full(disease, mlmodel, opt, seed):
     from sklearn.model_selection import RepeatedStratifiedKFold
 
-    output_folder = get_out_path(disease, model, opt, seed)
-    
+    output_folder = get_out_path(disease, mlmodel, opt, seed)
+
     # Load data
     gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease)
 
     # Optimize and fit using the whole data
-    model.fit(gene_xpr, pathvals)
-    model.save(output_folder)
+    mlmodel.fit(gene_xpr, pathvals)
+    mlmodel.save(output_folder)
 
-    # CV with optimal hyperparameters
-    estimator = model.best_model
+    # CV with optimal hyperparameters (unbiased performance)
+    estimator = mlmodel.best_model
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
 
     # Save results
@@ -106,27 +110,33 @@ def run_full(disease, model, opt, seed):
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
 
-    
+
+def get_model(mlmodel, output):
+    if mlmodel == "morf":
+        model = AutoMorf()
+
+    return model
+
 
 def perform_cv(X, y, estimator, seed, tissue):
     from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
     from sklearn import metrics
     from collections import defaultdict
-    
+
     stats = {
-        "evs_mo":{"train": [], "test": []},
-        "evs_ua":{"train": [], "test": []},
-        "mae_mo":{"train": [], "test": []},
-        "mae_ua":{"train": [], "test": []},
-        "mse_mo":{"train": [], "test": []},
-        "mse_ua":{"train": [], "test": []},
-        "msle_mo":{"train": [], "test": []},
-        "msle_ua":{"train": [], "test": []},
-        "r2_mo":{"train": [], "test": []},
-        "r2_ua":{"train": [], "test": []},
+        "evs_mo": {"train": [], "test": []},
+        "evs_ua": {"train": [], "test": []},
+        "mae_mo": {"train": [], "test": []},
+        "mae_ua": {"train": [], "test": []},
+        "mse_mo": {"train": [], "test": []},
+        "mse_ua": {"train": [], "test": []},
+        "msle_mo": {"train": [], "test": []},
+        "msle_ua": {"train": [], "test": []},
+        "r2_mo": {"train": [], "test": []},
+        "r2_ua": {"train": [], "test": []},
         "relevance": []
     }
-    
+
     skf = RepeatedKFold(n_splits=10, n_repeats=10, random_state=seed)
     iter_ = 0
     for train_index, test_index in skf.split(X):
