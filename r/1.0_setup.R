@@ -11,6 +11,7 @@ expression_fname <- "expreset_Hinorm.rds"
 circuits_fname <- "circuits.rds"
 fanconi_circuits_fname <- "circuits_FA.rds"
 fanconi_pathvals_fname <- "expreset_pathvals_FA.rds"
+clinical_info_fname <- "clinical_info_gtex.rds"
 
 genes <- readRDS(file.path(DATA_PATH, genes_fname))
 rownames(genes) <- genes$Entrezs
@@ -23,6 +24,8 @@ rownames(circuits) <- circuits$hipathia
 fanconi_pathvals <- readRDS(file.path(DATA_PATH, fanconi_pathvals_fname))
 fanconi_circuits <- readRDS(file.path(DATA_PATH, fanconi_circuits_fname))
 rownames(fanconi_circuits) <- fanconi_circuits$hipathia
+
+clinical_info <- readRDS(file.path(DATA_PATH, clinical_info_fname))
 
 
 save_feather <- function(x, path) {
@@ -59,4 +62,9 @@ save_feather(
 save_feather(
     fanconi_circuits,
     file.path(DATA_PATH, paste0(fanconi_circuits_fname, ".feather"))
+)
+
+save_feather(
+    clinical_info,
+    file.path(DATA_PATH, paste0(clinical_info_fname, ".feather"))
 )
