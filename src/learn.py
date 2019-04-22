@@ -253,7 +253,6 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             n_jobs=estimator.n_jobs,
             cv=opt.cv,
             n_calls=opt.n_calls,
-            out=out,
             copy_X_train=estimator.copy_X_train,
             random_state=estimator.random_state)
         bomorf.best_model = estimator
