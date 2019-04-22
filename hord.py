@@ -48,9 +48,9 @@ warnings.filterwarnings(
 @click.command()
 @click.option('--disease', default="fanconi", help='which disease to test')
 @click.option('--mlmodel', default="morf", help='ML model')
-@click.option('--opt', deafult="hyperopt", help='Train/test mode')
-@click.option('--seed', deafult=42, type=int, help='Random seed')
-@click.option("--mode", defalt="train", help="Train and evaluate or evaluate")
+@click.option('--opt', default="hyperopt", help='Train/test mode')
+@click.option('--seed', default=42, type=int, help='Random seed')
+@click.option("--mode", default="train", help="Train and evaluate or evaluate")
 def hord(disease, mlmodel, opt, seed, mode):
     """HORD multi-task module.
 
