@@ -97,7 +97,7 @@ def load_pathvals(disease):
 
     return pathvals
 
-def get_disease_data(disease):
+def get_disease_data(disease, pathways=None):
 
     # Load data
     gene_exp = load_expression()
@@ -120,9 +120,14 @@ def get_disease_data(disease):
     # Filter data
     target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
     gene_exp = gene_exp[target_gene_ids]
-    disease_circuits = path_metadata.loc[path_metadata.in_disease].index
-    pathvals = pathvals.loc[:, disease_circuits]
 
+    if pathways is None:
+        disease_circuits = path_metadata.loc[path_metadata.in_disease].index
+        pathvals = pathvals.loc[:, disease_circuits]
+    elif len(pathways) > 1:
+        pathvals = pathvals.filter(axis=1, regex="|".join(pathways))
+    else:
+        pathvals = pathvals.filter(axis=1, regex=pathways[0])
 
     return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
 

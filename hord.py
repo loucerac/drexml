@@ -26,6 +26,8 @@ import click
 from datetime import datetime
 from pathlib import Path
 import os
+import shap
+import pandas as pd
 
 
 def warn(*args, **kwargs):
@@ -52,7 +54,8 @@ warnings.filterwarnings(
 @click.option('--opt', default="hyperopt", help='Train/test mode')
 @click.option('--seed', default=42, type=int, help='Random seed')
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
-def hord(disease, mlmodel, opt, seed, mode):
+@click.option("--pathways", default=None, help="Which pathways to use.", multiple=True)
+def hord(disease, mlmodel, opt, seed, mode, pathways):
     """HORD multi-task module.
 
     Parameters
@@ -71,14 +74,16 @@ def hord(disease, mlmodel, opt, seed, mode):
 
     print("Working on disease {}".format(disease))
 
-    run_(disease, mlmodel, opt, seed, mode)
+    run_(disease, mlmodel, opt, seed, mode, pathways)
 
     exit(0)
 
 
-def get_out_path(disease, mlmodel, opt, seed, mode):
+def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
 
-    out_path = DATA_PATH.joinpath("out", disease, mlmodel, opt, mode, str(seed))
+    name = "_".join(pathways)
+
+    out_path = DATA_PATH.joinpath("out", disease, name, mlmodel, opt, mode, str(seed))
     if mode == "train":
         ok = False
     elif mode == "test":
@@ -88,12 +93,14 @@ def get_out_path(disease, mlmodel, opt, seed, mode):
     return out_path
 
 
-def run_(disease, mlmodel, opt, seed, mode):
+def run_(disease, mlmodel, opt, seed, mode, pathways):
     if mode in ["train", "test"]:
-        run_full(disease, mlmodel, opt, seed, mode)
+        run_full(disease, mlmodel, opt, seed, mode, pathways)
 
-def get_data(disease, mode):
-    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease)
+def get_data(disease, mode, pathways):
+    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease, pathways)
+
+    print(gene_xpr.shape, pathvals.shape)
 
     if mode == "test":
         gene_xpr = gene_xpr.iloc[:100, :]
@@ -102,13 +109,13 @@ def get_data(disease, mode):
     return gene_xpr, pathvals, circuits, genes, clinical
 
 
-def run_full(disease, mlmodel, opt, seed, mode):
+def run_full(disease, mlmodel, opt, seed, mode, pathways):
     from sklearn.model_selection import RepeatedStratifiedKFold
 
-    output_folder = get_out_path(disease, mlmodel, opt, seed, mode)
+    output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
 
     # Load data
-    gene_xpr, pathvals, circuits, genes, clinical = get_data(disease, mode)
+    gene_xpr, pathvals, circuits, genes, clinical = get_data(disease, mode, pathways)
 
     # Get ML model
     model = get_model(mlmodel, opt, mode)
@@ -116,17 +123,66 @@ def run_full(disease, mlmodel, opt, seed, mode):
     # Optimize and fit using the whole data
     model.fit(gene_xpr, pathvals)
     model.save(output_folder)
+    
+    estimator = model.best_model
+
+    # Save global relevances
+    print("Computing global relevance.")
+    relevance_fname = "model_global_relevance.tsv"
+    rel_fpath = output_folder.joinpath(relevance_fname)
+    rel = estimator.feature_importances_
+    rel_df = pd.DataFrame({"relevance":rel}, index=gene_xpr.columns)
+    rel_df.to_csv(rel_fpath, sep="\t")
+
+    # Compute shap relevances
+    print("Computing task relevances.")
+    compute_global_relevance(estimator, gene_xpr, output_folder, True)
 
     # CV with optimal hyperparameters (unbiased performance)
-    estimator = model.best_model
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
 
     # Save results
     stats_fname = "cv_stats.pkl"
-    stats_fpath = os.path.join(output_folder, stats_fname)
+    stats_fpath = output_folder.joinpath(output_folder, stats_fname)
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
-    print("saved to: {}".format(output_folder))
+    print("Unbiased CV stats saved to: {}".format(stats_fpath))
+
+
+def compute_global_relevance(estimator, gene_xpr, output_folder, task):
+    if not task:
+        # Compute global shap relevances
+        explainer = shap.TreeExplainer(estimator)
+    else:
+        X_summary = shap.kmeans(gene_xpr, 50)
+        # Decorate prediction function
+        predict = lambda x: estimator.predict(x)
+        explainer = shap.KernelExplainer(predict, X_summary.data)
+
+    shap_values = explainer.shap_values(gene_xpr)
+    if task:
+        shap_values_fname = "shap_values_task.pkl"
+    else:
+        shap_values_fname = "shap_values_global.pkl"
+    shap_values_fpath = output_folder.joinpath(shap_values_fname)
+    with open(shap_values_fpath, "wb") as f:
+            joblib.dump(shap_values, f)
+    print("Shap values saved to: {}".format(shap_values_fpath))
+
+    # Save relevance as TSV
+    global_shap_values = np.abs(shap_values).mean(0)
+    relevance = pd.DataFrame(
+        {"entrez":gene_xpr.columns, "relevance":global_shap_values},
+         index=gene_xpr.columns
+    )
+    if task:
+        shap_values_fname = "shap_values_task_relevance.tsv"
+    else:
+        shap_values_fname = "shap_values_global_relevance.tsv"
+    shap_values_fpath = output_folder.joinpath(shap_values_fname)
+    relevance.to_csv(shap_values_fpath, sep="\t")
+    print("Shap relevance saved to: {}".format(shap_values_fpath))
+
 
 
 def get_model(mlmodel, opt, mode):
@@ -145,7 +201,7 @@ def get_model(mlmodel, opt, mode):
                 framework=opt,
                 n_jobs=NUM_CPUS,
                 cv=2,
-                n_calls=10)
+                n_calls=5)
 
     return model
 

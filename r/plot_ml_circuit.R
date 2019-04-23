@@ -47,7 +47,8 @@ hipathia:::plot_pathigraph(circuit_graph)
 
 summary.list = function(x){
     Quantile<-quantile(x, na.rm=TRUE)
-    cv <- ((Quantile[4] - Quantile[2]) / 2.0) / ((Quantile[2] + Quantile[4]) / 2.0)[[1]]
+    cv <- ((Quantile[4] - Quantile[2]) / 2.0) / ((Quantile[2] + Quantile[4]) / 2.0)
+    cv <- unlist(cv)[[1]]
     l = list(
         N.with.NA.removed= length(x[!is.na(x)]),
         Count.of.NA= length(x[is.na(x)]),
