@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
+Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
+Author: Marina Esteban <marina.estebanm@gmail.com>
+
+Entry CLI point for HORD multi-task framework.
+"""
+
 import warnings
 from dotenv import find_dotenv, load_dotenv
 from sklearn.model_selection import train_test_split
@@ -18,13 +26,6 @@ import click
 from datetime import datetime
 from pathlib import Path
 import os
-"""
-Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
-Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
-Author: Marina Esteban <marina.estebanm@gmail.com>
-
-Entry CLI point for HORD multi-task framework.
-"""
 
 
 def warn(*args, **kwargs):
