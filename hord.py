@@ -132,7 +132,12 @@ def get_model(mlmodel, opt, mode):
     name = "_".join([mlmodel, opt])
     if mlmodel == "morf":
         if mode == "train":
-            model = AutoMorf(name=name, framework=opt)
+            model = AutoMorf(
+                name=name, 
+                framework=opt,
+                n_jobs=NUM_CPUS,
+                cv=5,
+                n_calls=10**3)
         elif mode == "test":
             model = AutoMorf(
                 name=name, 
