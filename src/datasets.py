@@ -17,7 +17,10 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-import feather
+try:
+    from feather import read_dataframe as read_feather
+except:
+    from pyarrow.feather import read_feather
 
 import dotenv
 
@@ -58,7 +61,7 @@ def load_circuits(disease):
 
     circuits_fname = get_circuits_fname(disease)
 
-    circuits = feather.read_dataframe(DATA_PATH.joinpath(circuits_fname))
+    circuits = read_feather(DATA_PATH.joinpath(circuits_fname))
     circuits.set_index("index", drop=True, inplace=True)
     circuits.index = circuits.index.astype(str)
     circuits.replace({"FALSE": False, "TRUE": True}, inplace=True)
@@ -68,7 +71,7 @@ def load_circuits(disease):
 
 def load_genes():
 
-    genes = feather.read_dataframe(DATA_PATH.joinpath(genes_fname))
+    genes = read_feather(DATA_PATH.joinpath(genes_fname))
     genes.set_index("index", drop=True, inplace=True)
     genes.index = genes.index.astype(str)
     genes.replace({"FALSE": False, "TRUE": True}, inplace=True)
@@ -77,7 +80,7 @@ def load_genes():
 
 def load_expression():
 
-    expression = feather.read_dataframe(DATA_PATH.joinpath(expression_fname))
+    expression = read_feather(DATA_PATH.joinpath(expression_fname))
     expression.columns = expression.columns.str.replace("X", "")
     expression.set_index("index", drop=True, inplace=True)
     expression.index = expression.index.astype(str)
@@ -87,7 +90,7 @@ def load_expression():
 def load_pathvals(disease):
 
     pathvals_fname = get_pathvals_fname(disease)
-    pathvals = feather.read_dataframe(DATA_PATH.joinpath(pathvals_fname))
+    pathvals = read_feather(DATA_PATH.joinpath(pathvals_fname))
     pathvals.set_index("index", drop=True, inplace=True)
     pathvals.index = pathvals.index.astype(str)
     pathvals.columns = (
@@ -133,7 +136,7 @@ def get_disease_data(disease, pathways=None):
 
 def load_clinical_data():
     clinical_info_path = DATA_PATH.joinpath(clinical_info_fname)
-    clinical_info = feather.read_dataframe(clinical_info_path)
+    clinical_info = read_feather(clinical_info_path)
     clinical_info.set_index("index", drop=True, inplace=True)
     clinical_info.index = clinical_info.index.astype(str)
 

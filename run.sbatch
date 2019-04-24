@@ -9,8 +9,20 @@
 #SBATCH -e jobs/%A_%a.err # Standard error
 
 
-module load anaconda2
-conda activate holrd
+# module load anaconda2
+# conda activate holrd
+
+module load python/3.7.3
+module load python373-matplotlib
+module load python373-pandas
+module load python373-scikit-learn
+module load python373-scipy
+module load python373-pyarrow
+module load python373-shap
+module load python373-xlrd
+module load python373-xlwt
+
+source ~/.pyenv/holrd/bin/activate
 
 # Avoid multithreading issues while computing relevances with SHAP.
 OMP_NUM_THREADS=1
