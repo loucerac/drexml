@@ -180,7 +180,7 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
         relevance = pd.DataFrame(
             np.vstack(relevances).T,
             columns=pathvals.columns,
-            index=gene_xpr.index
+            index=gene_xpr.columns
         )
 
         shap_values_fname = "shap_values_task_relevance.tsv"
