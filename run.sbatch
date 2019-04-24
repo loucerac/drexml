@@ -12,7 +12,15 @@
 module load anaconda2
 conda activate holrd
 
-python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode test --pathways hsa03460m --pathways hsa04110  
+# Avoid multithreading issues while computing relevances with SHAP.
+OMP_NUM_THREADS=1
+
+if [ -z "${PATHWAY2}" ]; 
+then
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1}
+else
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2}
+fi
 
 # source ~/.bashrc
 # conda activate hord
