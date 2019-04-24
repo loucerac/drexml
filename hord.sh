@@ -1,4 +1,4 @@
-BATCH_FILE="run.sbatch"
+BATCH_FILE="hord.sbatch"
 DISEASE="fanconi"
 MLMODEL="morf"
 OPT="hyperopt"
