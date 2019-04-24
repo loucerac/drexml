@@ -178,10 +178,11 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
             print("Computing {} Shap relevance.".format(name))
             relevances.append(np.abs(shap_values[i_task]).mean(0))
             
-        relevance = pd.concat(relevances, axis=1)
-
-        relevance.columns = pathvals.columns
-        relevance.index = gene_xpr.index
+        relevance = pd.DataFrame(
+            np.concatenate(relevances),
+            columns = pathvals.columns,
+            index = gene_xpr.index
+        )
 
         shap_values_fname = "shap_values_task_relevance.tsv"
     else:
