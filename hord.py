@@ -36,7 +36,6 @@ def warn(*args, **kwargs):
 
 warnings.warn = warn
 
-
 dotenv_filepath = find_dotenv()
 load_dotenv(dotenv_filepath)
 project_path = os.path.dirname(dotenv_filepath)
@@ -80,7 +79,6 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
 
 
 def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
-
     name = "_".join(pathways)
 
     out_path = DATA_PATH.joinpath("out", disease, name, mlmodel, opt, mode, str(seed))
@@ -96,6 +94,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
 def run_(disease, mlmodel, opt, seed, mode, pathways):
     if mode in ["train", "test"]:
         run_full(disease, mlmodel, opt, seed, mode, pathways)
+
 
 def get_data(disease, mode, pathways):
     gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease, pathways)
@@ -123,7 +122,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
     # Optimize and fit using the whole data
     model.fit(gene_xpr, pathvals)
     model.save(output_folder)
-    
+
     estimator = model.best_model
 
     # Save global relevances
@@ -131,7 +130,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
     relevance_fname = "model_global_relevance.tsv"
     rel_fpath = output_folder.joinpath(relevance_fname)
     rel = estimator.feature_importances_
-    rel_df = pd.DataFrame({"relevance":rel}, index=gene_xpr.columns)
+    rel_df = pd.DataFrame({"relevance": rel}, index=gene_xpr.columns)
     rel_df.to_csv(rel_fpath, sep="\t")
 
     # Compute shap relevances
@@ -166,9 +165,9 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
         shap_values_fname = "shap_values_global.pkl"
     shap_values_fpath = output_folder.joinpath(shap_values_fname)
     with open(shap_values_fpath, "wb") as f:
-            joblib.dump(shap_values, f)
+        joblib.dump(shap_values, f)
     print("Shap values saved to: {}".format(shap_values_fpath))
-    
+
     if task:
         # Per task relevance
         n_tasks = pathvals.shape[1]
@@ -177,11 +176,11 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
             name = pathvals.columns[i_task]
             print("Computing {} Shap relevance.".format(name))
             relevances.append(np.abs(shap_values[i_task]).mean(0))
-            
+
         relevance = pd.DataFrame(
-            np.concatenate(relevances),
-            columns = pathvals.columns,
-            index = gene_xpr.index
+            np.vstack(relevances).T,
+            columns=pathvals.columns,
+            index=gene_xpr.index
         )
 
         shap_values_fname = "shap_values_task_relevance.tsv"
@@ -189,7 +188,7 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
         # Global relevance
         global_shap_values = np.abs(shap_values).mean(0)
         relevance = pd.DataFrame(
-            {"relevance":global_shap_values},
+            {"relevance": global_shap_values},
             index=gene_xpr.columns
         )
         shap_values_fname = "shap_values_global_relevance.tsv"
@@ -204,14 +203,14 @@ def get_model(mlmodel, opt, mode):
     if mlmodel == "morf":
         if mode == "train":
             model = AutoMorf(
-                name=name, 
+                name=name,
                 framework=opt,
                 n_jobs=NUM_CPUS,
                 cv=5,
-                n_calls=10**3)
+                n_calls=10 ** 3)
         elif mode == "test":
             model = AutoMorf(
-                name=name, 
+                name=name,
                 framework=opt,
                 n_jobs=NUM_CPUS,
                 cv=2,
