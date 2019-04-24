@@ -136,7 +136,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
 
     # Compute shap relevances
     print("Computing task relevances.")
-    compute_global_relevance(estimator, gene_xpr, output_folder, True)
+    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
 
     # CV with optimal hyperparameters (unbiased performance)
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
@@ -149,7 +149,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
 
-def compute_global_relevance(estimator, gene_xpr, output_folder, task):
+def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
     if not task:
         # Compute global shap relevances
         explainer = shap.TreeExplainer(estimator)
@@ -168,21 +168,36 @@ def compute_global_relevance(estimator, gene_xpr, output_folder, task):
     with open(shap_values_fpath, "wb") as f:
             joblib.dump(shap_values, f)
     print("Shap values saved to: {}".format(shap_values_fpath))
-
-    # Save relevance as TSV
-    global_shap_values = np.abs(shap_values).mean(0)
-    relevance = pd.DataFrame(
-        {"entrez":gene_xpr.columns, "relevance":global_shap_values},
-         index=gene_xpr.columns
-    )
+    
     if task:
+        # Per task relevance
+        n_tasks = pathvals.shape[1]
+        relevances = []
+        for i_task in range(n_tasks):
+            name = pathvals.columns[i_task]
+            print("Computing {} Shap relevance.".format(name))
+            relevances.append(np.abs(shap_values[i_task]).mean(0))
+            
+        relevance = pd.concat(
+            relevances,
+            axis=1,
+            columns=pathvals.columns,
+            index=gene_xpr.index
+        )
+
         shap_values_fname = "shap_values_task_relevance.tsv"
     else:
+        # Global relevance
+        global_shap_values = np.abs(shap_values).mean(0)
+        relevance = pd.DataFrame(
+            {"relevance":global_shap_values},
+            index=gene_xpr.columns
+        )
         shap_values_fname = "shap_values_global_relevance.tsv"
+
     shap_values_fpath = output_folder.joinpath(shap_values_fname)
     relevance.to_csv(shap_values_fpath, sep="\t")
-    print("Shap relevance saved to: {}".format(shap_values_fpath))
-
+    print("Shap relevances saved to: {}".format(shap_values_fpath))
 
 
 def get_model(mlmodel, opt, mode):
