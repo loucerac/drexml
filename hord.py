@@ -55,7 +55,7 @@ warnings.filterwarnings(
 @click.option('--opt', default="hyperopt", help='Train/test mode')
 @click.option('--seed', default=42, type=int, help='Random seed')
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
-@click.option("--pathways", default=None, help="Which pathways to use.", multiple=True)
+@click.option("--pathways", default=None, help="Pathways filter", multiple=True)
 def hord(disease, mlmodel, opt, seed, mode, pathways):
     """HORD multi-task module.
 
@@ -90,9 +90,21 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
     pathlib.Path
         The desired path.
     """
-    name = "_".join(pathways)
+    if pathways is None:
+        name = "all"
+    else:
+        name = pathways
+    name = "_".join(name)
 
-    out_path = DATA_PATH.joinpath("out", disease, name, mlmodel, opt, mode, str(seed))
+    out_path = DATA_PATH.joinpath(
+        "out",
+        disease,
+        name,
+        mlmodel,
+        opt,
+        mode,
+        str(seed)
+    )
     if mode == "train":
         ok = False
     elif mode == "test":
@@ -112,7 +124,10 @@ def run_(disease, mlmodel, opt, seed, mode, pathways):
 def get_data(disease, mode, pathways):
     """Load disease data and metadata.
     """
-    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease, pathways)
+    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(
+        disease,
+        pathways
+    )
 
     print(gene_xpr.shape, pathvals.shape)
 
@@ -132,7 +147,11 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
     output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
 
     # Load data
-    gene_xpr, pathvals, circuits, genes, clinical = get_data(disease, mode, pathways)
+    gene_xpr, pathvals, circuits, genes, clinical = get_data(
+        disease,
+        mode,
+        pathways
+    )
 
     # Get ML model
     model = get_model(mlmodel, opt, mode)
