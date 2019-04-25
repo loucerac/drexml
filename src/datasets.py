@@ -8,13 +8,10 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Basic IO functionallity for HORD project.
 """
 
-import sys
 import os
-import multiprocessing
-import itertools
+import sys
 from pathlib import Path
 
-import pandas as pd
 import numpy as np
 
 try:
