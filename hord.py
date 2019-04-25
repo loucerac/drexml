@@ -83,8 +83,8 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
     pathlib.Path
         The desired path.
     """
-    if pathways is None:
-        name = "all"
+    if not len(pathways):
+        name = ["all"]
     else:
         name = pathways
     name = "_".join(name)
@@ -103,6 +103,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
     elif mode == "test":
         ok = True
     out_path.mkdir(parents=True, exist_ok=ok)
+    print("Storage folder: {}".format(out_path))
 
     return out_path
 
