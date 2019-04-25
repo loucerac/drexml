@@ -193,7 +193,7 @@ def get_disease_data(disease, pathways=None):
     target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
     gene_exp = gene_exp[target_gene_ids]
 
-    if pathways is None:
+    if not len(pathways):
         disease_circuits = path_metadata.loc[path_metadata.in_disease].index
         pathvals = pathvals.loc[:, disease_circuits]
     elif len(pathways) > 1:
