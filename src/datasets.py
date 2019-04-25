@@ -24,7 +24,6 @@ except:
 
 import dotenv
 
-
 dotenv_file_path = Path(dotenv.find_dotenv())
 project_path = dotenv_file_path.parent
 
@@ -59,6 +58,7 @@ def get_circuits_fname(disease):
 
     return circuits_fname
 
+
 def get_pathvals_fname(disease):
     """Get pathvals file name based on the disease under study.
 
@@ -78,6 +78,7 @@ def get_pathvals_fname(disease):
         pathvals_fname = "expreset_pathvals.rds.feather"
 
     return pathvals_fname
+
 
 def load_circuits(disease):
     """Load ciruicts metadata for the disease under study.
@@ -102,6 +103,7 @@ def load_circuits(disease):
 
     return circuits
 
+
 def load_genes():
     """Load gene metadata dataset.
 
@@ -118,6 +120,7 @@ def load_genes():
 
     return genes
 
+
 def load_expression():
     """Load gene expression dataset.
 
@@ -133,6 +136,7 @@ def load_expression():
 
     return expression
 
+
 def load_pathvals(disease):
     """Load pathvals dataset.
 
@@ -147,10 +151,11 @@ def load_pathvals(disease):
     pathvals.index = pathvals.index.astype(str)
     pathvals.columns = (
         pathvals.columns
-        .str.replace("-", ".")
-        .str.replace(" ", "."))
+            .str.replace("-", ".")
+            .str.replace(" ", "."))
 
     return pathvals
+
 
 def get_disease_data(disease, pathways=None):
     """Load all datasets for a given dataset.
@@ -201,6 +206,7 @@ def get_disease_data(disease, pathways=None):
 
     return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
 
+
 def load_clinical_data():
     """Load clinical metadata dataset.
 
@@ -215,6 +221,7 @@ def load_clinical_data():
     clinical_info.index = clinical_info.index.astype(str)
 
     return clinical_info
+
 
 def test_integrity(x, y, msg):
     """Test combined dataset integrity.
