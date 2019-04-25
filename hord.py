@@ -28,6 +28,8 @@ from pathlib import Path
 import os
 import shap
 import pandas as pd
+from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
+from sklearn import metrics
 
 
 def warn(*args, **kwargs):
@@ -254,10 +256,29 @@ def get_model(mlmodel, opt, mode):
 
 
 def perform_cv(X, y, estimator, seed, tissue):
-    from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
-    from sklearn import metrics
-    from collections import defaultdict
+    """Unbiased performance estimation.
 
+    Parameters
+    ----------
+    X : array-like, shape = (n_samples, n_features)
+        Test samples. For some estimators this may be a
+        precomputed kernel matrix instead, shape = (n_samples,
+        n_samples_fitted], where n_samples_fitted is the number of
+        samples used in the fitting for the estimator.
+    y : (n_samples, n_outputs)
+        True values for X.
+    estimator : scikit-learn estimator.
+        The model to test its performance.
+    seed : int
+        Random seed.
+    tissue : array-like, [n_samples, ]
+        A categorical variable to use for CV stratification.
+
+    Returns
+    -------
+    dict
+        A dictionary with per fold regression stats.
+    """
     stats = {
         "evs_mo": {"train": [], "test": []},
         "evs_ua": {"train": [], "test": []},
