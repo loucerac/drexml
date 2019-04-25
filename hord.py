@@ -8,28 +8,21 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Entry CLI point for HORD multi-task framework.
 """
 
-import warnings
-from dotenv import find_dotenv, load_dotenv
-from sklearn.model_selection import train_test_split
-from timeit import default_timer as timer
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.externals import joblib
-from sklearn.metrics import average_precision_score
-import sklearn
-import numpy as np
-from src.learn import AutoMorf
-from src.datasets import get_disease_data, load_clinical_data
-import traceback
-import pickle
-import click
-from datetime import datetime
-from pathlib import Path
 import os
-import shap
+import warnings
+from pathlib import Path
+
+import click
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
+import shap
+from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
+from sklearn.externals import joblib
+from sklearn.model_selection import RepeatedKFold
+
+from src.datasets import get_disease_data
+from src.learn import AutoMorf
 
 
 def warn(*args, **kwargs):
@@ -142,7 +135,6 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
     """Full model training, with hyperparametr optimization, unbiased CV
     performance estimation and relevance computation.
     """
-    from sklearn.model_selection import RepeatedStratifiedKFold
 
     output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
 
