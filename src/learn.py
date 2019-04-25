@@ -1,71 +1,68 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
+Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
+Author: Marina Esteban <marina.estebanm@gmail.com>
+
+Learning module for HORD multi-task framework.
+"""
+
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import pickle
-
-from lightgbm.sklearn import LightGBMError
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin, RegressorMixin
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import make_scorer
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import FeatureUnion, Pipeline
-from sklearn.preprocessing import LabelEncoder
-from sklearn.utils import check_array, check_random_state
-from sklearn.utils.multiclass import check_classification_targets
-from sklearn.utils.validation import FLOAT_DTYPES, check_X_y, check_is_fitted
-from xgboost.core import XGBoostError
-
-from skopt.space import Real, Integer, Categorical
-from skopt.utils import use_named_args
-from skopt import gp_minimize
-from skopt import dump, load
-
-from sklearn.model_selection import cross_val_score
-from sklearn.externals import joblib
-
 from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
+from lightgbm.sklearn import LightGBMError
+from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.externals import joblib
+from sklearn.model_selection import cross_val_score
+from sklearn.utils.validation import check_X_y, check_is_fitted
+from skopt import gp_minimize
+from skopt import load
+from skopt.space import Real, Integer, Categorical
+from skopt.utils import use_named_args
+from xgboost.core import XGBoostError
 
 
 def plot_feature_importances(clf, X_train, y_train=None,
-                             top_n=10, figsize=(8,8), print_table=False,
+                             top_n=10, figsize=(8, 8), print_table=False,
                              title="Feature Importances"):
-    '''
-    plot feature importances of a tree-based sklearn estimator
-
-    Note: X_train and y_train are pandas DataFrames
-
-    Note: Scikit-plot is a lovely package but I sometimes have issues
-              1. flexibility/extendibility
-              2. complicated models/datasets
-          But for many situations Scikit-plot is the way to go
-          see https://scikit-plot.readthedocs.io/en/latest/Quickstart.html
+    """Plot feature importances of a tree-based sklearn estimator.
 
     Parameters
     ----------
-        clf         (sklearn estimator) if not fitted, this routine will fit it
-
-        X_train     (pandas DataFrame)
-
-        y_train     (pandas DataFrame)  optional
-                                        required only if clf has not already been fitted
-
-        top_n       (int)               Plot the top_n most-important features
-                                        Default: 10
-
-        figsize     ((int,int))         The physical size of the plot
-                                        Default: (8,8)
-
-        print_table (boolean)           If True, print out the table of feature importances
-                                        Default: False
+    clf : scikit-learn estimator
+        ML model, if not fitted the method tries to fit the model to the given
+        data.
+    X_train : DataFrame
+        Train features.
+    y_train : array like, shape [n_saples,] or [n_samples, n_tasks]
+        Training targets, by default None
+    top_n : int, optional
+        Maximum number of features to plot (in descending order of importance),
+        by default 10
+    figsize : tuple, optional
+        Figure size, by default (8, 8)
+    print_table : bool, optional
+        Print relevance Data Frame, by default False
+    title : str, optional
+        Figure title, by default "Feature Importances"
 
     Returns
     -------
-        the pandas dataframe with the features and their importance
-    '''
+    DataFrame, shape [n_features, 1]
+        Relevance DataFrame.
 
-    __name__ = "plot_feature_importances"
+    Raises
+    ------
+    AttributeError
+        An error is raised if the estimator lacks a feature_importances_
+        attribute.
+    """
 
     try:
         if not hasattr(clf, 'feature_importances_'):
@@ -73,12 +70,12 @@ def plot_feature_importances(clf, X_train, y_train=None,
 
             if not hasattr(clf, 'feature_importances_'):
                 raise AttributeError("{} does not have feature_importances_ attribute".
-                                    format(clf.__class__.__name__))
+                                     format(clf.__class__.__name__))
 
     except (XGBoostError, LightGBMError, ValueError):
         clf.fit(X_train.values, y_train.values.ravel())
 
-    feat_imp = pd.DataFrame({'importance':clf.feature_importances_})
+    feat_imp = pd.DataFrame({'importance': clf.feature_importances_})
     feat_imp['feature'] = X_train.columns
     feat_imp.sort_values(by='importance', ascending=False, inplace=True)
     feat_imp = feat_imp.iloc[:top_n]
@@ -96,26 +93,55 @@ def plot_feature_importances(clf, X_train, y_train=None,
 
     return feat_imp
 
+
 class AutoMorf(BaseEstimator, RegressorMixin):
+    """Automated Multi Output Random Forest. Multi task learning class via
+    Random Forest with only one set of hyperparameters which are automagically
+    tunned with either Tree-structured Parzen Estimator (TPE) or Bayesian
+    Optimization (BO).
+    """
 
     def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, copy_X_train=True, random_state=42):
         self.name = name
         self.framework = framework
         self.n_jobs = n_jobs
-        self.copy_X_train=copy_X_train,
-        self.random_state=random_state
+        self.copy_X_train = copy_X_train,
+        self.random_state = random_state
         self.cv = cv
         self.n_calls = n_calls
         self.opt = None
         self.best_model = None
 
     def fit(self, X, y=None):
+        """Fit estimator.
+
+        A suitable set of hyperparameters is found via either Tree-structured
+        Parzen Estimator (TPE) or Bayesian Optimization (BO).
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix, shape=(n_samples, n_features)
+            The input samples. Use ``dtype=np.float32`` for maximum
+            efficiency. Sparse matrices are also supported, use sparse
+            ``csc_matrix`` for maximum efficiency.
+        y : array-like, [n_samples, n_outputs]
+            The target (continuous) values for regression.
+
+        Returns
+        -------
+        self : object
+        """
+
         # validate X, y
         X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
 
         self.fit_(X, y)
 
     def fit_(self, X, y):
+        """Select the optimization method basen on the `framework` arguments and
+        fit the model to data.
+
+        """
         if self.framework == "sko":
             self.fit_sko(X, y)
         elif self.framework == "hyperopt":
@@ -132,14 +158,15 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.y_train_ = self.best_model.X_train_
 
     def fit_hyperopt(self, X, y):
-
+        """Tree-structured Parzen Estimator (TPE)-based hyperparameter search.
+        """
         estimator = random_forest_regression(
             self.name,
             n_jobs=self.n_jobs,
             random_state=self.random_state)
 
         self.opt = HyperoptEstimator(
-            regressor = estimator,
+            regressor=estimator,
             algo=tpe.suggest,
             max_evals=self.n_calls,
             trial_timeout=None,
@@ -153,6 +180,8 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.best_model = self.opt.best_model()["learner"]
 
     def fit_sko(self, X, y):
+        """Bayesian Optimization-based hyperparameter search.
+        """
         from skopt.callbacks import VerboseCallback
 
         estimator, space, objective = self.get_optimizer(
@@ -163,7 +192,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             self.random_state
         )
 
-        self.opt =  gp_minimize(
+        self.opt = gp_minimize(
             objective,
             space,
             acq_optimizer="lbfgs",
@@ -171,16 +200,56 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             n_calls=self.n_calls,
             random_state=self.random_state,
             callback=VerboseCallback(n_total=1)
-            )
+        )
 
         self.opt.cv = self.cv
 
         self.best_model = self.build_model_from_sko(self.opt)
 
     def predict(self, X):
+        """Predict multiple regression targets for X.
+
+        The predicted regression target of an input sample is computed as the
+        mean predicted regression targets of the trees in the forest.
+
+        Parameters
+        ----------
+        X : array-like or sparse matrix of shape = [n_samples, n_features]
+            The input samples. Internally, its dtype will be converted to
+            ``dtype=np.float32``. If a sparse matrix is provided, it will be
+            converted into a sparse ``csr_matrix``.
+
+        Returns
+        -------
+        y : [n_samples, n_outputs]
+            The predicted values.
+        """
         return self.best_model.predict(X)
 
     def score(self, X, y):
+        """Returns the coefficient of determination R^2 of the prediction.
+        The coefficient R^2 is defined as (1 - u/v), where u is the residual
+        sum of squares ((y_true - y_pred) ** 2).sum() and v is the total
+        sum of squares ((y_true - y_true.mean()) ** 2).sum().
+        The best possible score is 1.0 and it can be negative (because the
+        model can be arbitrarily worse). A constant model that always
+        predicts the expected value of y, disregarding the input features,
+        would get a R^2 score of 0.0.
+        Parameters
+        ----------
+        X : array-like, shape = (n_samples, n_features)
+            Test samples. For some estimators this may be a
+            precomputed kernel matrix instead, shape = (n_samples,
+            n_samples_fitted], where n_samples_fitted is the number of
+            samples used in the fitting for the estimator.
+        y : (n_samples, n_outputs)
+            True values for X.
+
+        Returns
+        -------
+        score : float
+            R^2 of self.predict(X) wrt. y.
+        """
         return self.best_model.score(X, y)
 
     @property
@@ -197,6 +266,17 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         return self.best_model.feature_importances_
 
     def save(self, out):
+        """Save the model to specified folder.
+
+        Due to serialization limitations the saved model is split into
+        two separte files: one file is used for the best estimator while the
+        other file is used for the (resumable) optimization history.
+
+        Parameters
+        ----------
+        out : str, pathlib.Path, or file object.
+            The path where the model must be stored in '.gz' format.
+        """
         out = self.get_output_folder(out)
         opt_path = out.joinpath(self.get_opt_fname(self.name))
         if self.framework == "sko":
@@ -215,6 +295,21 @@ class AutoMorf(BaseEstimator, RegressorMixin):
 
     @classmethod
     def load(cls, out, name):
+        """Alternative AutoMorf cosntruction method. Load an stored AutoMorf
+        model.
+
+        Parameters
+        ----------
+        out : str, pathlib.Path, or file object.
+            The path where the model is stored.
+        name : str
+            Model name.
+
+        Returns
+        -------
+        AutoMorf instance.
+            A fitted AutoMorf model.
+        """
         out = cls.get_output_folder(out)
         # load ML model
         estimator_path = out.joinpath(cls.get_estimator_fname(name))
@@ -258,12 +353,15 @@ class AutoMorf(BaseEstimator, RegressorMixin):
 
     @staticmethod
     def build_model_from_sko(opt, n_jobs=1, random_state=42):
-        hyperparameters  = {
-            'max_depth':opt.x[0],
-            'max_features':opt.x[1],
-            'min_samples_split':opt.x[2],
-            'min_samples_leaf':opt.x[3],
-            'n_estimators':opt.x[4]
+        """Parse a scikit-optimization history file to construct the
+        scikit-learn estimator.
+        """
+        hyperparameters = {
+            'max_depth': opt.x[0],
+            'max_features': opt.x[1],
+            'min_samples_split': opt.x[2],
+            'min_samples_leaf': opt.x[3],
+            'n_estimators': opt.x[4]
         }
 
         model = RandomForestRegressor(
@@ -276,24 +374,32 @@ class AutoMorf(BaseEstimator, RegressorMixin):
 
     @staticmethod
     def get_opt_fname(name):
+        """Construct the optimization history file name.
+        """
         return "{}_opt.pkl".format(name)
 
     @staticmethod
     def get_estimator_fname(name):
+        """Construct the estimator file name.
+        """
         return "{}_estimator.pkl".format(name)
 
     @staticmethod
     def get_output_folder(out):
+        """Pathlib check and conversion of output folder.
+        """
         if out:
             out = Path(out)
         return out
 
     @staticmethod
     def get_optimizer(X, y, n_jobs, cv, random_state):
+        """Get Bayesian Optiization helper functions.
+        """
         estimator = RandomForestRegressor(
             n_jobs=n_jobs,
             random_state=random_state
-            )
+        )
 
         # n_features = y.shape[1]
         space = [
@@ -301,7 +407,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             Real(0.1, 1.0, name="max_features"),
             Integer(2, 100, name='min_samples_split'),
             Integer(1, 100, name='min_samples_leaf'),
-            Categorical([10**2, 500, 10**3, 5000, 10**4], name="n_estimators")]
+            Categorical([10 ** 2, 500, 10 ** 3, 5000, 10 ** 4], name="n_estimators")]
 
         @use_named_args(space)
         def objective(**params):
@@ -319,51 +425,3 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             return -np.mean(cv_scores)
 
         return estimator, space, objective
-
-def get_relevance(shap_values, feature_names, ind, r2_train, r2_test, columns, plot_path=None, max_display=20):
-    """
-    """
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    plt.style.use("ggplot")
-    sns.set_context("paper")
-
-    # see https://github.com/slundberg/shap/blob/master/shap/plots/summary.py
-
-    feature_order = np.argsort(np.sum(np.abs(shap_values[ind]), axis=0))
-    feature_order = feature_order[-min(max_display, len(feature_order)):]
-
-    feature_inds = feature_order[:max_display]
-    y_pos = np.arange(len(feature_inds))
-    global_shap_values = np.abs(shap_values[ind]).mean(0)
-    
-    feature_names_relevant = [feature_names[i] for i in feature_inds]
-    relevance_score = global_shap_values[feature_inds]
-    
-    relevance = pd.DataFrame(
-        {                        
-            "r2_train": r2_train[ind],
-            "r2_test": r2_test[ind]
-        },
-        index=[columns[ind]]
-    )
-
-    for i in range(max_display):
-        col_name = "var_{:02d}".format(i)
-        relevance[col_name] = feature_names_relevant[i]
-        col_name = "rel_{:02d}".format(i)
-        relevance[col_name] = relevance_score[i]
-    
-    if plot_path:
-        plt.figure(figsize=(8, 10))
-        plt.barh(y_pos, global_shap_values[feature_inds], 0.7, align='center', color="cornflowerblue")
-        plt.yticks(y_pos, fontsize=13)
-        plt.gca().set_yticklabels(feature_names_relevant)
-        plt.title("Feature relevance for circuit {}".format(columns[ind]))
-        plt.tight_layout()
-        plt.savefig("{}.pdf".format(plot_path))
-        plt.savefig("{}.png".format(plot_path), dpi=300)
-        plt.close()
-
-    return relevance

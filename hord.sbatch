@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #SBATCH --export=ALL
 #SBATCH --mail-user=carlos.loucera@juntadeandalucia.es
 #SBATCH --mail-type=ALL
@@ -27,7 +27,10 @@ source ~/.pyenv/holrd/bin/activate
 # Avoid multithreading issues while computing relevances with SHAP.
 OMP_NUM_THREADS=1
 
-if [ -z "${PATHWAY2}" ]; 
+if [[ -z "${PATHWAY2}" &&  -z "${PATHWAY1}" ]];
+then
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE}
+elif [ -z "${PATHWAY2}" ];
 then
     python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1}
 else
@@ -37,7 +40,7 @@ fi
 # source ~/.bashrc
 # conda activate hord
 
-# python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode train  
+# python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode train
 
 # python rf.py
 # python relevance_v2.py model

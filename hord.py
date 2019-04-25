@@ -8,26 +8,21 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Entry CLI point for HORD multi-task framework.
 """
 
-import warnings
-from dotenv import find_dotenv, load_dotenv
-from sklearn.model_selection import train_test_split
-from timeit import default_timer as timer
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.externals import joblib
-from sklearn.metrics import average_precision_score
-import sklearn
-import numpy as np
-from src.learn import AutoMorf
-from src.datasets import get_disease_data, load_clinical_data
-import traceback
-import pickle
-import click
-from datetime import datetime
-from pathlib import Path
 import os
-import shap
+import warnings
+from pathlib import Path
+
+import click
+import numpy as np
 import pandas as pd
+import shap
+from dotenv import find_dotenv, load_dotenv
+from sklearn import metrics
+from sklearn.externals import joblib
+from sklearn.model_selection import RepeatedKFold
+
+from src.datasets import get_disease_data
+from src.learn import AutoMorf
 
 
 def warn(*args, **kwargs):
@@ -53,7 +48,7 @@ warnings.filterwarnings(
 @click.option('--opt', default="hyperopt", help='Train/test mode')
 @click.option('--seed', default=42, type=int, help='Random seed')
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
-@click.option("--pathways", default=None, help="Which pathways to use.", multiple=True)
+@click.option("--pathways", default=None, help="Pathways filter", multiple=True)
 def hord(disease, mlmodel, opt, seed, mode, pathways):
     """HORD multi-task module.
 
@@ -69,6 +64,8 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
         Seed for random number generator.
     mode : bool
         Train or load a pre-trained model.
+    pathways: str list
+        Which pathways to use as the ML target.
     """
 
     print("Working on disease {}".format(disease))
@@ -79,9 +76,28 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
 
 
 def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
-    name = "_".join(pathways)
+    """Construct the path where the model must be saved.
 
-    out_path = DATA_PATH.joinpath("out", disease, name, mlmodel, opt, mode, str(seed))
+    Returns
+    -------
+    pathlib.Path
+        The desired path.
+    """
+    if pathways is None:
+        name = "all"
+    else:
+        name = pathways
+    name = "_".join(name)
+
+    out_path = DATA_PATH.joinpath(
+        "out",
+        disease,
+        name,
+        mlmodel,
+        opt,
+        mode,
+        str(seed)
+    )
     if mode == "train":
         ok = False
     elif mode == "test":
@@ -92,12 +108,19 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
 
 
 def run_(disease, mlmodel, opt, seed, mode, pathways):
+    """Select the training mode.
+    """
     if mode in ["train", "test"]:
         run_full(disease, mlmodel, opt, seed, mode, pathways)
 
 
 def get_data(disease, mode, pathways):
-    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(disease, pathways)
+    """Load disease data and metadata.
+    """
+    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(
+        disease,
+        pathways
+    )
 
     print(gene_xpr.shape, pathvals.shape)
 
@@ -109,12 +132,18 @@ def get_data(disease, mode, pathways):
 
 
 def run_full(disease, mlmodel, opt, seed, mode, pathways):
-    from sklearn.model_selection import RepeatedStratifiedKFold
+    """Full model training, with hyperparametr optimization, unbiased CV
+    performance estimation and relevance computation.
+    """
 
     output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
 
     # Load data
-    gene_xpr, pathvals, circuits, genes, clinical = get_data(disease, mode, pathways)
+    gene_xpr, pathvals, circuits, genes, clinical = get_data(
+        disease,
+        mode,
+        pathways
+    )
 
     # Get ML model
     model = get_model(mlmodel, opt, mode)
@@ -149,6 +178,22 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways):
 
 
 def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
+    """Compute the model relevance with SHAP.
+
+    Parameters
+    ----------
+    estimator : scikit-learn estimator
+        A fitted estimator.
+    gene_xpr : array-like, shape = (n_samples, n_features)
+        Gene expression dataset.
+    pathvals : array-like, shape = (n_samples, n_tasks)
+        Pathvals dataset.
+    output_folder : str, pathlib.Path, or file object.
+            The path where the model must be stored in '.gz' format.
+    task : bool
+        If True compute the Per task relevance, if False comute SHAP global
+        relevance.
+    """
     if not task:
         # Compute global shap relevances
         explainer = shap.TreeExplainer(estimator)
@@ -199,6 +244,8 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
 
 
 def get_model(mlmodel, opt, mode):
+    """Get an instace of an AutoMorf model.
+    """
     name = "_".join([mlmodel, opt])
     if mlmodel == "morf":
         if mode == "train":
@@ -220,10 +267,29 @@ def get_model(mlmodel, opt, mode):
 
 
 def perform_cv(X, y, estimator, seed, tissue):
-    from sklearn.model_selection import RepeatedStratifiedKFold, RepeatedKFold
-    from sklearn import metrics
-    from collections import defaultdict
+    """Unbiased performance estimation.
 
+    Parameters
+    ----------
+    X : array-like, shape = (n_samples, n_features)
+        Test samples. For some estimators this may be a
+        precomputed kernel matrix instead, shape = (n_samples,
+        n_samples_fitted], where n_samples_fitted is the number of
+        samples used in the fitting for the estimator.
+    y : (n_samples, n_outputs)
+        True values for X.
+    estimator : scikit-learn estimator.
+        The model to test its performance.
+    seed : int
+        Random seed.
+    tissue : array-like, [n_samples, ]
+        A categorical variable to use for CV stratification.
+
+    Returns
+    -------
+    dict
+        A dictionary with per fold regression stats.
+    """
     stats = {
         "evs_mo": {"train": [], "test": []},
         "evs_ua": {"train": [], "test": []},
