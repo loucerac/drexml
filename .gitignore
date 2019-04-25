@@ -234,3 +234,37 @@ notebooks/._relevance_v2.py
 notebooks/._run.sbatch
 
 notebooks/rsandbox/
+out/
+jobs/
+rf/
+
+## OS X
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+notebooks/sandbox_20190416/hypmorf_fanconi_02_from_targets_to_pathways_global_explained_relevance\.tsv
