@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 BATCH_FILE="hord.sbatch"
 DISEASE="fanconi"
 MLMODEL="morf"
