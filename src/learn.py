@@ -60,7 +60,8 @@ def plot_feature_importances(clf, X_train, y_train=None,
     Raises
     ------
     AttributeError
-        [description]
+        An error is raised if the estimator lacks a feature_importances_
+        attribute.
     """
 
     try:
