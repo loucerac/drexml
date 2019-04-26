@@ -4,11 +4,17 @@ DISEASE="fanconi"
 MLMODEL="morf"
 OPT="hyperopt"
 SEED=42
-MODE="train"
+MODE="test"
 PATHWAY1="hsa03460m"
 PATHWAY2="hsa04110"
 
-out = $(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE})
+export $(egrep -v '^#' .env | xargs)
 
-git archive -o latest.zip HEAD
-mv lastest.zip ${out}
+OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE})
+OUT_FOLDER=$(echo ${OUT_FOLDER} | awk '{print $NF}')
+
+git archive -o code_snapshot.zip HEAD
+zip -rv code_snapshot.zip .env
+mv code_snapshot.zip "${OUT_FOLDER}/code_snapshot.zip"
+
+echo "Code snapshot saved to ${OUT_FOLDER}"

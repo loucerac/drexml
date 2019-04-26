@@ -73,8 +73,8 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
     print("Working on disease {}".format(disease))
 
     run_(disease, mlmodel, opt, seed, mode, pathways)
-    out_path = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
-    return click.echo(out_path)
+
+    print(get_out_path(disease, mlmodel, opt, seed, mode, pathways))
 
 
 def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
