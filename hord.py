@@ -38,6 +38,8 @@ project_path = os.path.dirname(dotenv_filepath)
 DATA_PATH = Path(os.environ.get("DATA_PATH"))
 NUM_CPUS = int(os.getenv("NUM_CPUS"))
 USE_GPU = bool(os.getenv("USE_GPU"))
+OUT_PATH = Path(os.environ.get("OUT_PATH"))
+
 warnings.filterwarnings(
     'ignore', category=DeprecationWarning, module='sklearn')
 
@@ -72,7 +74,7 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
 
     run_(disease, mlmodel, opt, seed, mode, pathways)
 
-    exit(0)
+    print(get_out_path(disease, mlmodel, opt, seed, mode, pathways))
 
 
 def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
@@ -89,8 +91,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
         name = pathways
     name = "_".join(name)
 
-    out_path = DATA_PATH.joinpath(
-        "out",
+    out_path = OUT_PATH.joinpath(
         disease,
         name,
         mlmodel,

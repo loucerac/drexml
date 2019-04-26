@@ -1,0 +1,11 @@
+/.gitignore export-ignore
+/.idea export-ignore
+/.vscode export-ignore
+/notebooks export-ignore
+/jobs export-ignore
+/.vscode export-ignore
+/rf export-ignore
+/packrat export-ignore
+/.Rhistory export-ignore
+/.RData export-ignore
+/.Rproj.user export-ignore
