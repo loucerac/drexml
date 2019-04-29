@@ -9,6 +9,9 @@ PATHWAY1="hsa03460m"
 PATHWAY2="hsa04110"
 GSET="all"
 
+# Read .env file
+export $(egrep -v '^#' .env | xargs)
+
 NAME="all"
 OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}${MLMODEL}/${OPT}/${MODE}/${SEED}"
 mkdir -p ${OUT_FOLDER}
