@@ -29,18 +29,10 @@ OMP_NUM_THREADS=1
 
 if [[ -z "${PATHWAY2}" &&  -z "${PATHWAY1}" ]];
 then
-    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --gset ${GSET})
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --gset ${GSET}
 elif [ -z "${PATHWAY2}" ];
 then
-    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --gset ${GSET})
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --gset ${GSET}
 else
-    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2} --gset ${GSET})
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2} --gset ${GSET}
 fi
-
-OUT_FOLDER=$(echo ${OUT_FOLDER} | awk '{print $NF}')
-
-git archive -o code_snapshot.zip HEAD
-zip -rv code_snapshot.zip .env
-mv code_snapshot.zip "${OUT_FOLDER}/code_snapshot.zip"
-
-echo "Code snapshot saved to ${OUT_FOLDER}"
