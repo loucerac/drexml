@@ -7,10 +7,11 @@ SEED=42
 MODE="test"
 PATHWAY1="hsa03460m"
 PATHWAY2="hsa04110"
+GSET="all"
 
 export $(egrep -v '^#' .env | xargs)
 
-OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE})
+OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --gset ${GSET})
 OUT_FOLDER=$(echo ${OUT_FOLDER} | awk '{print $NF}')
 
 git archive -o code_snapshot.zip HEAD

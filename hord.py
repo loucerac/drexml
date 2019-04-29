@@ -51,7 +51,8 @@ warnings.filterwarnings(
 @click.option('--seed', default=42, type=int, help='Random seed')
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
 @click.option("--pathways", default=None, help="Pathways filter", multiple=True)
-def hord(disease, mlmodel, opt, seed, mode, pathways):
+@click.option("--gset", default="target", help="Set of genes to use")
+def hord(disease, mlmodel, opt, seed, mode, pathways, gset):
     """HORD multi-task module.
 
     Parameters
@@ -66,18 +67,20 @@ def hord(disease, mlmodel, opt, seed, mode, pathways):
         Seed for random number generator.
     mode : bool
         Train or load a pre-trained model.
-    pathways: str list
+    pathways : str list
         Which pathways to use as the ML target.
+    gset : str
+        Which set of genes must be selected as the ML input.
     """
 
     print("Working on disease {}".format(disease))
 
-    run_(disease, mlmodel, opt, seed, mode, pathways)
+    run_(disease, mlmodel, opt, seed, mode, pathways, gset)
 
-    print(get_out_path(disease, mlmodel, opt, seed, mode, pathways))
+    print(get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset))
 
 
-def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
+def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
     """Construct the path where the model must be saved.
 
     Returns
@@ -94,6 +97,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
     out_path = OUT_PATH.joinpath(
         disease,
         name,
+        gset,
         mlmodel,
         opt,
         mode,
@@ -109,19 +113,20 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways):
     return out_path
 
 
-def run_(disease, mlmodel, opt, seed, mode, pathways):
+def run_(disease, mlmodel, opt, seed, mode, pathways, gset):
     """Select the training mode.
     """
     if mode in ["train", "test"]:
-        run_full(disease, mlmodel, opt, seed, mode, pathways)
+        run_full(disease, mlmodel, opt, seed, mode, pathways, gset)
 
 
-def get_data(disease, mode, pathways):
+def get_data(disease, mode, pathways, gset):
     """Load disease data and metadata.
     """
     gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(
         disease,
-        pathways
+        pathways,
+        gset
     )
 
     print(gene_xpr.shape, pathvals.shape)
@@ -133,18 +138,19 @@ def get_data(disease, mode, pathways):
     return gene_xpr, pathvals, circuits, genes, clinical
 
 
-def run_full(disease, mlmodel, opt, seed, mode, pathways):
+def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     """Full model training, with hyperparametr optimization, unbiased CV
     performance estimation and relevance computation.
     """
 
-    output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways)
+    output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset)
 
     # Load data
     gene_xpr, pathvals, circuits, genes, clinical = get_data(
         disease,
         mode,
-        pathways
+        pathways,
+        gset
     )
 
     # Get ML model

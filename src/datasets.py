@@ -154,7 +154,7 @@ def load_pathvals(disease):
     return pathvals
 
 
-def get_disease_data(disease, pathways=None):
+def get_disease_data(disease, pathways=None, gset="all"):
     """Load all datasets for a given dataset.
 
     Parameters
@@ -190,8 +190,13 @@ def get_disease_data(disease, pathways=None):
         "Gene expr. and Clinical data")
 
     # Filter data
-    target_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
-    gene_exp = gene_exp[target_gene_ids]
+    if gset == "target":
+        query_gene_ids = gene_metadata.index[gene_metadata.approved_targets]
+    elif gset == "all":
+        query = gene_metadata.approved_targets | gene_metadata.in_FAext
+        query_gene_ids = gene_metadata.index[query]
+        # query_gene_ids = np.random.choice(gene_metadata.index.values, size=100, replace=False)
+    gene_exp = gene_exp[query_gene_ids]
 
     if not len(pathways):
         disease_circuits = path_metadata.loc[path_metadata.in_disease].index

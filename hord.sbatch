@@ -29,20 +29,18 @@ OMP_NUM_THREADS=1
 
 if [[ -z "${PATHWAY2}" &&  -z "${PATHWAY1}" ]];
 then
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE}
+    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --gset ${GSET})
 elif [ -z "${PATHWAY2}" ];
 then
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1}
+    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --gset ${GSET})
 else
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2}
+    OUT_FOLDER=$(python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2} --gset ${GSET})
 fi
 
-# source ~/.bashrc
-# conda activate hord
+OUT_FOLDER=$(echo ${OUT_FOLDER} | awk '{print $NF}')
 
-# python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode train
+git archive -o code_snapshot.zip HEAD
+zip -rv code_snapshot.zip .env
+mv code_snapshot.zip "${OUT_FOLDER}/code_snapshot.zip"
 
-# python rf.py
-# python relevance_v2.py model
-# python relevance_v2.py global
-# python relevance_v2.py task
+echo "Code snapshot saved to ${OUT_FOLDER}"
