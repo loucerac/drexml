@@ -4,7 +4,7 @@ DISEASE="fanconi"
 MLMODEL="morf"
 OPT="hyperopt"
 SEED=42
-MODE="test"
+MODE="train"
 PATHWAY1="hsa03460m"
 PATHWAY2="hsa04110"
 
