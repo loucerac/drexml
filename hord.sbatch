@@ -5,8 +5,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=24
 #SBATCH --mem=0
-#SBATCH -o jobs/%A_%a.out # Standard output
-#SBATCH -e jobs/%A_%a.err # Standard error
+#SBATCH -o jobs/%x.out # Standard output
+#SBATCH -e jobs/%x.err # Standard error
 
 
 # module load anaconda2
