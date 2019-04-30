@@ -14,6 +14,7 @@ export $(egrep -v '^#' .env | xargs)
 
 NAME="all"
 OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}${MLMODEL}/${OPT}/${MODE}/${SEED}"
+rm -rf ${OUT_FOLDER}
 mkdir -p ${OUT_FOLDER}
 git archive -o code_snapshot.tar.gz HEAD
 gunzip -f code_snapshot.tar.gz
@@ -26,6 +27,7 @@ sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},
 
 NAME="${PATHWAY1}_${PATHWAY2}"
 OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
+rm -rf ${OUT_FOLDER}
 mkdir -p ${OUT_FOLDER}
 git archive -o code_snapshot.tar.gz HEAD
 gunzip -f code_snapshot.tar.gz
@@ -38,6 +40,7 @@ sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},
 
 NAME="${PATHWAY1}"
 OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
+rm -rf ${OUT_FOLDER}
 mkdir -p ${OUT_FOLDER}
 git archive -o code_snapshot.tar.gz HEAD
 gunzip -f code_snapshot.tar.gz
