@@ -4,7 +4,7 @@ DISEASE="fanconi"
 MLMODEL="morf"
 OPT="hyperopt"
 SEED=42
-MODE="train"
+MODE="test"
 PATHWAY1="hsa03460m"
 PATHWAY2="hsa04110"
 
@@ -28,7 +28,7 @@ run_() {
     echo "${NAME}"
 
     OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/$1/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-    mkdir -p OUT_FOLDER
+    mkdir -p ${OUT_FOLDER}
 
     git archive -o code_snapshot.tar.gz HEAD
     gunzip -f code_snapshot.tar.gz
