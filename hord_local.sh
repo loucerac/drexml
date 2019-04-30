@@ -26,7 +26,7 @@ run_() {
 
     # name, gset, pathway1, pathway2
     OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/$1/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-    mkdir -p OUT_FOLDER
+    mkdir -p ${OUT_FOLDER}
     git archive -o code_snapshot.zip HEAD
     zip -rv code_snapshot.zip .env
     mv code_snapshot.zip "${OUT_FOLDER}/code_snapshot.zip"
