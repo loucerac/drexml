@@ -11,93 +11,67 @@ PATHWAY2="hsa04110"
 # Read .env file
 export $(egrep -v '^#' .env | xargs)
 
+
+run_() {
+    # name, gset, pathway1, pathway2
+
+    if [[ -z "$2" &&  -z "$3" ]];
+    then
+        NAME="all"
+    elif [ -z "$3" ];
+    then
+        NAME=$2
+    else
+        NAME="$2_$3"
+    fi
+
+    echo "${NAME}"
+
+    OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/$1/${MLMODEL}/${OPT}/${MODE}/${SEED}"
+    mkdir -p OUT_FOLDER
+
+    git archive -o code_snapshot.tar.gz HEAD
+    gunzip -f code_snapshot.tar.gz
+    tar -uf code_snapshot.tar .env
+    gzip code_snapshot.tar
+    mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
+    echo "Code snapshot saved to ${OUT_FOLDER}"
+    JOB_NAME="hord_${DISEASE}_${MODE}_${NAME}_$1"
+
+    if [[ -z "$2" &&  -z "$3" ]];
+    then
+        sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},GSET=$1 ${BATCH_FILE}
+    elif [[ -z "$3" ]];
+    then
+        sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=$2,GSET=$1 ${BATCH_FILE}
+    else
+        sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=$2,PATHWAY2=$3,GSET=$1 ${BATCH_FILE}
+    fi
+}
+
+
 ####################
 ## All genes
 ####################
 
 GSET="all"
+run_ $GSET
 
-NAME="all"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${NAME}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},GSET=${GSET} ${BATCH_FILE}
+GSET="all"
+run_ $GSET $PATHWAY1
 
-NAME="${PATHWAY1}_${PATHWAY2}"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${PATHWAY1}_${PATHWAY2}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=${PATHWAY1},PATHWAY2=${PATHWAY2},GSET=${GSET} ${BATCH_FILE}
-
-NAME="${PATHWAY1}"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${PATHWAY1}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=${PATHWAY1},GSET=${GSET} ${BATCH_FILE}
-
+GSET="all"
+run_ $GSET $PATHWAY1 $PATHWAY2
 
 ####################
 ## Target genes
 ####################
 
 GSET="target"
+run_ $GSET
 
-NAME="all"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${NAME}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},GSET=${GSET} ${BATCH_FILE}
+GSET="target"
+run_ $GSET $PATHWAY1
 
-NAME="${PATHWAY1}_${PATHWAY2}"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${PATHWAY1}_${PATHWAY2}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=${PATHWAY1},PATHWAY2=${PATHWAY2},GSET=${GSET} ${BATCH_FILE}
-
-NAME="${PATHWAY1}"
-OUT_FOLDER="${OUT_PATH}/${DISEASE}/${NAME}/${GSET}/${MLMODEL}/${OPT}/${MODE}/${SEED}"
-rm -rf ${OUT_FOLDER}
-mkdir -p ${OUT_FOLDER}
-git archive -o code_snapshot.tar.gz HEAD
-gunzip -f code_snapshot.tar.gz
-tar -uf code_snapshot.tar .env
-gzip code_snapshot.tar
-mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
-echo "Code snapshot saved to ${OUT_FOLDER}"
-JOB_NAME="hord_${DISEASE}_${MODE}_${PATHWAY1}_${GSET}"
-sbatch -J ${JOB_NAME} --export=DISEASE=${DISEASE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE},PATHWAY1=${PATHWAY1},GSET=${GSET} ${BATCH_FILE}
+GSET="target"
+run_ $GSET $PATHWAY1 $PATHWAY2
