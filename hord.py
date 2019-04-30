@@ -104,7 +104,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
         str(seed)
     )
     if mode == "train":
-        ok = False
+        ok = True
     elif mode == "test":
         ok = True
     out_path.mkdir(parents=True, exist_ok=ok)
