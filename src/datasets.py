@@ -113,7 +113,11 @@ def load_genes():
     genes = read_feather(DATA_PATH.joinpath(genes_fname))
     genes.set_index("index", drop=True, inplace=True)
     genes.index = genes.index.astype(str)
-    genes.replace({"FALSE": False, "TRUE": True}, inplace=True)
+
+    try:
+        genes.replace({"FALSE": False, "TRUE": True}, inplace=True)
+    except:
+        print("no str data")
 
     return genes
 
