@@ -237,6 +237,7 @@ notebooks/rsandbox/
 out/
 jobs/
 rf/
+fanconi_jobs/
 
 ## OS X
 # General

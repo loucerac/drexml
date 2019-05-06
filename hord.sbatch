@@ -5,8 +5,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=24
 #SBATCH --mem=0
-#SBATCH -o jobs/%A_%a.out # Standard output
-#SBATCH -e jobs/%A_%a.err # Standard error
+#SBATCH -o fanconi_jobs/%j.out # Standard output
+#SBATCH -e fanconi_jobs/%j.err # Standard error
 
 
 # module load anaconda2
@@ -29,20 +29,10 @@ OMP_NUM_THREADS=1
 
 if [[ -z "${PATHWAY2}" &&  -z "${PATHWAY1}" ]];
 then
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE}
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --gset ${GSET}
 elif [ -z "${PATHWAY2}" ];
 then
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1}
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --gset ${GSET}
 else
-    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2}
+    python hord.py --disease ${DISEASE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE} --pathways ${PATHWAY1} --pathways ${PATHWAY2} --gset ${GSET}
 fi
-
-# source ~/.bashrc
-# conda activate hord
-
-# python hord.py --disease fanconi --mlmodel morf --opt hyperopt --seed 42 --mode train
-
-# python rf.py
-# python relevance_v2.py model
-# python relevance_v2.py global
-# python relevance_v2.py task
