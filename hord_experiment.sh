@@ -4,6 +4,7 @@ MLMODEL="morf"
 OPT="hyperopt"
 SEED=42
 MODE="train"
+LOCAL=0
 
 EXPERIMENT_ENV_FILE=$1
 EXPERIMENT_DIR="$(dirname "${EXPERIMENT_ENV_FILE}")"
@@ -11,7 +12,7 @@ EXPERIMENT="$(basename "$EXPERIMENT_DIR")"
 parentdir="$(dirname "${EXPERIMENT_DIR}")"
 DISEASE="$(basename "$parentdir")"
 
-OUT_FOLDER="${EXPERIMENT_DIR}/ml/${MLMODEL}"
+OUT_FOLDER="${EXPERIMENT_DIR}/ml/${MLMODEL}_${MODE}"
 
 # Read .env file
 export $(egrep -v '^#' .env | xargs)
@@ -28,4 +29,9 @@ JOB_NAME="hord_${DISEASE}_${EXPERIMENT}"
 ERR_FILE="${JOB_NAME}.err"
 OUT_FILE="${JOB_NAME}.out"
 
-sbatch -J ${JOB_NAME} -e ${ERR_FILE} -o ${OUT_FILE} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
+if [ $LOCAL -eq 1 ] ; then
+    # local
+    python hord.py --disease ${EXPERIMENT_ENV_FILE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE}
+else
+    sbatch -J ${JOB_NAME} -e ${ERR_FILE} -o ${OUT_FILE} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
+fi
