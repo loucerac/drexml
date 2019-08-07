@@ -88,25 +88,34 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
     pathlib.Path
         The desired path.
     """
-    if not len(pathways):
-        name = ["all"]
-    else:
-        name = pathways
-    name = "_".join(name)
 
-    out_path = OUT_PATH.joinpath(
-        disease,
-        name,
-        gset,
-        mlmodel,
-        opt,
-        mode,
-        str(seed)
-    )
+    env_possible = Path(disease)
+
+    if env_possible.exists() and (env_possible.suffix == ".env"):
+        print("Working with experiment {}".format(env_possible.stem))
+        out_path = env_possible.parent.joinpath("ml", mlmodel)
+    else:
+        if not len(pathways):
+            name = ["all"]
+        else:
+            name = pathways
+        name = "_".join(name)
+
+        out_path = OUT_PATH.joinpath(
+            disease,
+            name,
+            gset,
+            mlmodel,
+            opt,
+            mode,
+            str(seed)
+        )
+
     if mode == "train":
         ok = True
     elif mode == "test":
         ok = True
+
     out_path.mkdir(parents=True, exist_ok=ok)
     print("Storage folder: {}".format(out_path))
 

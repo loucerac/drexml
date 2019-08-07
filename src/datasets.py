@@ -77,7 +77,7 @@ def get_pathvals_fname(disease):
     return pathvals_fname
 
 
-def load_circuits(disease):
+def load_circuits(disease, from_env=None):
     """Load ciruicts metadata for the disease under study.
 
     Parameters
@@ -90,9 +90,14 @@ def load_circuits(disease):
     DataFrame
         Ciruits DataFrame.
     """
-    circuits_fname = get_circuits_fname(disease)
 
-    circuits = read_feather(DATA_PATH.joinpath(circuits_fname))
+    if from_env is None:
+        circuits_fname = get_circuits_fname(disease)
+        circuits_fpath = DATA_PATH.joinpath(circuits_fname)
+    else:
+        circuits_fpath = from_env
+
+    circuits = read_feather(circuits_fpath)
     circuits.set_index("index", drop=True, inplace=True)
     circuits.index = circuits.index.astype(str)
     circuits.replace({"FALSE": False, "TRUE": True}, inplace=True)
@@ -101,7 +106,7 @@ def load_circuits(disease):
     return circuits
 
 
-def load_genes():
+def load_genes(path=None):
     """Load gene metadata dataset.
 
     Returns
@@ -110,7 +115,12 @@ def load_genes():
         Gene metadata dataset.
     """
 
-    genes = read_feather(DATA_PATH.joinpath(genes_fname))
+    if path is None:
+        genes_fpath = DATA_PATH.joinpath(genes_fname)
+    else:
+        genes_fpath = path
+
+    genes = read_feather(genes_fpath)
     genes.set_index("index", drop=True, inplace=True)
     genes.index = genes.index.astype(str)
 
@@ -122,7 +132,7 @@ def load_genes():
     return genes
 
 
-def load_expression():
+def load_expression(path=None):
     """Load gene expression dataset.
 
     Returns
@@ -130,7 +140,13 @@ def load_expression():
     DataFrame, [n_samples, n_features]
         Gene expression dataset (Gtex).
     """
-    expression = read_feather(DATA_PATH.joinpath(expression_fname))
+
+    if path is None:
+        fpath = DATA_PATH.joinpath(expression_fname)
+    else:
+        fpath = path
+
+    expression = read_feather(fpath)
     expression.columns = expression.columns.str.replace("X", "")
     expression.set_index("index", drop=True, inplace=True)
     expression.index = expression.index.astype(str)
@@ -138,7 +154,7 @@ def load_expression():
     return expression
 
 
-def load_pathvals(disease):
+def load_pathvals(disease, from_env=None):
     """Load pathvals dataset.
 
     Returns
@@ -146,8 +162,14 @@ def load_pathvals(disease):
     DataFrame, [n_samples, n_features]
         Pathvals dataset (Gtex).
     """
-    pathvals_fname = get_pathvals_fname(disease)
-    pathvals = read_feather(DATA_PATH.joinpath(pathvals_fname))
+
+    if from_env is not None:
+        pathvals_fpath = from_env
+    else:
+        pathvals_fname = get_pathvals_fname(disease)
+        pathvals_fpath = DATA_PATH.joinpath(pathvals_fname)
+
+    pathvals = read_feather(pathvals_fpath)
     pathvals.set_index("index", drop=True, inplace=True)
     pathvals.index = pathvals.index.astype(str)
     pathvals.columns = (
@@ -157,8 +179,83 @@ def load_pathvals(disease):
 
     return pathvals
 
+def get_disease_data_new(disease):
+
+    # Load data
+    experiment_env_path = Path(disease)
+    dotenv.load_dotenv(experiment_env_path)
+    experiment_data_path = Path(os.getenv("data_path"))
+
+    gene_exp_fname = os.getenv("gene_exp")
+    gene_exp_fpath = experiment_data_path.joinpath(gene_exp_fname)
+    gene_exp = load_expression(gene_exp_fpath)
+
+    pathvals_fname = os.getenv("pathvals")
+    pathvals_fpath = experiment_data_path.joinpath(pathvals_fname)
+    pathvals = load_pathvals(None, from_env=pathvals_fpath)
+
+    circuits_fname = os.getenv("circuits")
+    circuits_fpath = experiment_data_path.joinpath(circuits_fname)
+    path_metadata = load_circuits(None, from_env=circuits_fpath)
+
+    genes_fname = os.getenv("genes")
+    genes_fpath = experiment_data_path.joinpath(genes_fname)
+    genes_metadata = load_genes(genes_fpath)
+
+    clinical_info = load_clinical_data()
+
+    # test integrity and reorder by sample index
+
+    gene_exp, pathvals = test_integrity(
+        gene_exp,
+        pathvals,
+        "Gene expr. and Pathvals")
+    gene_exp, clinical_info = test_integrity(
+        gene_exp,
+        clinical_info,
+        "Gene expr. and Clinical data")
+
+    # Filter data
+    genes_inuse = os.getenv("genes_column")
+    genes_query = genes_metadata.entrezs[genes_metadata[genes_inuse]]
+    gene_exp = gene_exp.loc[:, genes_query].copy()
+
+    circuits_inuse = os.getenv("circuits_column")
+    circuits_query = path_metadata.index[path_metadata[circuits_inuse]]
+    pathvals = pathvals.loc[:, circuits_query].copy()
+
+    return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
+
 
 def get_disease_data(disease, pathways=None, gset="all"):
+    """Load all datasets for a given dataset.
+
+    Parameters
+    ----------
+    disease : str
+        Disease under study.
+    pathways : array like, str, [n_pathways, ]
+        Pathways to use as ML targets, by default None refers to circuits given
+        by in_disease column in ciruits metadata dataset.
+
+    Returns
+    -------
+    DataFrame, DataFrame, DataFrame, DataFrame, DataFrame
+        Gene expression, pathvals, circuit metadata, gene metadata, clinical
+        metadata
+    """
+
+    env_possible = Path(disease)
+
+    if env_possible.exists() and (env_possible.suffix == ".env"):
+        gene_exp, pathvals, path_metadata, gene_metadata, clinical_info = get_disease_data_new(disease)
+    else:
+        gene_exp, pathvals, path_metadata, gene_metadata, clinical_info = get_disease_data_old(disease, pathways, gset)
+
+    return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
+
+
+def get_disease_data_old(disease, pathways=None, gset="all"):
     """Load all datasets for a given dataset.
 
     Parameters
