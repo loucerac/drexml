@@ -200,7 +200,7 @@ def get_disease_data_new(disease):
 
     genes_fname = os.getenv("genes")
     genes_fpath = experiment_data_path.joinpath(genes_fname)
-    genes_metadata = load_genes(genes_fpath)
+    gene_metadata = load_genes(genes_fpath)
 
     clinical_info = load_clinical_data()
 
@@ -217,7 +217,7 @@ def get_disease_data_new(disease):
 
     # Filter data
     genes_inuse = os.getenv("genes_column")
-    genes_query = genes_metadata.entrezs[genes_metadata[genes_inuse]]
+    genes_query = gene_metadata.entrezs[gene_metadata[genes_inuse]]
     gene_exp = gene_exp.loc[:, genes_query].copy()
 
     circuits_inuse = os.getenv("circuits_column")
