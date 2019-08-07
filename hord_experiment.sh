@@ -25,5 +25,7 @@ gzip code_snapshot.tar
 mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
 echo "Code snapshot saved to ${OUT_FOLDER}"
 JOB_NAME="hord_${DISEASE}_${EXPERIMENT}"
+ERR_FILE="${JOB_NAME}.err"
+OUT_FILE="${JOB_NAME}.out"
 
-sbatch -J ${JOB_NAME} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
+sbatch -J ${JOB_NAME} -e ${ERR_FILE} -o ${OUT_FILE} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
