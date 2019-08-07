@@ -26,8 +26,8 @@ gzip code_snapshot.tar
 mv code_snapshot.tar.gz "${OUT_FOLDER}/code_snapshot.tar.gz"
 echo "Code snapshot saved to ${OUT_FOLDER}"
 JOB_NAME="hord_${DISEASE}_${EXPERIMENT}"
-ERR_FILE="${JOB_NAME}.err"
-OUT_FILE="${JOB_NAME}.out"
+ERR_FILE="${OUT_FOLDER}/${JOB_NAME}.err"
+OUT_FILE="${OUT_FOLDER}/${JOB_NAME}.out"
 
 if [ $LOCAL -eq 1 ] ; then
     # local
