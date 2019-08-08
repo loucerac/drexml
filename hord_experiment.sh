@@ -33,5 +33,5 @@ if [ $LOCAL -eq 1 ] ; then
     # local
     python hord.py --disease ${EXPERIMENT_ENV_FILE} --mlmodel ${MLMODEL} --opt ${OPT} --seed ${SEED} --mode ${MODE}
 else
-    sbatch -J ${JOB_NAME} -n ${NUM_CPUSqu} -e ${ERR_FILE} -o ${OUT_FILE} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
+    sbatch -J ${JOB_NAME} -n ${NUM_CPUS} -e ${ERR_FILE} -o ${OUT_FILE} --export=EXPERIMENT_ENV_FILE=${EXPERIMENT_ENV_FILE},MLMODEL=${MLMODEL},OPT=${OPT},SEED=${SEED},MODE=${MODE} ${BATCH_FILE}
 fi
