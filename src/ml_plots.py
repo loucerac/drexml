@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd
 from pathlib import Path
 
-plt.style.use('fivethirtyeight')
+plt.style.use('ggplot')
 
 use_circuit_dict = False
 
@@ -26,7 +26,8 @@ top_n = 50
 query_top = rel_cv.mean().sort_values(ascending=False).index[:top_n]
 
 to_plot = rel_cv.loc[:, query_top].copy()
-to_plot.columns = model_rel.loc[rel_cv.loc[:, query_top].columns, "gene"].values
+if use_circuit_dict:
+	to_plot.columns = model_rel.loc[rel_cv.loc[:, query_top].columns, "gene"].values
 
 plt.figure()
 ax = to_plot.plot(kind="box", figsize=(16, 9))
@@ -56,17 +57,19 @@ if use_circuit_dict:
 dfs[0].columns = to_plot2.columns
 dfs[1].columns = to_plot2.columns
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
 to_plot2.plot(kind="box", ax=axes[0])
 axes[0].set_title("Train")
-axes[0].set_xticklabels(axes[0].get_xticklabels(), rotation=70);
+new_labels = to_plot2.columns.str.split(".").str[1]
+axes[0].set_xticklabels(new_labels, rotation=90);
 axes[0].set_ylabel(r"$R_{2}$")
 dfs[1].plot(kind="box", ax=axes[1])
 axes[1].set_title("Test")
-axes[1].set_xticklabels(axes[1].get_xticklabels(), rotation=70);
+axes[1].set_xticklabels(new_labels, rotation=90)
+
 # plt.suptitle("Performance score distribution")
 plt.tight_layout()
-fname = "cv_performance_dsitribution"
+fname = "cv_performance_distribution"
 plt.savefig(fname + ".png", dpi=300)
 plt.savefig(fname + ".pdf")
 plt.savefig(fname + ".svg")
