@@ -93,7 +93,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print("Working with experiment {}".format(env_possible.stem))
-        out_path = env_possible.parent.joinpath("ml", mlmodel)
+        out_path = env_possible.parent.joinpath("ml", mlmodel + "_" + mode)
     else:
         if not len(pathways):
             name = ["all"]

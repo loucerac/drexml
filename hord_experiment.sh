@@ -3,9 +3,9 @@ BATCH_FILE="hord_experiment.sbatch"
 MLMODEL="morf"
 OPT="hyperopt"
 SEED=42
-MODE="train"
 LOCAL=0
 
+MODE=$2
 EXPERIMENT_ENV_FILE=$1
 EXPERIMENT_DIR="$(dirname "${EXPERIMENT_ENV_FILE}")"
 EXPERIMENT="$(basename "$EXPERIMENT_DIR")"
