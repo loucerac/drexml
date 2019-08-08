@@ -3,7 +3,6 @@
 #SBATCH --mail-user=carlos.loucera@juntadeandalucia.es
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
-#SBATCH --ntasks=24
 #SBATCH --mem=0
 
 
