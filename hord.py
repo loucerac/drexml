@@ -179,10 +179,6 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     rel_df = pd.DataFrame({"relevance": rel}, index=gene_xpr.columns)
     rel_df.to_csv(rel_fpath, sep="\t")
 
-    # Compute shap relevances
-    print("Computing task relevances.")
-    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
-
     # CV with optimal hyperparameters (unbiased performance)
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
 
@@ -192,6 +188,10 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
+
+    # Compute shap relevances
+    print("Computing task relevances.")
+    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
 
 
 def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
