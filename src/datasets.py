@@ -217,7 +217,12 @@ def get_disease_data_new(disease):
 
     # Filter data
     genes_inuse = os.getenv("genes_column")
-    genes_query = gene_metadata.entrezs[gene_metadata[genes_inuse]]
+    genes_inuse = genes_inuse.strip().split(",")
+
+    query = gene_metadata[genes_inuse[0]]
+    for col in genes_inuse:
+        query = query | gene_metadata[col]
+    genes_query = gene_metadata.entrezs[query]
     gene_exp = gene_exp.loc[:, genes_query].copy()
 
     circuits_inuse = os.getenv("circuits_column")
