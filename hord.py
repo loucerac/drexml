@@ -162,6 +162,15 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
         gset
     )
 
+    # save data
+    features_fname = "features.pkl"
+    features_fpath = output_folder.joinpath(output_folder, features_fname)
+    gene_xpr.to_pickle(features_fpath)
+
+    target_fname = "target.pkl"
+    target_fpath = output_folder.joinpath(output_folder, target_fname)
+    pathvals.to_pickle(target_fpath)
+
     # Get ML model
     model = get_model(mlmodel, opt, mode)
 
@@ -307,6 +316,7 @@ def perform_cv(X, y, estimator, seed, tissue):
     dict
         A dictionary with per fold regression stats.
     """
+
     stats = {
         "evs_mo": {"train": [], "test": []},
         "evs_ua": {"train": [], "test": []},
