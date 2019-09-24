@@ -1,9 +1,11 @@
+import numpy as np
 from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from pathlib import Path
 import sys
+from sklearn.preprocessing import minmax_scale
 
 _, folder, use_task, use_circuit_dict = sys.argv
 results_path = Path(folder)
@@ -23,6 +25,11 @@ target_fname = "target.pkl"
 target_fpath = results_path.joinpath(results_path, target_fname)
 target = pd.read_pickle(target_fpath)
 
+plt.figure()
+target.iloc[:, :].apply(minmax_scale).plot(kind="box", figsize=(16, 9))
+fpath = results_path.joinpath(results_path, "task_distribution" + ".png")
+plt.savefig(fpath, dpi=300)
+
 circuit_ids = target.columns
 gene_ids = features.columns
 
@@ -41,6 +48,26 @@ rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
 
 top_n = 50
 query_top = rel_cv.median().sort_values(ascending=False).index[:top_n]
+
+# cut = 0.001363 + 0.1 * 0.014599
+cut = rel_cv.median().mean() + 0.1 * rel_cv.median().std()
+plt.figure()
+rel_cv.median().sort_values(ascending=False).plot(figsize=(16, 9))
+plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.median().shape))
+plt.axhline(cut, color="k", linestyle="--")
+fnz = np.nonzero(rel_cv.median().sort_values(ascending=False).values.ravel() < cut)[0][0] - 1
+plt.axvline(fnz, color="k", linestyle="--")
+fpath = results_path.joinpath(results_path, "median" + ".png")
+plt.savefig(fpath, dpi=300)
+
+sel = pd.DataFrame(
+    rel_cv.median().loc[rel_cv.median() > cut].values,
+    index=rel_cv.median().loc[rel_cv.median() > cut].index,
+    columns=["median_rel"],
+    )
+sel.sort_values(by="median_rel", ascending=False, inplace=True)
+sel.index.name = "entrez"
+sel.to_csv(results_path.joinpath(results_path, "median_sel" + ".csv"))
 
 to_plot = rel_cv.loc[:, query_top].copy()
 if use_circuit_dict:
