@@ -88,25 +88,34 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
     pathlib.Path
         The desired path.
     """
-    if not len(pathways):
-        name = ["all"]
-    else:
-        name = pathways
-    name = "_".join(name)
 
-    out_path = OUT_PATH.joinpath(
-        disease,
-        name,
-        gset,
-        mlmodel,
-        opt,
-        mode,
-        str(seed)
-    )
+    env_possible = Path(disease)
+
+    if env_possible.exists() and (env_possible.suffix == ".env"):
+        print("Working with experiment {}".format(env_possible.stem))
+        out_path = env_possible.parent.joinpath("ml", mlmodel + "_" + mode)
+    else:
+        if not len(pathways):
+            name = ["all"]
+        else:
+            name = pathways
+        name = "_".join(name)
+
+        out_path = OUT_PATH.joinpath(
+            disease,
+            name,
+            gset,
+            mlmodel,
+            opt,
+            mode,
+            str(seed)
+        )
+
     if mode == "train":
         ok = True
     elif mode == "test":
         ok = True
+
     out_path.mkdir(parents=True, exist_ok=ok)
     print("Storage folder: {}".format(out_path))
 
@@ -153,6 +162,15 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
         gset
     )
 
+    # save data
+    features_fname = "features.pkl"
+    features_fpath = output_folder.joinpath(output_folder, features_fname)
+    gene_xpr.to_pickle(features_fpath)
+
+    target_fname = "target.pkl"
+    target_fpath = output_folder.joinpath(output_folder, target_fname)
+    pathvals.to_pickle(target_fpath)
+
     # Get ML model
     model = get_model(mlmodel, opt, mode)
 
@@ -170,10 +188,6 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     rel_df = pd.DataFrame({"relevance": rel}, index=gene_xpr.columns)
     rel_df.to_csv(rel_fpath, sep="\t")
 
-    # Compute shap relevances
-    print("Computing task relevances.")
-    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
-
     # CV with optimal hyperparameters (unbiased performance)
     cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
 
@@ -183,6 +197,10 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
+
+    # Compute shap relevances
+    print("Computing task relevances.")
+    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
 
 
 def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
@@ -298,6 +316,7 @@ def perform_cv(X, y, estimator, seed, tissue):
     dict
         A dictionary with per fold regression stats.
     """
+
     stats = {
         "evs_mo": {"train": [], "test": []},
         "evs_ua": {"train": [], "test": []},
