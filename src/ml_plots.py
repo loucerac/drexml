@@ -44,7 +44,18 @@ model_rel = pd.read_csv(model_rel_fpath, sep="\t", index_col=0)
 cv_stats_fpath = results_path.joinpath(results_path, "cv_stats.pkl")
 cv_stats = joblib.load(cv_stats_fpath)
 
-rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
+gene_names = pd.read_csv(
+    results_path.parent.parent.parent.parent.joinpath("entrez_sym-table.tsv"),
+    sep=",",
+    dtype={"entrez":str})
+gene_names.set_index("entrez", drop=True, inplace=True)
+
+d = gene_names.loc[gene_ids].copy()
+q = d.isnull().values
+d[q] = d[q].index.tolist()
+
+gene_symbols = d.values.ravel()
+rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_symbols)
 
 top_n = 50
 query_top = rel_cv.median().sort_values(ascending=False).index[:top_n]
@@ -69,16 +80,16 @@ sel.sort_values(by="median_rel", ascending=False, inplace=True)
 sel.index.name = "entrez"
 sel.to_csv(results_path.joinpath(results_path, "median_sel" + ".csv"))
 
+query_top = rel_cv.columns[rel_cv.median() > cut]
 to_plot = rel_cv.loc[:, query_top].copy()
-if use_circuit_dict:
-	to_plot.columns = model_rel.loc[rel_cv.loc[:, query_top].columns, "gene"].values
+to_plot = to_plot.loc[:, to_plot.median().sort_values(ascending=False).index]
 
 plt.figure()
-ax = to_plot.plot(kind="box", figsize=(16, 9))
+ax = to_plot.iloc[:, :-3].plot(kind="box", figsize=(16, 9))
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
 ax.set_ylabel("Relevance")
 plt.tight_layout()
-fname_base = "cv_relevance_distribution"
+fname_base = "cv_relevance_distribution_ff"
 fpath = results_path.joinpath(results_path, fname_base + ".png")
 plt.savefig(fpath, dpi=300)
 fpath = results_path.joinpath(results_path, fname_base + ".pdf")
@@ -88,6 +99,11 @@ plt.savefig(fpath)
 fpath = results_path.joinpath(results_path, fname_base + ".eps")
 plt.savefig(fpath, format="eps")
 plt.close()
+
+
+# if use_circuit_dict:
+# 	to_plot.columns = model_rel.loc[rel_cv.loc[:, query_top].columns, "gene"].values
+
 
 for stat in cv_stats.keys():
     if "_mo" in stat:
@@ -133,4 +149,22 @@ plt.savefig(fpath)
 fpath = results_path.joinpath(results_path, fname_base + ".eps")
 plt.savefig(fpath, format="eps")
 
+plt.close()
+
+
+sns.set_context("poster")
+plt.figure()
+ax = to_plot.plot(kind="box", figsize=(16, 9))
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
+ax.set_ylabel("Relevance")
+plt.tight_layout()
+fname_base = "cv_relevance_distribution"
+fpath = results_path.joinpath(results_path, fname_base + ".png")
+plt.savefig(fpath, dpi=300)
+fpath = results_path.joinpath(results_path, fname_base + ".pdf")
+plt.savefig(fpath)
+fpath = results_path.joinpath(results_path, fname_base + ".svg")
+plt.savefig(fpath)
+fpath = results_path.joinpath(results_path, fname_base + ".eps")
+plt.savefig(fpath, format="eps")
 plt.close()
