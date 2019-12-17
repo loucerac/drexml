@@ -4,5 +4,6 @@
     "python.dataScience.jupyterServerURI": "http://127.0.0.1:8890",
     "autoDocstring.docstringFormat": "numpy",
     "python.linting.enabled": true,
-    "terminal.integrated.fontSize": 13
+    "terminal.integrated.fontSize": 13,
+    "gitflow4code.features": []
 }
