@@ -120,6 +120,7 @@ to_plot2 = (dfs[0] - (1- dfs[1])/2).copy()
 if use_circuit_dict:
     fpath = translate_folder.joinpath("circuit_names.tsv")
     circuit_names = pd.read_csv(fpath, sep="\t", index_col=0, header=None, names=["NAME"])
+    circuit_names.index = circuit_names.index.str.replace(r"-| ", ".")
     to_plot2.columns = circuit_names.loc[to_plot2.columns, "NAME"]
 
 dfs[0].columns = to_plot2.columns
