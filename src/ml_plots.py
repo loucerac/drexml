@@ -7,6 +7,8 @@ from pathlib import Path
 import sys
 from sklearn.preprocessing import minmax_scale
 
+translate_folder = Path("/mnt/lustre/scratch/CBRA/research/projects/holrd/")
+
 _, folder, use_task, use_circuit_dict = sys.argv
 results_path = Path(folder)
 use_task = int(use_task)
@@ -46,6 +48,7 @@ cv_stats = joblib.load(cv_stats_fpath)
 
 gene_names = pd.read_csv(
     results_path.parent.parent.parent.parent.joinpath("entrez_sym-table.tsv"),
+    #translate_folder.joinpath("gene_names.tsv"),
     sep=",",
     dtype={"entrez":str})
 gene_names.set_index("entrez", drop=True, inplace=True)
@@ -115,8 +118,8 @@ for stat in cv_stats.keys():
 to_plot2 = (dfs[0] - (1- dfs[1])/2).copy()
 
 if use_circuit_dict:
-    fname = "name_circuits.tsv"
-    circuit_names = pd.read_csv(fname, sep="\t", index_col=1)
+    fpath = translate_folder.joinpath("name_circuits.tsv")
+    circuit_names = pd.read_csv(fpath, sep="\t", index_col=1)
     to_plot2.columns = circuit_names.loc[to_plot2.columns, "NAME"]
 
 dfs[0].columns = to_plot2.columns
