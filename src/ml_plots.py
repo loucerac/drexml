@@ -118,7 +118,7 @@ for stat in cv_stats.keys():
 to_plot2 = (dfs[0] - (1- dfs[1])/2).copy()
 
 if use_circuit_dict:
-    fpath = translate_folder.joinpath("name_circuits.tsv")
+    fpath = translate_folder.joinpath("circuit_names.tsv")
     circuit_names = pd.read_csv(fpath, sep="\t", index_col=1)
     to_plot2.columns = circuit_names.loc[to_plot2.columns, "NAME"]
 
