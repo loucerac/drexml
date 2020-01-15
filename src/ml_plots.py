@@ -58,7 +58,7 @@ q = d.isnull().values
 d[q] = d[q].index.tolist()
 
 gene_symbols = d.values.ravel()
-rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_symbols)
+rel_cv = pd.DataFrame(cv_stats["relevance"])
 
 top_n = 50
 query_top = rel_cv.median().sort_values(ascending=False).index[:top_n]
@@ -71,7 +71,7 @@ plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.m
 plt.axhline(cut, color="k", linestyle="--")
 fnz = np.nonzero(rel_cv.median().sort_values(ascending=False).values.ravel() < cut)[0][0] - 1
 plt.axvline(fnz, color="k", linestyle="--")
-fpath = results_path.joinpath(results_path, "median" + ".png")
+fpath = results_path.joinpath(results_path, "median_entrez" + ".png")
 plt.savefig(fpath, dpi=300)
 
 sel = pd.DataFrame(
@@ -81,7 +81,7 @@ sel = pd.DataFrame(
     )
 sel.sort_values(by="median_rel", ascending=False, inplace=True)
 sel.index.name = "entrez"
-sel.to_csv(results_path.joinpath(results_path, "median_sel" + ".csv"))
+sel.to_csv(results_path.joinpath(results_path, "median_sel_entrez" + ".csv"))
 
 query_top = rel_cv.columns[rel_cv.median() > cut]
 to_plot = rel_cv.loc[:, query_top].copy()
@@ -92,7 +92,7 @@ ax = to_plot.iloc[:, :-3].plot(kind="box", figsize=(16, 9))
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
 ax.set_ylabel("Relevance")
 plt.tight_layout()
-fname_base = "cv_relevance_distribution_ff"
+fname_base = "cv_relevance_distribution_ff_entrez"
 fpath = results_path.joinpath(results_path, fname_base + ".png")
 plt.savefig(fpath, dpi=300)
 fpath = results_path.joinpath(results_path, fname_base + ".pdf")
@@ -162,7 +162,7 @@ ax = to_plot.plot(kind="box", figsize=(16, 9))
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
 ax.set_ylabel("Relevance")
 plt.tight_layout()
-fname_base = "cv_relevance_distribution"
+fname_base = "cv_relevance_distribution_entrez"
 fpath = results_path.joinpath(results_path, fname_base + ".png")
 plt.savefig(fpath, dpi=300)
 fpath = results_path.joinpath(results_path, fname_base + ".pdf")
