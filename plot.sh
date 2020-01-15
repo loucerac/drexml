@@ -12,7 +12,7 @@ do
     do
         JOBNAME="plot_${DISEASE}_${EXPERIMENT}"
         MLPATH=$BASE/${DISEASE}/${EXPERIMENT}/ml/morf_train
-        sbtach -J ${JOBNAME} --export=MLPATH=$MLPATH plot.sbatch
+        sbatch -J ${JOBNAME} --export=MLPATH=$MLPATH plot.sbatch
     done
    # or do whatever with individual element of the array
 done
