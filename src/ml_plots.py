@@ -28,7 +28,7 @@ target_fpath = results_path.joinpath(results_path, target_fname)
 target = pd.read_pickle(target_fpath)
 
 plt.figure()
-target.iloc[:, :].apply(minmax_scale).plot(kind="box", figsize=(16, 9))
+target.plot(kind="box", figsize=(16, 9))
 fpath = results_path.joinpath(results_path, "task_distribution" + ".png")
 plt.savefig(fpath, dpi=300)
 
@@ -60,16 +60,14 @@ d[q] = d[q].index.tolist()
 gene_symbols = d.values.ravel()
 rel_cv = pd.DataFrame(cv_stats["relevance"])
 
-top_n = 50
-query_top = rel_cv.median().sort_values(ascending=False).index[:top_n]
-
-# cut = 0.001363 + 0.1 * 0.014599
 cut = rel_cv.median().mean() + 0.1 * rel_cv.median().std()
+
 plt.figure()
 rel_cv.median().sort_values(ascending=False).plot(figsize=(16, 9))
-plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.median().shape))
+plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.median().size))
 plt.axhline(cut, color="k", linestyle="--")
 fnz = np.nonzero(rel_cv.median().sort_values(ascending=False).values.ravel() < cut)[0][0] - 1
+fnz = rel_cv.median().sort_values(ascending=False).index[fnz]
 plt.axvline(fnz, color="k", linestyle="--")
 fpath = results_path.joinpath(results_path, "median_entrez" + ".png")
 plt.savefig(fpath, dpi=300)
@@ -87,12 +85,13 @@ query_top = rel_cv.columns[rel_cv.median() > cut]
 to_plot = rel_cv.loc[:, query_top].copy()
 to_plot = to_plot.loc[:, to_plot.median().sort_values(ascending=False).index]
 
+sns.set_context("poster")
 plt.figure()
-ax = to_plot.iloc[:, :-3].plot(kind="box", figsize=(16, 9))
-ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
+ax = to_plot.plot(kind="box", figsize=(16, 9))
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
 ax.set_ylabel("Relevance")
 plt.tight_layout()
-fname_base = "cv_relevance_distribution_ff_entrez"
+fname_base = "cv_relevance_distribution_entrez"
 fpath = results_path.joinpath(results_path, fname_base + ".png")
 plt.savefig(fpath, dpi=300)
 fpath = results_path.joinpath(results_path, fname_base + ".pdf")
@@ -102,10 +101,6 @@ plt.savefig(fpath)
 fpath = results_path.joinpath(results_path, fname_base + ".eps")
 plt.savefig(fpath, format="eps")
 plt.close()
-
-
-# if use_circuit_dict:
-# 	to_plot.columns = model_rel.loc[rel_cv.loc[:, query_top].columns, "gene"].values
 
 
 for stat in cv_stats.keys():
@@ -132,7 +127,7 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
 dfs[0].plot(kind="box", ax=axes[0])
 axes[0].set_title("Train")
 new_labels = to_plot2.columns.str.split(".").str[1]
-axes[0].set_xticklabels(new_labels, rotation=90);
+axes[0].set_xticklabels(new_labels, rotation=90)
 # axes[0].set_ylabel(r"$R_{2}$")
 dfs[1].plot(kind="box", ax=axes[1])
 axes[1].set_title("Test")
@@ -153,22 +148,4 @@ plt.savefig(fpath)
 fpath = results_path.joinpath(results_path, fname_base + ".eps")
 plt.savefig(fpath, format="eps")
 
-plt.close()
-
-
-sns.set_context("poster")
-plt.figure()
-ax = to_plot.plot(kind="box", figsize=(16, 9))
-ax.set_xticklabels(ax.get_xticklabels(), rotation=90);
-ax.set_ylabel("Relevance")
-plt.tight_layout()
-fname_base = "cv_relevance_distribution_entrez"
-fpath = results_path.joinpath(results_path, fname_base + ".png")
-plt.savefig(fpath, dpi=300)
-fpath = results_path.joinpath(results_path, fname_base + ".pdf")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".svg")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".eps")
-plt.savefig(fpath, format="eps")
 plt.close()
