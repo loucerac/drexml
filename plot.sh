@@ -12,12 +12,16 @@ do
     do
         JOBNAME="plot_${DISEASE}_${EXPERIMENT}"
         MLPATH=$BASE/${DISEASE}/${EXPERIMENT}/ml/morf_train
-        mkdir -p "$MLPATH/bk"
-        mv $MLPATH/*.png "$MLPATH/bk"
-        mv $MLPATH/*.eps "$MLPATH/bk"
-        mv $MLPATH/*.pdf "$MLPATH/bk"
-        mv $MLPATH/*.svg "$MLPATH/bk"
-        sbatch -J ${JOBNAME} --export=MLPATH=$MLPATH plot.sbatch
+        ERRPATH=$MLPATH/$JOBNAME.err
+        OUTPATH=$MLPATH/$JOBNAME.out
+        bkdate=$(date '+%Y-%m-%d-%H-%M')
+        bkpath="$MLPATH/bk/$bkdate"
+        mkdir -p bkpath
+        mv $MLPATH/*.png $bkpath
+        mv $MLPATH/*.eps $bkpath
+        mv $MLPATH/*.pdf $bkpath
+        mv $MLPATH/*.svg $bkpath
+        sbatch -e $ERRPATH -o $OUTPATH -J ${JOBNAME} --export=MLPATH=$MLPATH plot.sbatch
     done
    # or do whatever with individual element of the array
 done

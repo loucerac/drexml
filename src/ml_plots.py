@@ -14,6 +14,8 @@ results_path = Path(folder)
 use_task = int(use_task)
 use_circuit_dict = int(use_circuit_dict)
 
+translate_folder = results_path.parent.parent.parent.parent.parent
+
 print(results_path, use_task, use_circuit_dict)
 
 plt.style.use('fivethirtyeight')
@@ -58,7 +60,7 @@ q = d.isnull().values
 d[q] = d[q].index.tolist()
 
 gene_symbols = d.values.ravel()
-rel_cv = pd.DataFrame(cv_stats["relevance"])
+rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
 
 cut = rel_cv.median().mean() + 0.1 * rel_cv.median().std()
 
@@ -67,7 +69,7 @@ rel_cv.median().sort_values(ascending=False).plot(figsize=(16, 9))
 plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.median().size))
 plt.axhline(cut, color="k", linestyle="--")
 fnz = np.nonzero(rel_cv.median().sort_values(ascending=False).values.ravel() < cut)[0][0] - 1
-fnz = rel_cv.median().sort_values(ascending=False).index[fnz]
+# fnz = rel_cv.median().sort_values(ascending=False).index[fnz]
 plt.axvline(fnz, color="k", linestyle="--")
 fpath = results_path.joinpath(results_path, "median_entrez" + ".png")
 plt.savefig(fpath, dpi=300)
@@ -126,13 +128,27 @@ sns.set_context("paper")
 fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
 dfs[0].plot(kind="box", ax=axes[0])
 axes[0].set_title("Train")
-new_labels = to_plot2.columns.str.split(".").str[1]
+new_labels = to_plot2.columns #.str.split(".").str[1]
+# axes[0].set_ylim([axes[0].get_ylim()[0], 1.001])
+axes[0].set_title("Train")
 axes[0].set_xticklabels(new_labels, rotation=90)
 # axes[0].set_ylabel(r"$R_{2}$")
 dfs[1].plot(kind="box", ax=axes[1])
 axes[1].set_title("Test")
 axes[1].set_xticklabels(new_labels, rotation=90)
+# axes[1].set_ylim([axes[1].get_ylim()[0], 1.001])
 
+# ylow = np.min([axes[0].get_ylim(), axes[1].get_ylim()])
+# yup = 1.05
+# ylow = ylow - 0.05
+
+# axes[0].set_ylim(ylims)
+# axes[1].set_ylim(ylims)
+
+# plt.setp(axes, ylim=[ylow, yup])
+
+SMALL_SIZE = 8
+plt.rc('xtick', labelsize=SMALL_SIZE)
 fig.text(0.01, 0.5, r"$R_{2}$", ha="center", va="center", rotation=90)
 
 # plt.suptitle("Performance score distribution")
