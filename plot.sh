@@ -16,7 +16,7 @@ do
         OUTPATH=$MLPATH/$JOBNAME.out
         bkdate=$(date '+%Y-%m-%d-%H-%M')
         bkpath="$MLPATH/bk/$bkdate"
-        mkdir -p bkpath
+        mkdir -p $bkpath
         mv $MLPATH/*.png $bkpath
         mv $MLPATH/*.eps $bkpath
         mv $MLPATH/*.pdf $bkpath
