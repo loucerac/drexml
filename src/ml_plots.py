@@ -7,161 +7,233 @@ from pathlib import Path
 import sys
 from sklearn.preprocessing import minmax_scale
 
-translate_folder = Path("/mnt/lustre/scratch/CBRA/research/projects/holrd/")
+exts = ["pdf", "png", "eps", "svg"]
 
-_, folder, use_task, use_circuit_dict = sys.argv
-results_path = Path(folder)
-use_task = int(use_task)
-use_circuit_dict = int(use_circuit_dict)
 
-translate_folder = results_path.parent.parent.parent.parent.parent
+def get_symbol_dict(results_path):
+    fname = "entrez_sym-table.tsv"
+    fpath = results_path.parent.parent.parent.parent.joinpath(fname)
 
-print(results_path, use_task, use_circuit_dict)
+    gene_names = pd.read_csv(fpath, sep=",", dtype={"entrez": str})
+    gene_names.set_index("entrez", drop=True, inplace=True)
 
-plt.style.use('fivethirtyeight')
+    gene_symbols_dict = gene_names.to_dict()["symb"]
 
-# load data
-features_fname = "features.pkl"
-features_fpath = results_path.joinpath(results_path, features_fname)
-features = pd.read_pickle(features_fpath)
+    return gene_symbols_dict
 
-target_fname = "target.pkl"
-target_fpath = results_path.joinpath(results_path, target_fname)
-target = pd.read_pickle(target_fpath)
 
-plt.figure()
-target.plot(kind="box", figsize=(16, 9))
-fpath = results_path.joinpath(results_path, "task_distribution" + ".png")
-plt.savefig(fpath, dpi=300)
-
-circuit_ids = target.columns
-gene_ids = features.columns
-
-if use_task:
-    path = results_path.joinpath("shap_values_task_relevance.tsv")
-    task_rel = pd.read_csv(path, sep="\t", index_col=0)
-
-# CV relevance
-model_rel_fpath = results_path.joinpath("model_global_relevance.tsv")
-model_rel = pd.read_csv(model_rel_fpath, sep="\t", index_col=0)
-
-cv_stats_fpath = results_path.joinpath(results_path, "cv_stats.pkl")
-cv_stats = joblib.load(cv_stats_fpath)
-
-gene_names = pd.read_csv(
-    results_path.parent.parent.parent.parent.joinpath("entrez_sym-table.tsv"),
-    #translate_folder.joinpath("gene_names.tsv"),
-    sep=",",
-    dtype={"entrez":str})
-gene_names.set_index("entrez", drop=True, inplace=True)
-
-d = gene_names.loc[gene_ids].copy()
-q = d.isnull().values
-d[q] = d[q].index.tolist()
-
-gene_symbols = d.values.ravel()
-rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
-
-cut = rel_cv.median().mean() + 0.1 * rel_cv.median().std()
-
-plt.figure()
-rel_cv.median().sort_values(ascending=False).plot(figsize=(16, 9))
-plt.title("No selected: {} of {}".format((rel_cv.median() > cut).sum(), rel_cv.median().size))
-plt.axhline(cut, color="k", linestyle="--")
-fnz = np.nonzero(rel_cv.median().sort_values(ascending=False).values.ravel() < cut)[0][0] - 1
-# fnz = rel_cv.median().sort_values(ascending=False).index[fnz]
-plt.axvline(fnz, color="k", linestyle="--")
-fpath = results_path.joinpath(results_path, "median_entrez" + ".png")
-plt.savefig(fpath, dpi=300)
-
-sel = pd.DataFrame(
-    rel_cv.median().loc[rel_cv.median() > cut].values,
-    index=rel_cv.median().loc[rel_cv.median() > cut].index,
-    columns=["median_rel"],
+def get_circuit_dict(translate_folder):
+    fname = "circuit_names.tsv"
+    fpath = translate_folder.joinpath(fname)
+    circuit_names = pd.read_csv(
+        fpath, sep="\t", index_col=0, header=None, names=["NAME"]
     )
-sel.sort_values(by="median_rel", ascending=False, inplace=True)
-sel.index.name = "entrez"
-sel.to_csv(results_path.joinpath(results_path, "median_sel_entrez" + ".csv"))
-
-query_top = rel_cv.columns[rel_cv.median() > cut]
-to_plot = rel_cv.loc[:, query_top].copy()
-to_plot = to_plot.loc[:, to_plot.median().sort_values(ascending=False).index]
-
-sns.set_context("poster")
-plt.figure()
-ax = to_plot.plot(kind="box", figsize=(16, 9))
-ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-ax.set_ylabel("Relevance")
-plt.tight_layout()
-fname_base = "cv_relevance_distribution_entrez"
-fpath = results_path.joinpath(results_path, fname_base + ".png")
-plt.savefig(fpath, dpi=300)
-fpath = results_path.joinpath(results_path, fname_base + ".pdf")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".svg")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".eps")
-plt.savefig(fpath, format="eps")
-plt.close()
-
-
-for stat in cv_stats.keys():
-    if "_mo" in stat:
-        dfs = []
-        for i, split in enumerate(cv_stats[stat].keys()):
-            df = pd.DataFrame(cv_stats[stat][split], columns=circuit_ids)
-            dfs.append(df)
-
-to_plot2 = (dfs[0] - (1- dfs[1])/2).copy()
-
-if use_circuit_dict:
-    fpath = translate_folder.joinpath("circuit_names.tsv")
-    circuit_names = pd.read_csv(fpath, sep="\t", index_col=0, header=None, names=["NAME"])
     circuit_names.index = circuit_names.index.str.replace(r"-| ", ".")
-    to_plot2.columns = circuit_names.loc[to_plot2.columns, "NAME"]
 
-dfs[0].columns = to_plot2.columns
-dfs[1].columns = to_plot2.columns
+    return circuit_names["NAME"].to_dict()
 
-sns.set_context("paper")
 
-fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
-dfs[0].plot(kind="box", ax=axes[0])
-axes[0].set_title("Train")
-new_labels = to_plot2.columns #.str.split(".").str[1]
-# axes[0].set_ylim([axes[0].get_ylim()[0], 1.001])
-axes[0].set_title("Train")
-axes[0].set_xticklabels(new_labels, rotation=90)
-# axes[0].set_ylabel(r"$R_{2}$")
-dfs[1].plot(kind="box", ax=axes[1])
-axes[1].set_title("Test")
-axes[1].set_xticklabels(new_labels, rotation=90)
-# axes[1].set_ylim([axes[1].get_ylim()[0], 1.001])
+def plot_median(rel_cv, use_symb, symb_dict, pdir, extensions=exts):
 
-# ylow = np.min([axes[0].get_ylim(), axes[1].get_ylim()])
-# yup = 1.05
-# ylow = ylow - 0.05
+    name = "median"
+    if use_symb:
+        name = f"{name}_symbol"
+        df_plot = rel_cv.rename(columns=symb_dict).copy()
+    else:
+        name = f"{name}_entrez"
+        df_plot = rel_cv.copy()
 
-# axes[0].set_ylim(ylims)
-# axes[1].set_ylim(ylims)
+    df_plot = df_plot.median().sort_values(ascending=False)
 
-# plt.setp(axes, ylim=[ylow, yup])
+    plt.figure()
+    df_plot.plot(figsize=(16, 9), rot=90)
+    plt.axhline(cut, color="k", linestyle="--")
+    fnz = np.nonzero(df_plot.values.ravel() < cut)[0][0] - 1
+    plt.axvline(fnz, color="k", linestyle="--")
+    plt.xlabel("Gene")
+    plt.ylabel("Median Relevance")
+    plt.tight_layout()
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
 
-SMALL_SIZE = 8
-plt.rc('xtick', labelsize=SMALL_SIZE)
-fig.text(0.01, 0.5, r"$R_{2}$", ha="center", va="center", rotation=90)
 
-# plt.suptitle("Performance score distribution")
-plt.tight_layout()
+def plot_task_distribution(target, pdir, pdict, extensions=exts):
+    name = "task_distribution"
+    df_plot = target.apply(np.log1p).rename(columns=pdict)
 
-fname_base = "cv_performance_distribution"
-fpath = results_path.joinpath(results_path, fname_base + ".png")
-plt.savefig(fpath, dpi=300)
-fpath = results_path.joinpath(results_path, fname_base + ".pdf")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".svg")
-plt.savefig(fpath)
-fpath = results_path.joinpath(results_path, fname_base + ".eps")
-plt.savefig(fpath, format="eps")
+    plt.figure()
+    df_plot.plot(kind="box", figsize=(16, 9))
+    plt.tight_layout()
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
 
-plt.close()
+
+def get_features(results_path):
+    features_fname = "features.pkl"
+    features_fpath = results_path.joinpath(features_fname)
+    features = pd.read_pickle(features_fpath)
+
+    feature_ids = features.columns
+
+    return features, feature_ids
+
+
+def get_target(results_path):
+    target_fname = "target.pkl"
+    target_fpath = results_path.joinpath(target_fname)
+    target = pd.read_pickle(target_fpath)
+
+    target_ids = target.columns
+
+    return target, target_ids
+
+
+def get_shap_relevance(results_path):
+    fname = "shap_values_task_relevance.tsv"
+    fpath = results_path.joinpath(fname)
+    task_rel = pd.read_csv(fpath, sep="\t", index_col=0)
+
+    return task_rel
+
+
+def get_cv_stats(results_path):
+    fname = "cv_stats.pkl"
+    fpath = results_path.joinpath(results_path, fname)
+    cv_stats = joblib.load(fpath)
+
+    return cv_stats
+
+
+def get_rel_cv(cv_stats, gene_ids):
+    rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
+
+    return rel_cv
+
+
+def get_cut_point(rel_cv):
+    return rel_cv.median().mean() + 0.1 * rel_cv.median().std()
+
+
+def save_median_df(rel_cv, cut, symbol_dict, results_path):
+    entrez_list = rel_cv.median().index.values.ravel()
+    symbol_list = [symbol_dict[entrez] for entrez in entrez_list]
+    is_selected = (rel_cv.median() > cut).values.ravel()
+    median_rel = rel_cv.median().values.ravel()
+
+    sel = pd.DataFrame(
+        {
+            "entrez": entrez_list,
+            "symbol": symbol_list,
+            "is_selected": is_selected,
+            "median_rel": median_rel,
+        }
+    )
+
+    sel.sort_values(by="median_rel", ascending=False, inplace=True)
+    sel.to_csv(results_path.joinpath("median_relevance" + ".csv"), index=False)
+
+
+def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
+    query_top = rel_cv.columns[rel_cv.median() > cut]
+    to_plot = rel_cv.loc[:, query_top].copy()
+    to_plot = to_plot.loc[:, to_plot.median().sort_values(ascending=False).index]
+
+    if symb_dict is not None:
+        to_plot.rename(columns=symb_dict, inplace=True)
+
+    sns.set_context("poster")
+    plt.figure()
+    ax = to_plot.plot(kind="box", figsize=(16, 9), rot=90)
+    ax.set_ylabel("Relevance")
+    plt.tight_layout()
+
+    name = "cv_relevance_distribution"
+    if symb_dict is None:
+        name = f"{name}_entrez"
+    else:
+        name = f"{name}_symbol"
+
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
+    plt.close()
+
+
+def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
+    for stat in cv_stats.keys():
+        if "_mo" in stat:
+            dfs = []
+            for split in cv_stats[stat].keys():
+                df = pd.DataFrame(cv_stats[stat][split], columns=circuit_ids)
+                df.rename(columns=circuit_dict, inplace=True)
+                dfs.append(df)
+
+    sns.set_context("paper")
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
+
+    dfs[0].plot(kind="box", ax=axes[0], rot=90)
+    axes[0].set_title("Train")
+
+    dfs[1].plot(kind="box", ax=axes[1], rot=90)
+    axes[1].set_title("Test")
+
+    SMALL_SIZE = 8
+    plt.rc("xtick", labelsize=SMALL_SIZE)
+    fig.text(0.01, 0.5, r"$R_{2}$", ha="center", va="center", rotation=90)
+
+    # plt.suptitle("Performance score distribution")
+    plt.tight_layout()
+
+    name = "cv_performance_distribution"
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
+    plt.close()
+
+    plt.close()
+
+
+if __name__ == "__main__":
+
+    _, folder, use_task, use_circuit_dict = sys.argv
+    results_path = Path(folder)
+    use_task = int(use_task)
+    use_circuit_dict = int(use_circuit_dict)
+
+    plt.style.use("fivethirtyeight")
+
+    translate_folder = results_path.parent.parent.parent.parent.parent
+
+    # load data
+    target, circuit_ids = get_target(results_path)
+    features, gene_ids = get_features(results_path)
+    cv_stats = get_cv_stats(results_path)
+    rel_cv = get_rel_cv(cv_stats, gene_ids)
+    cut = get_cut_point(rel_cv)
+    gene_symbols_dict = get_symbol_dict(results_path)
+    circuit_dict = get_circuit_dict(translate_folder)
+
+    if use_task:
+        task_rel = get_shap_relevance(results_path)
+
+    ## Median relevance
+    for use_symb_dict in [True, False]:
+        plot_median(rel_cv, use_symb_dict, gene_symbols_dict, results_path)
+
+    save_median_df(rel_cv, cut, gene_symbols_dict, results_path)
+
+    ## Relevance distribution
+    for symb_dict in [None, gene_symbols_dict]:
+        plot_relevance_distribution(rel_cv, cut, symb_dict, results_path)
+
+    ## ML stats
+    plot_stats(cv_stats, circuit_ids, circuit_dict, results_path)
+
+    plt.close("all")
