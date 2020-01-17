@@ -5,5 +5,7 @@
     "autoDocstring.docstringFormat": "numpy",
     "python.linting.enabled": true,
     "terminal.integrated.fontSize": 13,
-    "gitflow4code.features": []
+    "gitflow4code.features": [],
+    "python.formatting.provider": "black",
+    "editor.rulers": [88]
 }
