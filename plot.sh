@@ -1,7 +1,7 @@
 BASE="/mnt/lustre/scratch/CBRA/research/projects/holrd/experiments/"
 
 declare -a DISEASES
-DISEASES=("ALB" "EVC" "H" "RP" "WS")
+DISEASES=("FM" "ALB" "EVC" "H" "RP" "WS")
 declare -a EXPERIMENTS
 EXPERIMENTS=("AT" "AT_C")
 
