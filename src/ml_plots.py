@@ -120,7 +120,7 @@ def get_cut_point(rel_cv):
 
 def save_median_df(rel_cv, cut, symbol_dict, results_path):
     entrez_list = rel_cv.median().index.values.ravel()
-    symbol_list = [symbol_dict[entrez] for entrez in entrez_list]
+    symbol_list = [symbol_dict[entrez] if entrez in symbol_dict.keys() else None for entrez in entrez_list]
     is_selected = (rel_cv.median() > cut).values.ravel()
     median_rel = rel_cv.median().values.ravel()
 
@@ -224,13 +224,13 @@ if __name__ == "__main__":
         task_rel = get_shap_relevance(results_path)
 
     ## Median relevance
-    for use_symb_dict in [True, False]:
+    for use_symb_dict in [False]:
         plot_median(rel_cv, use_symb_dict, gene_symbols_dict, results_path)
 
     save_median_df(rel_cv, cut, gene_symbols_dict, results_path)
 
     ## Relevance distribution
-    for symb_dict in [None, gene_symbols_dict]:
+    for symb_dict in [None]:
         plot_relevance_distribution(rel_cv, cut, symb_dict, results_path)
 
     ## ML stats
