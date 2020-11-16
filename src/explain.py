@@ -115,11 +115,26 @@ def run_stability(model, X, Y, alpha=0.05):
 
             print(f"\t {r2_loss}")
 
-    support_matrix = np.squeeze(Z)
+    res = build_stability_dict(Z, errors, alpha)
 
-    r2_dist = np.squeeze(1 - errors)
+    return res
+
+
+def build_stability_dict(z_mat, errors, alpha=0.05):
+
+    support_matrix = np.squeeze(z_mat)
+
+    scores = np.squeeze(1 - errors)
     stab_res = stab.confidenceIntervals(support_matrix, alpha=alpha)
     stability = stab_res["stability"]
     stability_error = stab_res["stability"] - stab_res["lower"]
 
-    return r2_dist, stability, stability_error
+    res = {
+        "support": support_matrix,
+        "scores": scores,
+        "stability_score": stability,
+        "stability_error": stability_error,
+        "alpha": 0.05
+    }
+
+    return res
