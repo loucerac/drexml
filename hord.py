@@ -23,7 +23,7 @@ from sklearn.model_selection import RepeatedKFold
 
 from src.datasets import get_disease_data
 from src.learn import AutoMorf
-from src.explain import run_stability
+from src.explain import run_stability, compute_shap
 
 
 def warn(*args, **kwargs):
@@ -184,9 +184,21 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
     # Compute shap relevances
-    print("Computing task relevances.")
-    compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
+    shap_full, shap_summary = compute_shap(model, gene_xpr, pathvals)
+    # Save results
+    shap_full_fname = "shap_full.pkl"
+    shap_full_fpath = output_folder.joinpath(output_folder, shap_full_fname)
+    with open(shap_full_fpath, "wb") as f:
+        joblib.dump(shap_full, f)
+    print("Stability results saved to: {}".format(shap_full_fpath))
+    # Save results
+    shap_summary_fname = "shap_summary.pkl"
+    shap_summary_fpath = output_folder.joinpath(output_folder, shap_summary_fname)
+    with open(shap_summary_fpath, "wb") as f:
+        joblib.dump(shap_summary, f)
+    print("Stability results saved to: {}".format(shap_summary_fpath))
 
+    # Stability Analysys
     stability_results = run_stability(model, gene_xpr, pathvals, alpha=0.05)
     # Save results
     stability_results_fname = "stability_results.pkl"
@@ -195,7 +207,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     )
     with open(stability_results_fpath, "wb") as f:
         joblib.dump(stability_results, f)
-    print("Stability results saved to: {}".format(stats_fpath))
+    print("Stability results saved to: {}".format(stability_results_fpath))
 
 
 def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
