@@ -21,6 +21,8 @@ from sklearn.model_selection import (
 )
 
 import src.stability as stab
+from joblib import Parallel, delayed
+from scipy.stats import pearsonr
 
 
 def compute_shap_fs(estimator, X, y, q=0.95):
@@ -85,7 +87,7 @@ def run_stability(model, X, Y, alpha=0.05):
         Y_test = Y.iloc[test, :]
 
         X_learn, X_val, Y_learn, Y_val = train_test_split(
-            X_train, Y_train, test_size=0.25, random_state=n_split
+            X_train, Y_train, test_size=0.3, random_state=n_split
         )
 
         model_ = clone(model)
@@ -134,7 +136,45 @@ def build_stability_dict(z_mat, errors, alpha=0.05):
         "scores": scores,
         "stability_score": stability,
         "stability_error": stability_error,
-        "alpha": 0.05
+        "alpha": 0.05,
     }
 
     return res
+
+
+def compute_shap(model, X, Y, test_size=0.3):
+    X_learn, X_val, Y_learn, Y_val = train_test_split(
+        X, Y, test_size=0.3, random_state=42
+    )
+
+    n_predictors = X.shape[1]
+    n_targets = Y.shape[1]
+
+    model_ = clone(model)
+    model_.fit(X_learn, Y_learn)
+
+    explainer = shap.TreeExplainer(model_)
+    shap_values = explainer.shap_values(
+        X_val, approximate=False, check_additivity=False
+    )
+
+    corr_sign = lambda x, y: pearsonr(x, y)[0]
+    signs = Parallel()(
+        delayed(corr_sign)(X_val.iloc[:, x_col], shap_values[y_col][:, x_col])
+        for x_col in range(n_predictors)
+        for y_col in range(n_targets)
+    )
+    signs = np.array(signs).reshape(n_targets, n_predictors)
+
+    shap_values = np.array(shap_values)
+    shap_values_summary = pd.DataFrame(
+        np.abs(shap_values).mean(axis=(1)), index=Y.columns, columns=X.columns
+    )
+    shap_values_summary = shap_values_summary * signs
+
+    shap_values = {
+        target: pd.DataFrame(shap_values, columns=X.columns, index=X.index)
+        for target in Y.columns
+    }
+
+    return shap_values, shap_values_summary
