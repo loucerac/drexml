@@ -15,16 +15,11 @@ import numpy as np
 import pandas as pd
 from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
-from lightgbm.sklearn import LightGBMError
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.externals import joblib
+import joblib
 from sklearn.model_selection import cross_val_score
 from sklearn.utils.validation import check_is_fitted, check_X_y
-from skopt import gp_minimize, load
-from skopt.space import Categorical, Integer, Real
-from skopt.utils import use_named_args
-from xgboost.core import XGBoostError
 
 
 def plot_feature_importances(
@@ -80,7 +75,7 @@ def plot_feature_importances(
                     )
                 )
 
-    except (XGBoostError, LightGBMError, ValueError):
+    except ValueError:
         clf.fit(X_train.values, y_train.values.ravel())
 
     feat_imp = pd.DataFrame({"importance": clf.feature_importances_})
@@ -160,9 +155,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         fit the model to data.
 
         """
-        if self.framework == "sko":
-            self.fit_sko(X, y)
-        elif self.framework == "hyperopt":
+        if self.framework == "hyperopt":
             self.fit_hyperopt(X, y)
 
         self.best_model.fit(X, y)
@@ -195,28 +188,6 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.opt.n_calls = self.n_calls
 
         self.best_model = self.opt.best_model()["learner"]
-
-    def fit_sko(self, X, y):
-        """Bayesian Optimization-based hyperparameter search."""
-        from skopt.callbacks import VerboseCallback
-
-        estimator, space, objective = self.get_optimizer(
-            X, y, self.n_jobs, self.cv, self.random_state
-        )
-
-        self.opt = gp_minimize(
-            objective,
-            space,
-            acq_optimizer="lbfgs",
-            n_jobs=self.n_jobs,
-            n_calls=self.n_calls,
-            random_state=self.random_state,
-            callback=VerboseCallback(n_total=1),
-        )
-
-        self.opt.cv = self.cv
-
-        self.best_model = self.build_model_from_sko(self.opt)
 
     def predict(self, X):
         """Predict multiple regression targets for X.
@@ -291,12 +262,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         """
         out = self.get_output_folder(out)
         opt_path = out.joinpath(self.get_opt_fname(self.name))
-        if self.framework == "sko":
-            estimator, space, objective = self.get_optimizer(
-                self.X_train_, self.y_train_, self.n_jobs, self.cv, self.random_state
-            )
-            joblib.dump(self.opt, opt_path)
-        elif self.framework == "hyperopt":
+        if self.framework == "hyperopt":
             joblib.dump(self.opt, opt_path)
         estimator_path = out.joinpath(self.get_estimator_fname(self.name))
         joblib.dump(self.best_model, estimator_path)
@@ -327,26 +293,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         # load optimization result
         opt_path = out.joinpath(cls.get_opt_fname(name))
 
-        if "sko" in name:
-            print(
-                estimator.X_train_.shape,
-                estimator.y_train_.shape,
-                estimator.n_jobs,
-                estimator.cv,
-                estimator.random_state,
-            )
-            estimator, space, objective = cls.get_optimizer(
-                estimator.X_train_,
-                estimator.y_train_,
-                estimator.n_jobs,
-                estimator.cv,
-                estimator.random_state,
-            )
-
-            print(estimator, space, objective)
-
-            opt = load(opt_path)
-        elif "hyperopt" in name:
+        if "hyperopt" in name:
             with open(opt_path, "rb") as f:
                 opt = joblib.load(f)
 
@@ -398,29 +345,3 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         if out:
             out = Path(out)
         return out
-
-    @staticmethod
-    def get_optimizer(X, y, n_jobs, cv, random_state):
-        """Get Bayesian Optiization helper functions."""
-        estimator = RandomForestRegressor(n_jobs=n_jobs, random_state=random_state)
-
-        # n_features = y.shape[1]
-        space = [
-            Integer(1, 10, name="max_depth"),
-            Real(0.1, 1.0, name="max_features"),
-            Integer(2, 100, name="min_samples_split"),
-            Integer(1, 100, name="min_samples_leaf"),
-            Categorical([10 ** 2, 500, 10 ** 3, 5000, 10 ** 4], name="n_estimators"),
-        ]
-
-        @use_named_args(space)
-        def objective(**params):
-            estimator.set_params(**params)
-
-            cv_scores = cross_val_score(
-                estimator, X, y, cv=cv, n_jobs=n_jobs, scoring="r2"
-            )
-
-            return -np.mean(cv_scores)
-
-        return estimator, space, objective
