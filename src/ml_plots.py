@@ -145,7 +145,7 @@ def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
     if symb_dict is not None:
         to_plot.rename(columns=symb_dict, inplace=True)
 
-    sns.set_context("poster")
+    #sns.set_context("poster")
     plt.figure()
     ax = to_plot.plot(kind="box", figsize=(16, 9), rot=90)
     ax.set_ylabel("Relevance")
