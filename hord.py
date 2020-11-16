@@ -210,69 +210,6 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Stability results saved to: {}".format(stability_results_fpath))
 
 
-def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
-    """Compute the model relevance with SHAP.
-
-    Parameters
-    ----------
-    estimator : scikit-learn estimator
-        A fitted estimator.
-    gene_xpr : array-like, shape = (n_samples, n_features)
-        Gene expression dataset.
-    pathvals : array-like, shape = (n_samples, n_tasks)
-        Pathvals dataset.
-    output_folder : str, pathlib.Path, or file object.
-            The path where the model must be stored in '.gz' format.
-    task : bool
-        If True compute the Per task relevance, if False comute SHAP global
-        relevance.
-    """
-    if not task:
-        # Compute global shap relevances
-        explainer = shap.TreeExplainer(estimator)
-    else:
-        X_summary = shap.kmeans(gene_xpr, 50)
-        # Decorate prediction function
-        predict = lambda x: estimator.predict(x)
-        explainer = shap.KernelExplainer(predict, X_summary.data)
-
-    shap_values = explainer.shap_values(gene_xpr)
-    if task:
-        shap_values_fname = "shap_values_task.pkl"
-    else:
-        shap_values_fname = "shap_values_global.pkl"
-    shap_values_fpath = output_folder.joinpath(shap_values_fname)
-    with open(shap_values_fpath, "wb") as f:
-        joblib.dump(shap_values, f)
-    print("Shap values saved to: {}".format(shap_values_fpath))
-
-    if task:
-        # Per task relevance
-        n_tasks = pathvals.shape[1]
-        relevances = []
-        for i_task in range(n_tasks):
-            name = pathvals.columns[i_task]
-            print("Computing {} Shap relevance.".format(name))
-            relevances.append(np.abs(shap_values[i_task]).mean(0))
-
-        relevance = pd.DataFrame(
-            np.vstack(relevances).T, columns=pathvals.columns, index=gene_xpr.columns
-        )
-
-        shap_values_fname = "shap_values_task_relevance.tsv"
-    else:
-        # Global relevance
-        global_shap_values = np.abs(shap_values).mean(0)
-        relevance = pd.DataFrame(
-            {"relevance": global_shap_values}, index=gene_xpr.columns
-        )
-        shap_values_fname = "shap_values_global_relevance.tsv"
-
-    shap_values_fpath = output_folder.joinpath(shap_values_fname)
-    relevance.to_csv(shap_values_fpath, sep="\t")
-    print("Shap relevances saved to: {}".format(shap_values_fpath))
-
-
 def get_model(mlmodel, opt, mode):
     """Get an instace of an AutoMorf model."""
     name = "_".join([mlmodel, opt])
