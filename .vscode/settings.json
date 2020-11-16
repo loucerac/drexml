@@ -1,11 +1,25 @@
 {
-    "python.pythonPath": "/home/cloucera/apps/miniconda3/envs/hord/bin/python",
+    "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
     "python.linting.pylintEnabled": true,
-    "python.dataScience.jupyterServerURI": "http://127.0.0.1:8890",
     "autoDocstring.docstringFormat": "numpy",
     "python.linting.enabled": true,
     "terminal.integrated.fontSize": 13,
-    "gitflow4code.features": [],
     "python.formatting.provider": "black",
-    "editor.rulers": [88]
+    "editor.rulers": [88],
+    "files.watcherExclude": {
+        "**/venvs": true,
+        "**/.venv": true,
+        "**/data": true
+    },
+    "files.exclude": {
+        "**/venvs": true,
+        "**/.venv": true,
+        "**/data": true
+    },
+    "search.exclude": {
+        "**/venvs": true,
+        "**/.venv": true,
+        "**/data": true
+      }
 }
+
