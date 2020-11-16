@@ -2,8 +2,8 @@
 #SBATCH --export=ALL
 #SBATCH --mail-user=carlos.loucera@juntadeandalucia.es
 #SBATCH --mail-type=ALL
-#SBATCH --nodes=1
-#SBATCH --mem=0
+#SBATCH --mem=40g
+#SBATCH -c 10
 
 
 module load anaconda2
