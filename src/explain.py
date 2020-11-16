@@ -158,13 +158,14 @@ def compute_shap(model, X, Y, test_size=0.3):
         X_val, approximate=False, check_additivity=False
     )
 
-    corr_sign = lambda x, y: pearsonr(x, y)[0]
+    corr_sign = lambda x, y: np.sign(pearsonr(x, y)[0])
     signs = Parallel()(
         delayed(corr_sign)(X_val.iloc[:, x_col], shap_values[y_col][:, x_col])
         for x_col in range(n_predictors)
         for y_col in range(n_targets)
     )
-    signs = np.array(signs).reshape(n_targets, n_predictors)
+    signs = np.array(signs).ravel().reshape(n_targets, n_predictors)
+    signs = pd.DataFrame(signs, index=Y.columns, columns=X.columns)
 
     shap_values = np.array(shap_values)
     shap_values_summary = pd.DataFrame(
@@ -173,8 +174,10 @@ def compute_shap(model, X, Y, test_size=0.3):
     shap_values_summary = shap_values_summary * signs
 
     shap_values = {
-        target: pd.DataFrame(shap_values, columns=X.columns, index=X.index)
-        for target in Y.columns
+        Y.columns[y_col]: pd.DataFrame(
+            shap_values[y_col], columns=X.columns, index=X.index
+        )
+        for y_col in range(n_targets)
     }
 
     return shap_values, shap_values_summary
