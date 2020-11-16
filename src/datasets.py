@@ -172,12 +172,10 @@ def load_pathvals(disease, from_env=None):
     pathvals = read_feather(pathvals_fpath)
     pathvals.set_index("index", drop=True, inplace=True)
     pathvals.index = pathvals.index.astype(str)
-    pathvals.columns = (
-        pathvals.columns
-            .str.replace("-", ".")
-            .str.replace(" ", "."))
+    pathvals.columns = pathvals.columns.str.replace("-", ".").str.replace(" ", ".")
 
     return pathvals
+
 
 def get_disease_data_new(disease):
 
@@ -206,14 +204,10 @@ def get_disease_data_new(disease):
 
     # test integrity and reorder by sample index
 
-    gene_exp, pathvals = test_integrity(
-        gene_exp,
-        pathvals,
-        "Gene expr. and Pathvals")
+    gene_exp, pathvals = test_integrity(gene_exp, pathvals, "Gene expr. and Pathvals")
     gene_exp, clinical_info = test_integrity(
-        gene_exp,
-        clinical_info,
-        "Gene expr. and Clinical data")
+        gene_exp, clinical_info, "Gene expr. and Clinical data"
+    )
 
     # Filter data
     genes_inuse = os.getenv("genes_column")
@@ -253,9 +247,21 @@ def get_disease_data(disease, pathways=None, gset="all"):
     env_possible = Path(disease)
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
-        gene_exp, pathvals, path_metadata, gene_metadata, clinical_info = get_disease_data_new(disease)
+        (
+            gene_exp,
+            pathvals,
+            path_metadata,
+            gene_metadata,
+            clinical_info,
+        ) = get_disease_data_new(disease)
     else:
-        gene_exp, pathvals, path_metadata, gene_metadata, clinical_info = get_disease_data_old(disease, pathways, gset)
+        (
+            gene_exp,
+            pathvals,
+            path_metadata,
+            gene_metadata,
+            clinical_info,
+        ) = get_disease_data_old(disease, pathways, gset)
 
     return gene_exp, pathvals, path_metadata, gene_metadata, clinical_info
 
@@ -286,14 +292,10 @@ def get_disease_data_old(disease, pathways=None, gset="all"):
 
     # test integrity and reorder by sample index
 
-    gene_exp, pathvals = test_integrity(
-        gene_exp,
-        pathvals,
-        "Gene expr. and Pathvals")
+    gene_exp, pathvals = test_integrity(gene_exp, pathvals, "Gene expr. and Pathvals")
     gene_exp, clinical_info = test_integrity(
-        gene_exp,
-        clinical_info,
-        "Gene expr. and Clinical data")
+        gene_exp, clinical_info, "Gene expr. and Clinical data"
+    )
 
     # Filter data
     if gset == "target":

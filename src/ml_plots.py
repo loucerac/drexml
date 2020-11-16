@@ -1,11 +1,11 @@
-import numpy as np
-from sklearn.externals import joblib
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-from pathlib import Path
 import sys
-from sklearn.preprocessing import minmax_scale
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.externals import joblib
 
 exts = ["pdf", "png", "eps", "svg"]
 
@@ -120,7 +120,10 @@ def get_cut_point(rel_cv):
 
 def save_median_df(rel_cv, cut, symbol_dict, results_path):
     entrez_list = rel_cv.median().index.values.ravel()
-    symbol_list = [symbol_dict[entrez] if entrez in symbol_dict.keys() else None for entrez in entrez_list]
+    symbol_list = [
+        symbol_dict[entrez] if entrez in symbol_dict.keys() else None
+        for entrez in entrez_list
+    ]
     is_selected = (rel_cv.median() > cut).values.ravel()
     median_rel = rel_cv.median().values.ravel()
 
@@ -145,7 +148,7 @@ def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
     if symb_dict is not None:
         to_plot.rename(columns=symb_dict, inplace=True)
 
-    #sns.set_context("poster")
+    # sns.set_context("poster")
     plt.figure()
     ax = to_plot.plot(kind="box", figsize=(16, 9), rot=90)
     ax.set_ylabel("Relevance")
