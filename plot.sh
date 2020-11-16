@@ -1,9 +1,12 @@
 BASE="/mnt/lustre/scratch/CBRA/research/projects/holrd/experiments/"
+BASE="/home/cloucera/results/hord/experiments/"
 
 declare -a DISEASES
 DISEASES=("ALB" "EVC" "H" "RP" "WS")
+DISEASES=("COV2")
 declare -a EXPERIMENTS
 EXPERIMENTS=("AT" "AT_C")
+EXPERIMENTS=("AT")
 
 ## now loop through the above array
 for DISEASE in "${DISEASES[@]}"
