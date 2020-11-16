@@ -23,6 +23,7 @@ from sklearn.model_selection import RepeatedKFold
 
 from src.datasets import get_disease_data
 from src.learn import AutoMorf
+from src.explain import run_stability
 
 
 def warn(*args, **kwargs):
@@ -40,15 +41,14 @@ NUM_CPUS = int(os.getenv("NUM_CPUS"))
 USE_GPU = bool(os.getenv("USE_GPU"))
 OUT_PATH = Path(os.environ.get("OUT_PATH"))
 
-warnings.filterwarnings(
-    'ignore', category=DeprecationWarning, module='sklearn')
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="sklearn")
 
 
 @click.command()
-@click.option('--disease', default="fanconi", help='which disease to test')
-@click.option('--mlmodel', default="morf", help='ML model')
-@click.option('--opt', default="hyperopt", help='Train/test mode')
-@click.option('--seed', default=42, type=int, help='Random seed')
+@click.option("--disease", default="fanconi", help="which disease to test")
+@click.option("--mlmodel", default="morf", help="ML model")
+@click.option("--opt", default="hyperopt", help="Train/test mode")
+@click.option("--seed", default=42, type=int, help="Random seed")
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
 @click.option("--pathways", default=None, help="Pathways filter", multiple=True)
 @click.option("--gset", default="target", help="Set of genes to use")
@@ -101,15 +101,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
             name = pathways
         name = "_".join(name)
 
-        out_path = OUT_PATH.joinpath(
-            disease,
-            name,
-            gset,
-            mlmodel,
-            opt,
-            mode,
-            str(seed)
-        )
+        out_path = OUT_PATH.joinpath(disease, name, gset, mlmodel, opt, mode, str(seed))
 
     if mode == "train":
         ok = True
@@ -123,19 +115,15 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
 
 
 def run_(disease, mlmodel, opt, seed, mode, pathways, gset):
-    """Select the training mode.
-    """
+    """Select the training mode."""
     if mode in ["train", "test"]:
         run_full(disease, mlmodel, opt, seed, mode, pathways, gset)
 
 
 def get_data(disease, mode, pathways, gset):
-    """Load disease data and metadata.
-    """
+    """Load disease data and metadata."""
     gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(
-        disease,
-        pathways,
-        gset
+        disease, pathways, gset
     )
 
     print(gene_xpr.shape, pathvals.shape)
@@ -156,10 +144,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
 
     # Load data
     gene_xpr, pathvals, circuits, genes, clinical = get_data(
-        disease,
-        mode,
-        pathways,
-        gset
+        disease, mode, pathways, gset
     )
 
     # save data
@@ -201,6 +186,16 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     # Compute shap relevances
     print("Computing task relevances.")
     compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, True)
+
+    stability_results = run_stability(model, gene_xpr, pathvals, alpha=0.05)
+    # Save results
+    stability_results_fname = "stability_results.pkl"
+    stability_results_fpath = output_folder.joinpath(
+        output_folder, stability_results_fname
+    )
+    with open(stability_results_fpath, "wb") as f:
+        joblib.dump(stability_results, f)
+    print("Stability results saved to: {}".format(stats_fpath))
 
 
 def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
@@ -249,9 +244,7 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
             relevances.append(np.abs(shap_values[i_task]).mean(0))
 
         relevance = pd.DataFrame(
-            np.vstack(relevances).T,
-            columns=pathvals.columns,
-            index=gene_xpr.columns
+            np.vstack(relevances).T, columns=pathvals.columns, index=gene_xpr.columns
         )
 
         shap_values_fname = "shap_values_task_relevance.tsv"
@@ -259,8 +252,7 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
         # Global relevance
         global_shap_values = np.abs(shap_values).mean(0)
         relevance = pd.DataFrame(
-            {"relevance": global_shap_values},
-            index=gene_xpr.columns
+            {"relevance": global_shap_values}, index=gene_xpr.columns
         )
         shap_values_fname = "shap_values_global_relevance.tsv"
 
@@ -270,24 +262,17 @@ def compute_shap_relevance(estimator, gene_xpr, pathvals, output_folder, task):
 
 
 def get_model(mlmodel, opt, mode):
-    """Get an instace of an AutoMorf model.
-    """
+    """Get an instace of an AutoMorf model."""
     name = "_".join([mlmodel, opt])
     if mlmodel == "morf":
         if mode == "train":
             model = AutoMorf(
-                name=name,
-                framework=opt,
-                n_jobs=NUM_CPUS,
-                cv=5,
-                n_calls=10 ** 3)
+                name=name, framework=opt, n_jobs=NUM_CPUS, cv=5, n_calls=10 ** 3
+            )
         elif mode == "test":
-            model = AutoMorf(
-                name=name,
-                framework=opt,
-                n_jobs=NUM_CPUS,
-                cv=2,
-                n_calls=5)
+            model = AutoMorf(name=name, framework=opt, n_jobs=NUM_CPUS, cv=2, n_calls=5)
+    else:
+        raise NotImplementedError()
 
     return model
 
@@ -328,7 +313,7 @@ def perform_cv(X, y, estimator, seed, tissue):
         "msle_ua": {"train": [], "test": []},
         "r2_mo": {"train": [], "test": []},
         "r2_ua": {"train": [], "test": []},
-        "relevance": []
+        "relevance": [],
     }
 
     skf = RepeatedKFold(n_splits=10, n_repeats=10, random_state=seed)
@@ -350,146 +335,105 @@ def perform_cv(X, y, estimator, seed, tissue):
         # Explained variance
 
         evs_mo_train = metrics.explained_variance_score(
-            y_train,
-            y_train_hat,
-            multioutput="raw_values")
+            y_train, y_train_hat, multioutput="raw_values"
+        )
         stats["evs_mo"]["train"].append(evs_mo_train)
 
         evs_mo_test = metrics.explained_variance_score(
-            y_test,
-            y_test_hat,
-            multioutput="raw_values"
+            y_test, y_test_hat, multioutput="raw_values"
         )
         stats["evs_mo"]["test"].append(evs_mo_test)
 
         evs_ua_train = metrics.explained_variance_score(
-            y_train,
-            y_train_hat,
-            multioutput="uniform_average"
+            y_train, y_train_hat, multioutput="uniform_average"
         )
         stats["evs_ua"]["train"].append(evs_ua_train)
 
         evs_ua_test = metrics.explained_variance_score(
-            y_test,
-            y_test_hat,
-            multioutput="uniform_average"
+            y_test, y_test_hat, multioutput="uniform_average"
         )
         stats["evs_ua"]["test"].append(evs_ua_test)
 
         # MAE
 
         mae_mo_train = metrics.mean_absolute_error(
-            y_train,
-            y_train_hat,
-            multioutput="raw_values")
+            y_train, y_train_hat, multioutput="raw_values"
+        )
         stats["mae_mo"]["train"].append(mae_mo_train)
 
         mae_mo_test = metrics.mean_absolute_error(
-            y_test,
-            y_test_hat,
-            multioutput="raw_values"
+            y_test, y_test_hat, multioutput="raw_values"
         )
         stats["mae_mo"]["test"].append(mae_mo_test)
 
         mae_ua_train = metrics.mean_absolute_error(
-            y_train,
-            y_train_hat,
-            multioutput="uniform_average"
+            y_train, y_train_hat, multioutput="uniform_average"
         )
         stats["mae_ua"]["train"].append(mae_ua_train)
 
         mae_ua_test = metrics.mean_absolute_error(
-            y_test,
-            y_test_hat,
-            multioutput="uniform_average"
+            y_test, y_test_hat, multioutput="uniform_average"
         )
         stats["mae_ua"]["test"].append(mae_ua_test)
 
         # MSE
 
         mse_mo_train = metrics.mean_squared_error(
-            y_train,
-            y_train_hat,
-            multioutput="raw_values")
+            y_train, y_train_hat, multioutput="raw_values"
+        )
         stats["mse_mo"]["train"].append(mse_mo_train)
 
         mse_mo_test = metrics.mean_squared_error(
-            y_test,
-            y_test_hat,
-            multioutput="raw_values"
+            y_test, y_test_hat, multioutput="raw_values"
         )
         stats["mse_mo"]["test"].append(mse_mo_test)
 
         mse_ua_train = metrics.mean_squared_error(
-            y_train,
-            y_train_hat,
-            multioutput="uniform_average"
+            y_train, y_train_hat, multioutput="uniform_average"
         )
         stats["mse_ua"]["train"].append(mse_ua_train)
 
         mse_ua_test = metrics.mean_squared_error(
-            y_test,
-            y_test_hat,
-            multioutput="uniform_average"
+            y_test, y_test_hat, multioutput="uniform_average"
         )
         stats["mse_ua"]["test"].append(mse_ua_test)
 
         # MSLE
 
         msle_mo_train = metrics.mean_squared_log_error(
-            y_train,
-            y_train_hat,
-            multioutput="raw_values")
+            y_train, y_train_hat, multioutput="raw_values"
+        )
         stats["msle_mo"]["train"].append(msle_mo_train)
 
         msle_mo_test = metrics.mean_squared_log_error(
-            y_test,
-            y_test_hat,
-            multioutput="raw_values"
+            y_test, y_test_hat, multioutput="raw_values"
         )
         stats["msle_mo"]["test"].append(msle_mo_test)
 
         msle_ua_train = metrics.mean_squared_log_error(
-            y_train,
-            y_train_hat,
-            multioutput="uniform_average"
+            y_train, y_train_hat, multioutput="uniform_average"
         )
         stats["msle_ua"]["train"].append(msle_ua_train)
 
         msle_ua_test = metrics.mean_squared_log_error(
-            y_test,
-            y_test_hat,
-            multioutput="uniform_average"
+            y_test, y_test_hat, multioutput="uniform_average"
         )
         stats["msle_ua"]["test"].append(msle_ua_test)
 
         # r2
 
-        r2_mo_train = metrics.r2_score(
-            y_train,
-            y_train_hat,
-            multioutput="raw_values")
+        r2_mo_train = metrics.r2_score(y_train, y_train_hat, multioutput="raw_values")
         stats["r2_mo"]["train"].append(r2_mo_train)
 
-        r2_mo_test = metrics.r2_score(
-            y_test,
-            y_test_hat,
-            multioutput="raw_values"
-        )
+        r2_mo_test = metrics.r2_score(y_test, y_test_hat, multioutput="raw_values")
         stats["r2_mo"]["test"].append(r2_mo_test)
 
         r2_ua_train = metrics.r2_score(
-            y_train,
-            y_train_hat,
-            multioutput="uniform_average"
+            y_train, y_train_hat, multioutput="uniform_average"
         )
         stats["r2_ua"]["train"].append(r2_ua_train)
 
-        r2_ua_test = metrics.r2_score(
-            y_test,
-            y_test_hat,
-            multioutput="uniform_average"
-        )
+        r2_ua_test = metrics.r2_score(y_test, y_test_hat, multioutput="uniform_average")
         stats["r2_ua"]["test"].append(r2_ua_test)
 
         if hasattr(estimator, "feature_importances_"):
@@ -500,6 +444,6 @@ def perform_cv(X, y, estimator, seed, tissue):
     return stats
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     hord()
