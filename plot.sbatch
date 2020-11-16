@@ -3,7 +3,7 @@
 #SBATCH --mail-user=carlos.loucera@juntadeandalucia.es
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
-#SBATCH --mem=100G
+#SBATCH --mem=10G
 #SBATCH -c 1
 
 
@@ -25,4 +25,4 @@ source ~/.pyenv/holrd/bin/activate
 # Avoid multithreading issues while computing relevances with SHAP.
 OMP_NUM_THREADS=1
 
-python src/ml_plots.py $MLPATH 0 1
+python src/ml_plots.py $MLPATH 0 0
