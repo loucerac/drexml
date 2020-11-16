@@ -18,7 +18,7 @@ import pandas as pd
 import shap
 from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
-from sklearn.externals import joblib
+import joblib
 from sklearn.model_selection import RepeatedKFold
 
 from src.datasets import get_disease_data
