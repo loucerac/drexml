@@ -184,7 +184,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
     # Compute shap relevances
-    shap_full, shap_summary = compute_shap(model, gene_xpr, pathvals)
+    shap_full, shap_summary = compute_shap(estimator, gene_xpr, pathvals)
     # Save results
     shap_full_fname = "shap_full.pkl"
     shap_full_fpath = output_folder.joinpath(output_folder, shap_full_fname)
@@ -199,7 +199,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Stability results saved to: {}".format(shap_summary_fpath))
 
     # Stability Analysys
-    stability_results = run_stability(model, gene_xpr, pathvals, alpha=0.05)
+    stability_results = run_stability(estimator, gene_xpr, pathvals, alpha=0.05)
     # Save results
     stability_results_fname = "stability_results.pkl"
     stability_results_fpath = output_folder.joinpath(
