@@ -164,7 +164,7 @@ def compute_shap(model, X, Y, test_size=0.3):
         for x_col in range(n_predictors)
         for y_col in range(n_targets)
     )
-    signs = np.array(signs).reshape(n_targets, n_predictors, "F")
+    signs = np.array(signs).reshape((n_targets, n_predictors), order="F")
     signs = pd.DataFrame(signs, index=Y.columns, columns=X.columns)
 
     shap_values = np.array(shap_values)
