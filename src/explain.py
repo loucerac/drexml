@@ -143,7 +143,7 @@ def build_stability_dict(z_mat, errors, alpha=0.05):
 
 
 def compute_shap(model, X, Y, test_size=0.3):
-    X_learn, X_val, Y_learn, Y_val = train_test_split(
+    X_learn, X_val, Y_learn, _ = train_test_split(
         X, Y, test_size=0.3, random_state=42
     )
 
@@ -164,7 +164,7 @@ def compute_shap(model, X, Y, test_size=0.3):
         for x_col in range(n_predictors)
         for y_col in range(n_targets)
     )
-    signs = np.array(signs).ravel().reshape(n_targets, n_predictors)
+    signs = np.array(signs).reshape(n_targets, n_predictors, "F")
     signs = pd.DataFrame(signs, index=Y.columns, columns=X.columns)
 
     shap_values = np.array(shap_values)
@@ -175,7 +175,7 @@ def compute_shap(model, X, Y, test_size=0.3):
 
     shap_values = {
         Y.columns[y_col]: pd.DataFrame(
-            shap_values[y_col], columns=X.columns, index=X.index
+            shap_values[y_col], columns=X_val.columns, index=X_val.index
         )
         for y_col in range(n_targets)
     }
