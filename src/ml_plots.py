@@ -175,7 +175,7 @@ def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
     d = d.rename(columns=circuit_dict)
     d = d.melt(value_name="score", var_name="Circuit")
     d["score"] = 1 - d["score"]
-    plt.figure(figsize=(9, 16))
+    plt.figure(figsize=(10, 20))
     g = sns.boxplot(x="score", y="Circuit", data=d, color="lightgray")
     g.set_xlabel(
         "10 times 10-fold $1 - R^{2}$ Cross-Validation Distribution", fontsize=12
