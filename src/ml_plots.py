@@ -198,9 +198,6 @@ def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
         fname = f"{name}.{ext}"
         fpath = pdir.joinpath(fname)
         plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
-    plt.close()
-
-    plt.close()
 
 
 if __name__ == "__main__":
@@ -211,6 +208,7 @@ if __name__ == "__main__":
     use_circuit_dict = int(use_circuit_dict)
 
     plt.style.use("fivethirtyeight")
+    sns.set_context("paper")
 
     translate_folder = results_path.parent.parent.parent.parent.parent
 
