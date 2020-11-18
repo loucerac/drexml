@@ -227,13 +227,13 @@ if __name__ == "__main__":
         task_rel = get_shap_relevance(results_path)
 
     ## Median relevance
-    for use_symb_dict in [False]:
+    for use_symb_dict in [True, False]:
         plot_median(rel_cv, use_symb_dict, gene_symbols_dict, results_path)
 
     save_median_df(rel_cv, cut, gene_symbols_dict, results_path)
 
     ## Relevance distribution
-    for symb_dict in [None]:
+    for symb_dict in [None, gene_symbols_dict]:
         plot_relevance_distribution(rel_cv, cut, symb_dict, results_path)
 
     ## ML stats
