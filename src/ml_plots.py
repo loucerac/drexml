@@ -168,32 +168,22 @@ def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
 
 
 def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
-    for stat in cv_stats.keys():
-        if "_mo" in stat:
-            dfs = []
-            for split in cv_stats[stat].keys():
-                df = pd.DataFrame(cv_stats[stat][split], columns=circuit_ids)
-                df.rename(columns=circuit_dict, inplace=True)
-                dfs.append(df)
+    stat = "r2_mo"
+    sns.set_theme(context="paper", style="whitegrid")
 
-    sns.set_context("paper")
+    d = pd.DataFrame(cv_stats[stat]["test"], columns=circuit_ids)
+    d = d.rename(columns=circuit_dict)
+    d = d.melt(value_name="score", var_name="Circuit")
+    d["score"] = 1 - d["score"]
+    plt.figure(figsize=(9, 16))
+    g = sns.boxplot(x="score", y="Circuit", data=d, color="lightgray")
+    g.set_xlabel(
+        "10 times 10-fold $1 - R^{2}$ Cross-Validation Distribution", fontsize=12
+    )
+    g.set_ylabel("Circuit", fontsize=12)
+    sns.despine(left=True, bottom=True)
 
-    fig, axes = plt.subplots(2, 1, figsize=(12, 5), sharex=True)
-
-    dfs[0].plot(kind="box", ax=axes[0], rot=90)
-    axes[0].set_title("Train")
-
-    dfs[1].plot(kind="box", ax=axes[1], rot=90)
-    axes[1].set_title("Test")
-
-    SMALL_SIZE = 8
-    plt.rc("xtick", labelsize=SMALL_SIZE)
-    fig.text(0.01, 0.5, r"$R_{2}$", ha="center", va="center", rotation=90)
-
-    # plt.suptitle("Performance score distribution")
-    plt.tight_layout()
-
-    name = "cv_performance_distribution"
+    name = f"{stat}_cv_performance_distribution"
     for ext in extensions:
         fname = f"{name}.{ext}"
         fpath = pdir.joinpath(fname)
