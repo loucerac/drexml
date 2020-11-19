@@ -142,8 +142,8 @@ def build_stability_dict(z_mat, errors, alpha=0.05):
     return res
 
 
-def compute_shap(model, X, Y, test_size=0.3):
-    X_learn, X_val, Y_learn, _ = train_test_split(
+def compute_shap(model, X, Y, q=0.95, test_size=0.3):
+    X_learn, X_val, Y_learn, Y_val = train_test_split(
         X, Y, test_size=0.3, random_state=42
     )
 
@@ -157,6 +157,13 @@ def compute_shap(model, X, Y, test_size=0.3):
     shap_values = explainer.shap_values(
         X_val, approximate=False, check_additivity=False
     )
+
+    shap_values = {
+        Y_val.columns[y_col]: pd.DataFrame(
+            shap_values[y_col], columns=X_val.columns, index=X_val.index
+        )
+        for y_col in range(n_targets)
+    }
 
     corr_sign = lambda x, y: np.sign(pearsonr(x, y)[0])
     signs = Parallel()(
@@ -173,11 +180,6 @@ def compute_shap(model, X, Y, test_size=0.3):
     )
     shap_values_summary = shap_values_summary * signs
 
-    shap_values = {
-        Y.columns[y_col]: pd.DataFrame(
-            shap_values[y_col], columns=X_val.columns, index=X_val.index
-        )
-        for y_col in range(n_targets)
-    }
+    fs = shap_values_summary.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1).values
 
-    return shap_values, shap_values_summary
+    return shap_values, shap_values_summary, fs
