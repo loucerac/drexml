@@ -158,7 +158,7 @@ def compute_shap(model, X, Y, q=0.95, test_size=0.3):
         X_val, approximate=False, check_additivity=False
     )
 
-    shap_values = {
+    shap_full = {
         Y_val.columns[y_col]: pd.DataFrame(
             shap_values[y_col], columns=X_val.columns, index=X_val.index
         )
@@ -182,4 +182,4 @@ def compute_shap(model, X, Y, q=0.95, test_size=0.3):
 
     fs = shap_values_summary.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1).values
 
-    return shap_values, shap_values_summary, fs
+    return shap_full, shap_values_summary, fs
