@@ -47,7 +47,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="sklearn")
 @click.command()
 @click.option("--disease", default="fanconi", help="which disease to test")
 @click.option("--mlmodel", default="morf", help="ML model")
-@click.option("--opt", default="hyperopt", help="Train/test mode")
+@click.option("--opt", default="hyperopt", help="HP-optimization method.")
 @click.option("--seed", default=42, type=int, help="Random seed")
 @click.option("--mode", default="train", help="Train and evaluate or evaluate")
 @click.option("--pathways", default=None, help="Pathways filter", multiple=True)
@@ -184,19 +184,23 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
     # Compute shap relevances
-    shap_full, shap_summary = compute_shap(estimator, gene_xpr, pathvals)
+    shap_full, shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals)
     # Save results
     shap_full_fname = "shap_full.pkl"
     shap_full_fpath = output_folder.joinpath(output_folder, shap_full_fname)
     with open(shap_full_fpath, "wb") as f:
         joblib.dump(shap_full, f)
-    print("Stability results saved to: {}".format(shap_full_fpath))
+    print("Shap values saved to: {}".format(shap_full_fpath))
     # Save results
-    shap_summary_fname = "shap_summary.pkl"
+    shap_summary_fname = "shap_summary.tsv"
     shap_summary_fpath = output_folder.joinpath(output_folder, shap_summary_fname)
-    with open(shap_summary_fpath, "wb") as f:
-        joblib.dump(shap_summary, f)
-    print("Stability results saved to: {}".format(shap_summary_fpath))
+    shap_summary.to_csv(shap_summary_fpath, sep="\t")
+    print("Shap summary results saved to: {}".format(shap_summary_fpath))
+    # Save results
+    fs_fname = "shap_selection.tsv"
+    fs_fpath = output_folder.joinpath(output_folder, fs_fname)
+    fs.to_csv(fs_fpath, sep="\t")
+    print("Shap selection results saved to: {}".format(shap_summary_fpath))
 
     # Stability Analysys
     stability_results = run_stability(estimator, gene_xpr, pathvals, alpha=0.05)
