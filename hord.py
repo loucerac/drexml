@@ -212,6 +212,8 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     with open(stability_results_fpath, "wb") as f:
         joblib.dump(stability_results, f)
     print("Stability results saved to: {}".format(stability_results_fpath))
+    print(stability_results["stability_score"])
+    print(stability_results["stability_error"])
 
 
 def get_model(mlmodel, opt, mode):
