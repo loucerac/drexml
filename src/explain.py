@@ -178,8 +178,9 @@ def compute_shap(model, X, Y, q=0.95, test_size=0.3):
     shap_values_summary = pd.DataFrame(
         np.abs(shap_values).mean(axis=(1)), index=Y.columns, columns=X.columns
     )
-    shap_values_summary = shap_values_summary * signs
 
-    fs = shap_values_summary.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1)
+    fs = shap_values_summary.apply(lambda x: x > np.quantile(x, q), axis=1)
+
+    shap_values_summary = shap_values_summary * signs
 
     return shap_full, shap_values_summary, fs
