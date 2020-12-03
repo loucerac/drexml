@@ -4,7 +4,7 @@ BASE="/home/cloucera/results/hord/experiments/"
 declare -a DISEASES
 # DISEASES=("ALB" "EVC" "H" "RP" "WS")
 # DISEASES=("COV2")
-DISEASES=("Osteogenesis_Imperfecta_Extended" "Osteogenesis_Imperfecta_Reduced")
+DISEASES=("Osteogenesis_Imperfecta_Extended" "covid_shap_sign" "Osteogenesis_Imperfecta_Reduced")
 declare -a EXPERIMENTS
 # EXPERIMENTS=("AT" "AT_C")
 EXPERIMENTS=("AT")
