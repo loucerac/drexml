@@ -196,6 +196,7 @@ def convert_shap_summary(results_path, circuit_dict, gene_symbols_dict):
     frame = pd.read_csv(fpath, sep="\t", index_col=0)
     frame = frame.rename(index=circuit_dict)
     frame = frame.rename(columns=gene_symbols_dict)
+    frame = frame.fillna(0.0)
 
     fname_out = "shap_summary_symbol.tsv"
     fpath_out = results_path.joinpath(fname_out)
@@ -207,7 +208,7 @@ def convert_shap_summary(results_path, circuit_dict, gene_symbols_dict):
 def convert_shap_selection(shap_summary, results_path, q=0.95):
     fname_out = "shap_selection_symbol.tsv"
     fpath_out = results_path.joinpath(fname_out)
-    fs = shap_summary.apply(lambda x: x > np.quantile(x, q), axis=1) * 1
+    fs = shap_summary.abs().apply(lambda x: x > np.quantile(x, q), axis=1) * 1
     fs.to_csv(fpath_out, sep="\t")
 
 
