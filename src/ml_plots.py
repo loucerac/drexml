@@ -14,10 +14,10 @@ def get_symbol_dict(results_path):
     fname = "entrez_sym-table.tsv"
     fpath = results_path.parent.parent.parent.parent.joinpath(fname)
 
-    gene_names = pd.read_csv(fpath, sep=",", dtype={"entrez": str})
+    gene_names = pd.read_csv(fpath, sep="\t", dtype={"entrez": str})
     gene_names.set_index("entrez", drop=True, inplace=True)
 
-    gene_symbols_dict = gene_names.to_dict()["symb"]
+    gene_symbols_dict = gene_names.to_dict()["symbol"]
 
     return gene_symbols_dict
 
