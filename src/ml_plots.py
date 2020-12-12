@@ -14,10 +14,10 @@ def get_symbol_dict(results_path):
     fname = "entrez_sym-table.tsv"
     fpath = results_path.parent.parent.parent.parent.joinpath(fname)
 
-    gene_names = pd.read_csv(fpath, sep=",", dtype={"entrez": str})
+    gene_names = pd.read_csv(fpath, sep="\t", dtype={"entrez": str})
     gene_names.set_index("entrez", drop=True, inplace=True)
 
-    gene_symbols_dict = gene_names.to_dict()["symb"]
+    gene_symbols_dict = gene_names.to_dict()["symbol"]
 
     return gene_symbols_dict
 
@@ -190,6 +190,28 @@ def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
         plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
 
 
+def convert_shap_summary(results_path, circuit_dict, gene_symbols_dict):
+    fname = "shap_summary.tsv"
+    fpath = results_path.joinpath(fname)
+    frame = pd.read_csv(fpath, sep="\t", index_col=0)
+    frame = frame.rename(index=circuit_dict)
+    frame = frame.rename(columns=gene_symbols_dict)
+    frame = frame.fillna(0.0)
+
+    fname_out = "shap_summary_symbol.tsv"
+    fpath_out = results_path.joinpath(fname_out)
+    frame.to_csv(fpath_out, sep="\t")
+
+    return frame
+
+
+def convert_shap_selection(shap_summary, results_path, q=0.95):
+    fname_out = "shap_selection_symbol.tsv"
+    fpath_out = results_path.joinpath(fname_out)
+    fs = shap_summary.abs().apply(lambda x: x > np.quantile(x, q), axis=1) * 1
+    fs.to_csv(fpath_out, sep="\t")
+
+
 if __name__ == "__main__":
 
     _, folder, use_task, use_circuit_dict = sys.argv
@@ -228,3 +250,6 @@ if __name__ == "__main__":
     plot_stats(cv_stats, circuit_ids, circuit_dict, results_path)
 
     plt.close("all")
+
+    shap_summary = convert_shap_summary(results_path, circuit_dict, gene_symbols_dict)
+    convert_shap_selection(shap_summary, results_path)
