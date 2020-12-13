@@ -43,6 +43,8 @@ def compute_shap_values(estimator, X, y=None, approximate=True, check_additivity
         X, approximate=approximate, check_additivity=check_additivity
     )
 
+    joblib.dump("shap.jbl")
+
     return shap_values
 
 
