@@ -109,7 +109,6 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
 
         model_ = clone(model)
         model_.fit(X_learn, Y_learn)
-        model_.predict(X_test)
 
         for i, lambda_i in enumerate(lambdas):
             # FS using shap relevances
@@ -121,6 +120,7 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
             )
             shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
             filt_i = compute_shap_fs(shap_relevances, q=lambda_i, by_circuit=False)
+            print(filt_i)
 
             X_train_filt = X_train.loc[:, filt_i]
             X_test_filt = X_test.loc[:, filt_i]
@@ -138,8 +138,6 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
 
             errors[n_split, i] = r2_loss
             errors_mo[n_split, i, :] = mo_r2_loss
-
-            Z[i, n_split, :] = filt_i
 
             print(f"\t {r2_loss}")
 
