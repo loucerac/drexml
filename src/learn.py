@@ -267,7 +267,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             json_fpath = out.joinpath(json_fname)
             model_hp = self.best_model.get_params()
             with open(json_fpath, "w") as fjson:
-                json.dump(model_hp, json_fpath, indent=4)
+                json.dump(model_hp, fjson, indent=4)
         else:
             opt_path = out.joinpath(self.get_opt_fname(self.name))
             if self.framework == "hyperopt":
