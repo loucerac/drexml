@@ -6,13 +6,18 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import joblib
+import dotenv
+import pathlib
 
+dotenv_filepath = dotenv.find_dotenv()
+project_path = pathlib.Path(dotenv_filepath).parent
+resources_folder = project_path.joinpath("resources")
 exts = ["pdf", "png", "eps", "svg"]
 
 
-def get_symbol_dict(results_path):
+def get_symbol_dict():
     fname = "entrez_sym-table.tsv"
-    fpath = results_path.parent.parent.parent.parent.joinpath(fname)
+    fpath = resources_folder.joinpath(fname)
 
     gene_names = pd.read_csv(fpath, sep="\t", dtype={"entrez": str})
     gene_names.set_index("entrez", drop=True, inplace=True)
@@ -22,9 +27,9 @@ def get_symbol_dict(results_path):
     return gene_symbols_dict
 
 
-def get_circuit_dict(translate_folder):
+def get_circuit_dict():
     fname = "circuit_names.tsv"
-    fpath = translate_folder.joinpath(fname)
+    fpath = resources_folder.joinpath(fname)
     circuit_names = pd.read_csv(
         fpath, sep="\t", index_col=0, header=None, names=["NAME"]
     )
@@ -190,66 +195,14 @@ def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
         plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
 
 
-def convert_shap_summary(results_path, circuit_dict, gene_symbols_dict):
-    fname = "shap_summary.tsv"
+def convert_frame_ids(fname, results_path, circuit_dict, gene_symbols_dict):
     fpath = results_path.joinpath(fname)
     frame = pd.read_csv(fpath, sep="\t", index_col=0)
     frame = frame.rename(index=circuit_dict)
     frame = frame.rename(columns=gene_symbols_dict)
-    frame = frame.fillna(0.0)
 
-    fname_out = "shap_summary_symbol.tsv"
+    fname_out = fname.replace(".tsv", "_symbol.tsv")
     fpath_out = results_path.joinpath(fname_out)
     frame.to_csv(fpath_out, sep="\t")
 
     return frame
-
-
-def convert_shap_selection(shap_summary, results_path, q=0.95):
-    fname_out = "shap_selection_symbol.tsv"
-    fpath_out = results_path.joinpath(fname_out)
-    fs = shap_summary.abs().apply(lambda x: x > np.quantile(x, q), axis=1) * 1
-    fs.to_csv(fpath_out, sep="\t")
-
-
-if __name__ == "__main__":
-
-    _, folder, use_task, use_circuit_dict = sys.argv
-    results_path = Path(folder)
-    use_task = int(use_task)
-    use_circuit_dict = int(use_circuit_dict)
-
-    plt.style.use("fivethirtyeight")
-    sns.set_context("paper")
-
-    translate_folder = results_path.parent.parent.parent.parent.parent
-
-    # load data
-    target, circuit_ids = get_target(results_path)
-    features, gene_ids = get_features(results_path)
-    cv_stats = get_cv_stats(results_path)
-    rel_cv = get_rel_cv(cv_stats, gene_ids)
-    cut = get_cut_point(rel_cv)
-    gene_symbols_dict = get_symbol_dict(results_path)
-    circuit_dict = get_circuit_dict(translate_folder)
-
-    if use_task:
-        task_rel = get_shap_relevance(results_path)
-
-    ## Median relevance
-    for use_symb_dict in [True, False]:
-        plot_median(rel_cv, use_symb_dict, gene_symbols_dict, results_path)
-
-    save_median_df(rel_cv, cut, gene_symbols_dict, results_path)
-
-    ## Relevance distribution
-    for symb_dict in [None, gene_symbols_dict]:
-        plot_relevance_distribution(rel_cv, cut, symb_dict, results_path)
-
-    ## ML stats
-    plot_stats(cv_stats, circuit_ids, circuit_dict, results_path)
-
-    plt.close("all")
-
-    shap_summary = convert_shap_summary(results_path, circuit_dict, gene_symbols_dict)
-    convert_shap_selection(shap_summary, results_path)
