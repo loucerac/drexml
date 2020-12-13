@@ -25,30 +25,57 @@ from joblib import Parallel, delayed
 from scipy.stats import pearsonr
 
 
-def compute_shap_fs(estimator, X, y, q=0.95, global=True):
-    shap_relevance = compute_shape_relevance(estimator, X, y)
+def compute_shap_fs(relevances, q=0.95, by_circuit=False):
 
-    return (
-        shap_relevance.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1).values
-    )
+    by_circuit_frame = relevances.ans().apply(lambda x: x > np.quantile(x, q), axis=1)
 
-def compute_shap(estimator, X, y):
+    if by_circuit:
+        res = by_circuit_frame
+    else:
+        res = by_circuit_frame.any().values
+
+    return res
+
+
+def compute_shap_values(estimator, X, y=None, approximate=True, check_additivity=False):
     explainer = shap.TreeExplainer(estimator)
-    shap_values = explainer.shap_values(X, approximate=True, check_additivity=False)
-    shap_values = np.array(shap_values)
+    shap_values = explainer.shap_values(
+        X, approximate=approximate, check_additivity=check_additivity
+    )
 
     return shap_values
 
-def compute_shape_relevance(shap_values):
-    
-    shap_relevance = pd.DataFrame(
-        np.abs(shap_values).mean(axis=(1)), index=y.columns, columns=X.columns
+
+def compute_shap_relevance(shap_values, X, Y):
+
+    feature_names = X.columns
+    task_names = Y.columns
+
+    n_features = len(feature_names)
+    n_tasks = len(task_names)
+
+    corr_sign = lambda x, y: np.sign(pearsonr(x, y)[0])
+    signs = Parallel()(
+        delayed(corr_sign)(X.iloc[:, x_col], shap_values[y_col][:, x_col])
+        for x_col in range(n_features)
+        for y_col in range(n_tasks)
     )
+
+    signs = np.array(signs).reshape((n_tasks, n_features), order="F")
+    signs = pd.DataFrame(signs, index=Y.columns, columns=X.columns)
+
+    shap_values = np.array(shap_values)
+
+    shap_relevance = pd.DataFrame(
+        np.abs(shap_values).mean(axis=(1)), index=task_names, columns=feature_names
+    )
+
+    shap_relevance = shap_relevance * signs
 
     return shap_relevance
 
 
-def run_stability(model, X, Y, alpha=0.05):
+def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=False):
     n_bootstraps = 100
     n_samples, n_variables = X.shape
     n_circuits = Y.shape[1]
@@ -85,7 +112,16 @@ def run_stability(model, X, Y, alpha=0.05):
         model_.predict(X_test)
 
         for i, lambda_i in enumerate(lambdas):
-            filt_i = compute_shap_fs(model, X_val, Y_val, q=lambda_i)
+            # FS using shap relevances
+            shap_values = compute_shap_values(
+                model_,
+                X_val,
+                approximate=approximate,
+                check_additivity=check_additivity,
+            )
+            shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
+            filt_i = compute_shap_fs(shap_relevances, q=lambda_i, by_circuit=False)
+
             X_train_filt = X_train.loc[:, filt_i]
             X_test_filt = X_test.loc[:, filt_i]
             Z[i, n_split, :] = filt_i * 1
@@ -122,7 +158,6 @@ def build_stability_dict(z_mat, errors, alpha=0.05):
     stability_error = stab_res["stability"] - stab_res["lower"]
 
     res = {
-        "support": support_matrix,
         "scores": scores,
         "stability_score": stability,
         "stability_error": stability_error,
@@ -132,45 +167,24 @@ def build_stability_dict(z_mat, errors, alpha=0.05):
     return res
 
 
-def compute_shap(model, X, Y, q=0.95, test_size=0.3):
+def compute_shap(
+    model, X, Y, test_size=0.3, q=0.95, approximate=True, check_additivity=False
+):
     X_learn, X_val, Y_learn, Y_val = train_test_split(
-        X, Y, test_size=0.3, random_state=42
+        X, Y, test_size=test_size, random_state=42
     )
-
-    n_predictors = X.shape[1]
-    n_targets = Y.shape[1]
 
     model_ = clone(model)
     model_.fit(X_learn, Y_learn)
 
-    explainer = shap.TreeExplainer(model_)
-    shap_values = explainer.shap_values(
-        X_val, approximate=False, check_additivity=False
+    shap_values = compute_shap_values(
+        model_,
+        X_val,
+        approximate=approximate,
+        check_additivity=check_additivity,
     )
+    shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
+    fs = compute_shap_fs(shap_relevances, q=q, by_circuit=True)
+    fs = fs * 1
 
-    shap_full = {
-        Y_val.columns[y_col]: pd.DataFrame(
-            shap_values[y_col], columns=X_val.columns, index=X_val.index
-        )
-        for y_col in range(n_targets)
-    }
-
-    corr_sign = lambda x, y: np.sign(pearsonr(x, y)[0])
-    signs = Parallel()(
-        delayed(corr_sign)(X_val.iloc[:, x_col], shap_values[y_col][:, x_col])
-        for x_col in range(n_predictors)
-        for y_col in range(n_targets)
-    )
-    signs = np.array(signs).reshape((n_targets, n_predictors), order="F")
-    signs = pd.DataFrame(signs, index=Y.columns, columns=X.columns)
-
-    shap_values = np.array(shap_values)
-    shap_values_summary = pd.DataFrame(
-        np.abs(shap_values).mean(axis=(1)), index=Y.columns, columns=X.columns
-    )
-
-    fs = shap_values_summary.apply(lambda x: x > np.quantile(x, q), axis=1)
-
-    shap_values_summary = shap_values_summary * signs
-
-    return shap_full, shap_values_summary, fs
+    return shap_relevances, fs
