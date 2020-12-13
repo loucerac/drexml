@@ -25,37 +25,27 @@ from joblib import Parallel, delayed
 from scipy.stats import pearsonr
 
 
-def compute_shap_fs(estimator, X, y, q=0.95):
+def compute_shap_fs(estimator, X, y, q=0.95, global=True):
+    shap_relevance = compute_shape_relevance(estimator, X, y)
+
+    return (
+        shap_relevance.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1).values
+    )
+
+def compute_shap(estimator, X, y):
     explainer = shap.TreeExplainer(estimator)
     shap_values = explainer.shap_values(X, approximate=True, check_additivity=False)
     shap_values = np.array(shap_values)
-    shap_values_summary = pd.DataFrame(
+
+    return shap_values
+
+def compute_shape_relevance(shap_values):
+    
+    shap_relevance = pd.DataFrame(
         np.abs(shap_values).mean(axis=(1)), index=y.columns, columns=X.columns
     )
 
-    return (
-        shap_values_summary.T.apply(lambda x: x > np.quantile(x, q)).any(axis=1).values
-    )
-
-
-def get_shap_values(explainer, X, y):
-    """Using a saved copy of a model, calculate SHAP values.
-    Args:
-        explainer (shap TreeExplainer):
-        X (array-like): Training data.
-        y (array-like): Training target.
-        samples (int): Number of samples to compute SHAP values for.
-        est (Tree-Estimator): If given, a new TreeExplainer will be constructed and
-            used, meaning that `explainer` is not used.
-    """
-
-    start = time()
-    values = explainer.shap_values(X, y, approximate=False, check_additivity=False)
-    shap_time = time() - start
-    return (
-        values,
-        " ".join(map(str, ("PID:", os.getpid(), "time taken for SHAP", shap_time))),
-    )
+    return shap_relevance
 
 
 def run_stability(model, X, Y, alpha=0.05):
