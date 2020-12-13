@@ -27,7 +27,7 @@ from scipy.stats import pearsonr
 
 def compute_shap_fs(relevances, q=0.95, by_circuit=False):
 
-    by_circuit_frame = relevances.ans().apply(lambda x: x > np.quantile(x, q), axis=1)
+    by_circuit_frame = relevances.abs().apply(lambda x: x > np.quantile(x, q), axis=1)
 
     if by_circuit:
         res = by_circuit_frame
