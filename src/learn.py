@@ -20,6 +20,7 @@ from sklearn.ensemble import RandomForestRegressor
 import joblib
 from sklearn.model_selection import cross_val_score
 from sklearn.utils.validation import check_is_fitted, check_X_y
+import json
 
 
 def plot_feature_importances(
@@ -248,7 +249,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
 
         return self.best_model.feature_importances_
 
-    def save(self, out):
+    def save(self, out, fmt="json"):
         """Save the model to specified folder.
 
         Due to serialization limitations the saved model is split into
@@ -261,11 +262,18 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             The path where the model must be stored in '.gz' format.
         """
         out = self.get_output_folder(out)
-        opt_path = out.joinpath(self.get_opt_fname(self.name))
-        if self.framework == "hyperopt":
-            joblib.dump(self.opt, opt_path)
-        estimator_path = out.joinpath(self.get_estimator_fname(self.name))
-        joblib.dump(self.best_model, estimator_path)
+        if fmt == "json":
+            json_fname = "model_hyperparameters.json"
+            json_fpath = out.joinpath(json_fname)
+            model_hp = self.best_model.get_params()
+            with open(json_fpath, "w") as fjson:
+                json.dump(fjson, model_hp, indent=4)
+        else:
+            opt_path = out.joinpath(self.get_opt_fname(self.name))
+            if self.framework == "hyperopt":
+                joblib.dump(self.opt, opt_path)
+            estimator_path = out.joinpath(self.get_estimator_fname(self.name))
+            joblib.dump(self.best_model, estimator_path)
 
     @classmethod
     def load(cls, out, name):
