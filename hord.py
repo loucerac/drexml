@@ -20,10 +20,14 @@ from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
 import joblib
 from sklearn.model_selection import RepeatedKFold
+import json
 
 from src.datasets import get_disease_data
 from src.learn import AutoMorf
 from src.explain import run_stability, compute_shap
+from src import ml_plots
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def warn(*args, **kwargs):
@@ -147,21 +151,12 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
         disease, mode, pathways, gset
     )
 
-    # save data
-    features_fname = "features.pkl"
-    features_fpath = output_folder.joinpath(output_folder, features_fname)
-    gene_xpr.to_pickle(features_fpath)
-
-    target_fname = "target.pkl"
-    target_fpath = output_folder.joinpath(output_folder, target_fname)
-    pathvals.to_pickle(target_fpath)
-
     # Get ML model
     model = get_model(mlmodel, opt, mode)
 
     # Optimize and fit using the whole data
     model.fit(gene_xpr, pathvals)
-    model.save(output_folder)
+    model.save(output_folder, fmt="json")
 
     estimator = model.best_model
 
@@ -184,13 +179,8 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
     # Compute shap relevances
-    shap_full, shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals)
-    # Save results
-    shap_full_fname = "shap_full.pkl"
-    shap_full_fpath = output_folder.joinpath(output_folder, shap_full_fname)
-    with open(shap_full_fpath, "wb") as f:
-        joblib.dump(shap_full, f)
-    print("Shap values saved to: {}".format(shap_full_fpath))
+    shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals)
+    
     # Save results
     shap_summary_fname = "shap_summary.tsv"
     shap_summary_fpath = output_folder.joinpath(output_folder, shap_summary_fname)
@@ -205,12 +195,12 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     # Stability Analysys
     stability_results = run_stability(estimator, gene_xpr, pathvals, alpha=0.05)
     # Save results
-    stability_results_fname = "stability_results.pkl"
+    stability_results_fname = "stability_results.json"
     stability_results_fpath = output_folder.joinpath(
         output_folder, stability_results_fname
     )
-    with open(stability_results_fpath, "wb") as f:
-        joblib.dump(stability_results, f)
+    with open(stability_results_fpath, "w") as f:
+        json.dump(stability_results, f)
     print("Stability results saved to: {}".format(stability_results_fpath))
     print(stability_results["stability_score"])
     print(stability_results["stability_error"])
@@ -398,6 +388,34 @@ def perform_cv(X, y, estimator, seed, tissue):
 
     return stats
 
+
+def plot(results_path, gene_ids, circuit_ids, cv_stats):
+    #_, folder, use_task, use_circuit_dict = sys.argv
+
+    plt.style.use("fivethirtyeight")
+    sns.set_context("paper")
+
+    # load data
+    rel_cv = ml_plots.get_rel_cv(cv_stats, gene_ids)
+    cut = ml_plots.get_cut_point(rel_cv)
+    gene_symbols_dict = ml_plots.get_symbol_dict()
+    circuit_dict = ml_plots.get_circuit_dict()
+
+    ## Median relevance
+    for use_symb_dict in [True, False]:
+        ml_plots.plot_median(rel_cv, use_symb_dict, gene_symbols_dict, results_path)
+
+    ml_plots.save_median_df(rel_cv, cut, gene_symbols_dict, results_path)
+
+    ## Relevance distribution
+    for symb_dict in [None, gene_symbols_dict]:
+        ml_plots.plot_relevance_distribution(rel_cv, cut, symb_dict, results_path)
+
+    ## ML stats
+    ml_plots.plot_stats(cv_stats, circuit_ids, circuit_dict, results_path)
+
+    for fname in ["shap_summary.tsv", "shap_selection.tsv"]:
+        ml_plots.convert_frame_ids(fname, results_path, circuit_dict, gene_symbols_dict)
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
