@@ -138,9 +138,9 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
         for n_split, split in enumerate(stability_cv.split(X, Y))
     )
 
-    for n_split, filt, score, _ in enumerate(stab_values):
-        Z[n_split, :] = filt
-        errors[n_split] = score
+    for n_split, values in enumerate(stab_values):
+        Z[n_split, :] = values[0]
+        errors[n_split] = values[1]
 
     res = build_stability_dict(Z, errors, alpha)
 
