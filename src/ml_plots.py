@@ -49,6 +49,7 @@ def plot_median(rel_cv, use_symb, symb_dict, pdir, extensions=exts):
         df_plot = rel_cv.copy()
 
     df_plot = df_plot.median().sort_values(ascending=False)
+    cut = get_cut_point(rel_cv)
 
     plt.figure()
     df_plot.plot(figsize=(16, 9), rot=90)
@@ -75,26 +76,6 @@ def plot_task_distribution(target, pdir, pdict, extensions=exts):
         fname = f"{name}.{ext}"
         fpath = pdir.joinpath(fname)
         plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
-
-
-def get_features(results_path):
-    features_fname = "features.pkl"
-    features_fpath = results_path.joinpath(features_fname)
-    features = pd.read_pickle(features_fpath)
-
-    feature_ids = features.columns
-
-    return features, feature_ids
-
-
-def get_target(results_path):
-    target_fname = "target.pkl"
-    target_fpath = results_path.joinpath(target_fname)
-    target = pd.read_pickle(target_fpath)
-
-    target_ids = target.columns
-
-    return target, target_ids
 
 
 def get_shap_relevance(results_path):
