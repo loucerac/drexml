@@ -56,7 +56,7 @@ def compute_shap_relevance(shap_values, X, Y):
     n_tasks = len(task_names)
 
     corr_sign = lambda x, y: np.sign(pearsonr(x, y)[0])
-    signs = Parallel()(
+    signs = Parallel(n_jobs=-1)(
         delayed(corr_sign)(X.iloc[:, x_col], shap_values[y_col][:, x_col])
         for x_col in range(n_features)
         for y_col in range(n_tasks)
@@ -80,25 +80,21 @@ def compute_shap_relevance(shap_values, X, Y):
 def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=False):
     n_bootstraps = 100
     n_samples, n_variables = X.shape
-    n_circuits = Y.shape[1]
     sample_fraction = 0.5
     n_subsamples = np.floor(sample_fraction * n_samples).astype(int)
 
-    lambdas = np.arange(0.95, 1, step=0.05)[:-1]
-    n_lambdas = lambdas.size
+    q = 0.95
 
     # lambda: quantile selected
 
-    Z = np.zeros((n_lambdas, n_bootstraps, n_variables), dtype=np.int8)
-    errors = np.zeros((n_bootstraps, n_lambdas))
-    errors_mo = np.zeros((n_bootstraps, n_lambdas, n_circuits))
+    Z = np.zeros((n_bootstraps, n_variables), dtype=np.int8)
+    errors = np.zeros(n_bootstraps)
 
     stability_cv = ShuffleSplit(
         n_splits=n_bootstraps, train_size=n_subsamples, random_state=0
     )
 
-    for n_split, split in enumerate(stability_cv.split(X, Y)):
-        print(n_split)
+    def stab_i(model, X, Y, n_split, split, q=0.95):
         train, test = split
         X_train = X.iloc[train, :]
         Y_train = Y.iloc[train, :]
@@ -112,36 +108,39 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
         model_ = clone(model)
         model_.fit(X_learn, Y_learn)
 
-        for i, lambda_i in enumerate(lambdas):
-            # FS using shap relevances
-            shap_values = compute_shap_values(
-                model_,
-                X_val,
-                approximate=approximate,
-                check_additivity=check_additivity,
-            )
-            shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
-            filt_i = compute_shap_fs(shap_relevances, q=lambda_i, by_circuit=False)
-            print(filt_i)
+        # FS using shap relevances
+        shap_values = compute_shap_values(
+            model_,
+            X_val,
+            approximate=approximate,
+            check_additivity=check_additivity,
+        )
+        shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
+        filt_i = compute_shap_fs(shap_relevances, q=q, by_circuit=False)
 
-            X_train_filt = X_train.loc[:, filt_i]
-            X_test_filt = X_test.loc[:, filt_i]
-            Z[i, n_split, :] = filt_i * 1
+        X_train_filt = X_train.loc[:, filt_i]
+        X_test_filt = X_test.loc[:, filt_i]
 
-            sub_model = clone(model_)
-            # sub_model.set_params(max_features=1.0)
-            sub_model.fit(X_train_filt, Y_train)
-            Y_test_filt_preds = sub_model.predict(X_test_filt)
+        sub_model = clone(model_)
+        # sub_model.set_params(max_features=1.0)
+        sub_model.fit(X_train_filt, Y_train)
+        Y_test_filt_preds = sub_model.predict(X_test_filt)
 
-            r2_loss = 1.0 - r2_score(Y_test, Y_test_filt_preds)
-            mo_r2_loss = 1.0 - r2_score(
-                Y_test, Y_test_filt_preds, multioutput="raw_values"
-            )
+        r2_loss = 1.0 - r2_score(Y_test, Y_test_filt_preds)
+        mo_r2_loss = 1.0 - r2_score(
+            Y_test, Y_test_filt_preds, multioutput="raw_values"
+        )
 
-            errors[n_split, i] = r2_loss
-            errors_mo[n_split, i, :] = mo_r2_loss
+        return (filt_i, r2_loss, mo_r2_loss)
 
-            print(f"\t {r2_loss}")
+    stab_values = Parallel(n_jobs=-1)(
+        delayed(stab_i)(model, X, Y, n_split, split)
+        for n_split, split in enumerate(stability_cv.split(X, Y))
+    )
+
+    for n_split, filt, score, _ in enumerate(stab_values):
+        Z[n_split, :] = filt
+        errors[n_split] = score
 
     res = build_stability_dict(Z, errors, alpha)
 
