@@ -23,6 +23,7 @@ from sklearn.model_selection import (
 import src.stability as stab
 from joblib import Parallel, delayed
 from scipy.stats import pearsonr
+import joblib
 
 
 def compute_shap_fs(relevances, q=0.95, by_circuit=False):
@@ -42,8 +43,6 @@ def compute_shap_values(estimator, X, y=None, approximate=True, check_additivity
     shap_values = explainer.shap_values(
         X, approximate=approximate, check_additivity=check_additivity
     )
-
-    joblib.dump("shap.jbl")
 
     return shap_values
 
@@ -73,6 +72,7 @@ def compute_shap_relevance(shap_values, X, Y):
     )
 
     shap_relevance = shap_relevance * signs
+    shap_relevance = shap_relevance.fillna(0.0)
 
     return shap_relevance
 
