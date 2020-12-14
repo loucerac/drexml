@@ -28,6 +28,7 @@ from src.explain import run_stability, compute_shap
 from src import ml_plots
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pathlib
 
 
 def warn(*args, **kwargs):
@@ -107,12 +108,7 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
 
         out_path = OUT_PATH.joinpath(disease, name, gset, mlmodel, opt, mode, str(seed))
 
-    if mode == "train":
-        ok = True
-    elif mode == "test":
-        ok = True
-
-    out_path.mkdir(parents=True, exist_ok=ok)
+    out_path.mkdir(parents=True, exist_ok=True)
     print("Storage folder: {}".format(out_path))
 
     return out_path
@@ -169,7 +165,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     rel_df.to_csv(rel_fpath, sep="\t")
 
     # CV with optimal hyperparameters (unbiased performance)
-    cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, clinical.tissue)
+    cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, mode, clinical.tissue)
 
     # Save results
     stats_fname = "cv_stats.pkl"
@@ -192,7 +188,14 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     fs.to_csv(fs_fpath, sep="\t")
     print("Shap selection results saved to: {}".format(shap_summary_fpath))
 
+    plot(output_folder, gene_xpr.columns, pathvals.columns, cv_stats)
+
     # Stability Analysys
+    if mode == "test":
+        joblib.dump(estimator, "/home/cloucera/results/hord/estimator.jbl")
+        joblib.dump(gene_xpr, "/home/cloucera/results/hord/gene_xpr.jbl")
+        joblib.dump(pathvals, "/home/cloucera/results/hord/pathvals.jbl")
+
     stability_results = run_stability(estimator, gene_xpr, pathvals, alpha=0.05)
     # Save results
     stability_results_fname = "stability_results.json"
@@ -222,7 +225,7 @@ def get_model(mlmodel, opt, mode):
     return model
 
 
-def perform_cv(X, y, estimator, seed, tissue):
+def perform_cv(X, y, estimator, seed, mode, tissue=None):
     """Unbiased performance estimation.
 
     Parameters
@@ -261,7 +264,10 @@ def perform_cv(X, y, estimator, seed, tissue):
         "relevance": [],
     }
 
-    skf = RepeatedKFold(n_splits=10, n_repeats=10, random_state=seed)
+    n_repeats = 5 if mode == "test" else 10
+    n_splits = 2 if mode == "test" else 10
+    skf = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=seed)
+
     iter_ = 0
     for train_index, test_index in skf.split(X):
         iter_ = iter_ + 1
@@ -394,6 +400,7 @@ def plot(results_path, gene_ids, circuit_ids, cv_stats):
 
     plt.style.use("fivethirtyeight")
     sns.set_context("paper")
+    results_path = pathlib.Path(results_path)
 
     # load data
     rel_cv = ml_plots.get_rel_cv(cv_stats, gene_ids)
