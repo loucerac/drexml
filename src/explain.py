@@ -77,7 +77,7 @@ def compute_shap_relevance(shap_values, X, Y):
     return shap_relevance
 
 
-def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=False):
+def run_stability(model, X, Y, alpha=0.05, approximate=True, check_additivity=False):
     n_bootstraps = 100
     n_samples, n_variables = X.shape
     sample_fraction = 0.5
@@ -143,6 +143,7 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
         errors[n_split] = values[1]
 
     res = build_stability_dict(Z, errors, alpha)
+    print(res)
 
     return res
 
@@ -150,14 +151,14 @@ def run_stability(model, X, Y, alpha=0.05, approximate=False, check_additivity=F
 def build_stability_dict(z_mat, errors, alpha=0.05):
 
     support_matrix = np.squeeze(z_mat)
-
     scores = np.squeeze(1 - errors)
+
     stab_res = stab.confidenceIntervals(support_matrix, alpha=alpha)
     stability = stab_res["stability"]
     stability_error = stab_res["stability"] - stab_res["lower"]
 
     res = {
-        "scores": scores,
+        "scores": scores.tolist(),
         "stability_score": stability,
         "stability_error": stability_error,
         "alpha": alpha,
