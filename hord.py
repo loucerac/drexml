@@ -202,8 +202,8 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     stability_results_fpath = output_folder.joinpath(
         output_folder, stability_results_fname
     )
-    with open(stability_results_fpath, "w") as f:
-        json.dump(stability_results, f)
+    with open(stability_results_fpath, "w") as fjson:
+        json.dump(stability_results, fjson, indent=4)
     print("Stability results saved to: {}".format(stability_results_fpath))
     print(stability_results["stability_score"])
     print(stability_results["stability_error"])
