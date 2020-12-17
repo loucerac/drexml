@@ -215,7 +215,7 @@ def get_model(mlmodel, opt, mode):
     if mlmodel == "morf":
         if mode == "train":
             model = AutoMorf(
-                name=name, framework=opt, n_jobs=NUM_CPUS, cv=5, n_calls=10 ** 3
+                name=name, framework=opt, n_jobs=NUM_CPUS, cv=5, n_calls=10 ** 2
             )
         elif mode == "test":
             model = AutoMorf(name=name, framework=opt, n_jobs=NUM_CPUS, cv=2, n_calls=5)
