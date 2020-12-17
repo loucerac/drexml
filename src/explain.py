@@ -133,7 +133,7 @@ def run_stability(model, X, Y, alpha=0.05, approximate=True, check_additivity=Fa
 
         return (filt_i, r2_loss, mo_r2_loss)
 
-    stab_values = Parallel(n_jobs=-1)(
+    stab_values = Parallel(n_jobs=1)(
         delayed(stab_i)(model, X, Y, n_split, split)
         for n_split, split in enumerate(stability_cv.split(X, Y))
     )
