@@ -11,6 +11,9 @@ out/
 *.pickle
 *.pkl
 
+## catboost
+catboost_info
+
 # Based on:
 #  https://github.com/github/gitignore/blob/master/R.gitignore
 
