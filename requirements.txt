@@ -10,6 +10,7 @@ pyarrow==2.0.0
 python-dateutil==2.8.1
 python-dotenv==0.15.0
 pytz==2020.5
+seaborn=0.11.1
 scikit-learn==0.24.0
 scipy==1.6.0
 shap @ git+https://github.com/slundberg/shap@6e04be3f4a9c7d61ada301366e4273a096e5c1f5
