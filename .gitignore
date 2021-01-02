@@ -272,3 +272,6 @@ Temporary Items
 .apdisk
 
 notebooks/sandbox_20190416/hypmorf_fanconi_02_from_targets_to_pathways_global_explained_relevance\.tsv
+notebooks/sandbox_gpu/*.jbl
+notebooks/sandbox_gpu/*.txt
+notebooks/sandbox_gpu/*.json
