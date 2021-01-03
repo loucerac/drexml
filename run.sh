@@ -6,7 +6,9 @@ DISEASE="Acute_promyelocytic_leukemia"
 DISEASE_FOLDER="${DATA}/${DISEASE}"
 EXPERIMENT_PATH="${DISEASE_FOLDER}/experiment.env"
 TMP_FOLDER="${DISEASE_FOLDER}/ml/tmp"
-rm -rf "${DISESE_FOLDER}/ml"
+rm -rf "${DISEASE_FOLDER}/ml"
+mkdir "${DISEASE_FOLDER}/ml"
 
-PYTHONPATH="${PYTHONPATH}:$(pwd)" python hord.py --gpu --disease ${EXPERIMENT_PATH} "${DISESE_FOLDER}/ml/out.txt" 2> "${DISESE_FOLDER}/ml/err.txt" 
+export PYTHONPATH="${PYTHONPATH}:$(pwd)" 
+python hord.py --gpu --disease ${EXPERIMENT_PATH} 
 
