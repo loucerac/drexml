@@ -30,6 +30,9 @@ import multiprocessing
 from functools import partial
 import pathlib
 
+from dask_cuda import LocalCUDACluster
+from dask.distributed import Client
+
 def matcorr(O, P):
     (n, t) = O.shape  # n traces of t samples
     (n_bis, m) = P.shape  # n predictions for each of m candidates
@@ -194,20 +197,10 @@ def compute_shap(
     return shap_relevances, fs
 
 
-if __name__ == "__main__":
-    import sys
-    from dask.distributed import Client
-    from joblib import parallel_backend
+def run_gpu(data_folder, n_iters, gpu, n_jobs, debug):
 
-    #client = Client('127.0.0.1:8786')
 
-    _, data_folder, n_iters, gpu, n_jobs, debug = sys.argv
 
-    data_folder = pathlib.Path(data_folder)
-    gpu = bool(int(gpu))
-    debug = bool(int(debug))
-    n_iters = int(n_iters)
-    n_jobs = int(n_jobs)
 
     X_fpath = data_folder.joinpath("features.jbl")
     X = joblib.load(X_fpath)
@@ -215,7 +208,7 @@ if __name__ == "__main__":
     Y_fpath = data_folder.joinpath("target.jbl")
     Y = joblib.load(Y_fpath)
 
-    n = 100
+    n = 10
     cv = ShuffleSplit(n_splits=n, train_size=0.5, random_state=0)
     cv = list(cv.split(X, Y))
     cv = [(*train_test_split(cv[i][0], test_size=0.3), cv[i][1]) for i in range(n)]
@@ -245,19 +238,19 @@ if __name__ == "__main__":
 
     gpu_id_list = list(range(N_GPU))
 
-    queue = multiprocessing.Queue()
+    cluster = LocalCUDACluster(n_workers=N_GPU, CUDA_VISIBLE_DEVICES=gpu_id_list)
+    client = Client(cluster)
+
     # initialize the queue with the GPU ids
 
-    def runner(data_folder, gpu, gpu_id_list, i):
-        cpu_name = multiprocessing.current_process().name
-        cpu_id = int(cpu_name[cpu_name.find("-") + 1 :]) - 1
+    def runner(data_folder, gpu, i):
         # print(gpu0, gpu)
-        gpu_id = queue.get()
+        #gpu_id = queue.get()
         # os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
         # print(os.environ["CUDA_VISIBLE_DEVICES"])
         filt_i = None
         try:
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+            #os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
             print('device', os.environ["CUDA_VISIBLE_DEVICES"])
 
             fname = f"cv.jbl"
@@ -279,9 +272,9 @@ if __name__ == "__main__":
 
             fname = f"model_{i}.jbl"
             fpath = data_folder.joinpath(fname)
-            model = joblib.load(fpath)
+            model_ = joblib.load(fpath)
 
-            shap_values = compute_shap_values(model, X_learn, X_val, gpu)
+            shap_values = compute_shap_values(model_, X_learn, X_val, gpu)
             shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
             filt_i = compute_shap_fs(shap_relevances, q=0.95, by_circuit=False)
 
@@ -290,16 +283,131 @@ if __name__ == "__main__":
             joblib.dump(filt_i, fpath)
 
         finally:
-            queue.put(gpu_id)
+            print("finally,")
 
         return filt_i
 
-    # Put indices in queue
-    for gpu_ids in range(N_GPU):
-        queue.put(gpu_ids)
 
-    r = partial(runner, data_folder, gpu, gpu_id_list)
+    r = partial(runner, data_folder, gpu)
 
-    with joblib.parallel_backend("multiprocessing", n_jobs=N_GPU):
+    # client.map(r, range(n))
+    # fs = client.gather(range(n))
+    
+    with joblib.parallel_backend("dask"):
         fs = joblib.Parallel()(joblib.delayed(r)(n_split) for n_split in range(n))
     joblib.dump(fs, data_folder.joinpath("fs.jbl"))
+
+    client.shutdown()
+
+    return fs, cv
+
+
+if __name__ == "__main__":
+    import sys
+
+    _, data_folder, n_iters, gpu, n_jobs, debug = sys.argv
+
+    data_folder = pathlib.Path(data_folder)
+    gpu = bool(int(gpu))
+    gpu=True
+    debug = False
+    n_iters = int(n_iters)
+    n_jobs = int(n_jobs)
+
+
+    X_fpath = data_folder.joinpath("features.jbl")
+    X = joblib.load(X_fpath)
+
+    Y_fpath = data_folder.joinpath("target.jbl")
+    Y = joblib.load(Y_fpath)
+
+    n = 10
+    cv = ShuffleSplit(n_splits=n, train_size=0.5, random_state=0)
+    cv = list(cv.split(X, Y))
+    cv = [(*train_test_split(cv[i][0], test_size=0.3), cv[i][1]) for i in range(n)]
+
+    fname = f"cv.jbl"   
+    fpath = data_folder.joinpath(fname)
+    joblib.dump(cv, fpath)
+    n_features = X.shape[1]
+
+    model = get_model(n_features, n_jobs, debug)
+
+    for i, split in enumerate(cv):
+        with joblib.parallel_backend("multiprocessing", n_jobs=n_jobs):
+            model_ = clone(model)
+            model_.set_params(random_state=i)
+            model_.fit(X.iloc[split[0], :], Y.iloc[split[0], :])
+            fname = f"model_{i}.jbl"
+            fpath = data_folder.joinpath(fname)
+            joblib.dump(model_, fpath)
+            print(f"50-50 split {i}")
+
+    # Define number of GPUs available
+    N_GPU = 3
+
+    # filts = Parallel(n_jobs=N_GPU, backend="multiprocessing")(
+    #    delayed(runner)(n_split, data_folder) for n_split in range(n))
+
+    gpu_id_list = list(range(N_GPU))
+
+    cluster = LocalCUDACluster(n_workers=N_GPU, CUDA_VISIBLE_DEVICES=gpu_id_list)
+    client = Client(cluster)
+
+    # initialize the queue with the GPU ids
+
+    def runner(data_folder, gpu, i):
+        # print(gpu0, gpu)
+        #gpu_id = queue.get()
+        # os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
+        # print(os.environ["CUDA_VISIBLE_DEVICES"])
+        filt_i = None
+        try:
+            #os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+            print('device', os.environ["CUDA_VISIBLE_DEVICES"])
+
+            fname = f"cv.jbl"
+            fpath = data_folder.joinpath(fname)
+            cv = joblib.load(fpath)
+            split = cv[i]
+
+            X_fpath = data_folder.joinpath("features.jbl")
+            X = joblib.load(X_fpath)
+
+            Y_fpath = data_folder.joinpath("target.jbl")
+            Y = joblib.load(Y_fpath)
+
+            X_learn = X.iloc[split[0], :]
+            Y_learn = Y.iloc[split[0], :]
+
+            X_val = X.iloc[split[1], :]
+            Y_val = Y.iloc[split[1], :]
+
+            fname = f"model_{i}.jbl"
+            fpath = data_folder.joinpath(fname)
+            model_ = joblib.load(fpath)
+
+            shap_values = compute_shap_values(model_, X_learn, X_val, gpu)
+            shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
+            filt_i = compute_shap_fs(shap_relevances, q=0.95, by_circuit=False)
+
+            fname = f"filt_{i}.jbl"
+            fpath = data_folder.joinpath(fname)
+            joblib.dump(filt_i, fpath)
+
+        finally:
+            print("finally,")
+
+        return filt_i
+
+
+    r = partial(runner, data_folder, gpu)
+
+    # client.map(r, range(n))
+    # fs = client.gather(range(n))
+    
+    with joblib.parallel_backend("dask"):
+        fs = joblib.Parallel()(joblib.delayed(r)(n_split) for n_split in range(n))
+    joblib.dump(fs, data_folder.joinpath("fs.jbl"))
+
+    client.shutdown()
