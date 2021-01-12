@@ -277,3 +277,4 @@ notebooks/sandbox_gpu/*.txt
 notebooks/sandbox_gpu/*.json
 err.txt
 out.txt
+data/
