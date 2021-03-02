@@ -28,7 +28,7 @@ def get_model(n_features, n_jobs, debug):
         n_estimators = 200
     
     model = RandomForestRegressor(
-        n_jobs=n_jobs, n_estimators=n_estimators, max_depth=8, max_features=mtry
+        n_jobs=n_jobs, n_estimators=n_estimators, max_depth=6, max_features=mtry
     )
 
     return model
