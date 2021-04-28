@@ -18,17 +18,29 @@ import pandas as pd
 import shap
 from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
+from sklearn.base import clone
 import joblib
 from sklearn.model_selection import RepeatedKFold
 import json
 
 from src.datasets import get_disease_data
-from src.learn import AutoMorf
-from src.explain import run_stability, compute_shap
+from src.explain import (
+    run_stability,
+    compute_shap,
+    compute_shap_values,
+    compute_shap_relevance,
+    compute_shap_fs,
+)
 from src import ml_plots
+from src.models import get_model
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pathlib
+from sklearn.model_selection import ShuffleSplit, train_test_split
+import multiprocessing
+from functools import partial
+import subprocess
+
 
 
 def warn(*args, **kwargs):
@@ -41,51 +53,25 @@ dotenv_filepath = find_dotenv()
 load_dotenv(dotenv_filepath)
 project_path = os.path.dirname(dotenv_filepath)
 
-DATA_PATH = Path(os.environ.get("DATA_PATH"))
-NUM_CPUS = int(os.getenv("NUM_CPUS"))
-USE_GPU = bool(os.getenv("USE_GPU"))
-OUT_PATH = Path(os.environ.get("OUT_PATH"))
-
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="sklearn")
 
 
 @click.command()
-@click.option("--disease", default="fanconi", help="which disease to test")
-@click.option("--mlmodel", default="morf", help="ML model")
-@click.option("--opt", default="hyperopt", help="HP-optimization method.")
-@click.option("--seed", default=42, type=int, help="Random seed")
-@click.option("--mode", default="train", help="Train and evaluate or evaluate")
-@click.option("--pathways", default=None, help="Pathways filter", multiple=True)
-@click.option("--gset", default="target", help="Set of genes to use")
-def hord(disease, mlmodel, opt, seed, mode, pathways, gset):
-    """HORD multi-task module.
+@click.option("--disease", type=click.Path(exists=True), help="Experiment path.")
+@click.option("--n-iters", default=100, help="Number of Optimization iterations.")
+@click.option("--gpu/--no-gpu", is_flag=True, default=True, help="Flag to use CUDA-enabled GPUs.")
+@click.option("--n-jobs", default=-1, help="Number of jobs, -1 uses all devices.")
+@click.option("--debug", is_flag=True, default=False, help="Flag to run in debug mode.")
+@click.version_option("1.0.0")
+def hord(disease, n_iters, gpu, n_jobs, debug):
+    print("Working on disease {} {} {} {} {}".format(disease, n_iters, gpu, n_jobs, debug))
 
-    Parameters
-    ----------
-    disease : str
-        Disease to train/test.
-    mlmodel : str
-        Which ML model to use.
-    opt : str
-        Select optimization mode ["sko", "hpo", None]
-    seed : int
-        Seed for random number generator.
-    mode : bool
-        Train or load a pre-trained model.
-    pathways : str list
-        Which pathways to use as the ML target.
-    gset : str
-        Which set of genes must be selected as the ML input.
-    """
+    run_(disease, n_iters, gpu, n_jobs, debug)
 
-    print("Working on disease {}".format(disease))
-
-    run_(disease, mlmodel, opt, seed, mode, pathways, gset)
-
-    print(get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset))
+    print(get_out_path(disease, n_iters, gpu, n_jobs, debug))
 
 
-def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
+def get_out_path(disease, n_iters, gpu, n_jobs, debug):
     """Construct the path where the model must be saved.
 
     Returns
@@ -98,74 +84,51 @@ def get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset):
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print("Working with experiment {}".format(env_possible.stem))
-        out_path = env_possible.parent.joinpath("ml", mlmodel + "_" + mode)
+        out_path = env_possible.parent.joinpath("ml")
     else:
-        if not len(pathways):
-            name = ["all"]
-        else:
-            name = pathways
-        name = "_".join(name)
-
-        out_path = OUT_PATH.joinpath(disease, name, gset, mlmodel, opt, mode, str(seed))
-
+        raise NotImplementedError("Use experiment")
+    if debug:
+        out_path.joinpath("debug")
     out_path.mkdir(parents=True, exist_ok=True)
     print("Storage folder: {}".format(out_path))
 
     return out_path
 
 
-def run_(disease, mlmodel, opt, seed, mode, pathways, gset):
-    """Select the training mode."""
-    if mode in ["train", "test"]:
-        run_full(disease, mlmodel, opt, seed, mode, pathways, gset)
-
-
-def get_data(disease, mode, pathways, gset):
+def get_data(disease, debug):
     """Load disease data and metadata."""
-    gene_xpr, pathvals, circuits, genes, clinical = get_disease_data(
-        disease, pathways, gset
-    )
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease)
 
     print(gene_xpr.shape, pathvals.shape)
 
-    if mode == "test":
+    if debug:
         gene_xpr = gene_xpr.iloc[:100, :]
         pathvals = pathvals.iloc[:100, :]
 
-    return gene_xpr, pathvals, circuits, genes, clinical
+    return gene_xpr, pathvals, circuits, genes
 
 
-def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
+def run_(disease, n_iters, gpu, n_jobs, debug):
     """Full model training, with hyperparametr optimization, unbiased CV
     performance estimation and relevance computation.
     """
 
-    output_folder = get_out_path(disease, mlmodel, opt, seed, mode, pathways, gset)
+    output_folder = get_out_path(disease, n_iters, gpu, n_jobs, debug)
+    data_folder = output_folder.joinpath("tmp")
+    data_folder.mkdir(parents=True, exist_ok=True)
 
     # Load data
-    gene_xpr, pathvals, circuits, genes, clinical = get_data(
-        disease, mode, pathways, gset
-    )
+    gene_xpr, pathvals, circuits, genes = get_data(disease, debug)
+    joblib.dump(gene_xpr, data_folder.joinpath("features.jbl"))
+    joblib.dump(pathvals, data_folder.joinpath("target.jbl"))
+
+    n_features = gene_xpr.shape[1]
 
     # Get ML model
-    model = get_model(mlmodel, opt, mode)
-
-    # Optimize and fit using the whole data
-    model.fit(gene_xpr, pathvals)
-    model.save(output_folder, fmt="json")
-
-    estimator = model.best_model
-
-    # Save global relevances
-    print("Computing global relevance.")
-    relevance_fname = "model_global_relevance.tsv"
-    rel_fpath = output_folder.joinpath(relevance_fname)
-    rel = estimator.feature_importances_
-    rel_df = pd.DataFrame({"relevance": rel}, index=gene_xpr.columns)
-    rel_df.to_csv(rel_fpath, sep="\t")
+    estimator = get_model(n_features, n_jobs, debug)
 
     # CV with optimal hyperparameters (unbiased performance)
-    cv_stats = perform_cv(gene_xpr, pathvals, estimator, seed, mode, clinical.tissue)
+    cv_stats = perform_cv(gene_xpr, pathvals, estimator, debug)
 
     # Save results
     stats_fname = "cv_stats.pkl"
@@ -175,28 +138,32 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
 
     # Compute shap relevances
-    shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals)
-    
+    shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals, gpu)
+
     # Save results
     shap_summary_fname = "shap_summary.tsv"
     shap_summary_fpath = output_folder.joinpath(output_folder, shap_summary_fname)
     shap_summary.to_csv(shap_summary_fpath, sep="\t")
     print("Shap summary results saved to: {}".format(shap_summary_fpath))
+
     # Save results
     fs_fname = "shap_selection.tsv"
     fs_fpath = output_folder.joinpath(output_folder, fs_fname)
     fs.to_csv(fs_fpath, sep="\t")
-    print("Shap selection results saved to: {}".format(shap_summary_fpath))
+    print("Shap selection results saved to: {}".format(fs_fpath))
 
     plot(output_folder, gene_xpr.columns, pathvals.columns, cv_stats)
 
-    # Stability Analysys
-    if mode == "test":
-        joblib.dump(estimator, "/home/cloucera/results/hord/estimator.jbl")
-        joblib.dump(gene_xpr, "/home/cloucera/results/hord/gene_xpr.jbl")
-        joblib.dump(pathvals, "/home/cloucera/results/hord/pathvals.jbl")
-
-    stability_results = run_stability(estimator, gene_xpr, pathvals, alpha=0.05)
+    #fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
+    cmd = ['python', 'src/explain.py', data_folder.as_posix(), str(n_iters), str(int(gpu)), str(n_jobs), str(int(debug))]
+    subprocess.Popen(cmd).wait()
+    #from src.explain2 import run_gpu
+    #fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
+    fs = joblib.load(data_folder.joinpath("fs.jbl"))
+    cv = joblib.load(data_folder.joinpath("cv.jbl"))
+    stability_results = run_stability(
+        estimator, gene_xpr, pathvals, cv, fs, n_jobs, alpha=0.05
+    )
     # Save results
     stability_results_fname = "stability_results.json"
     stability_results_fpath = output_folder.joinpath(
@@ -209,23 +176,7 @@ def run_full(disease, mlmodel, opt, seed, mode, pathways, gset):
     print(stability_results["stability_error"])
 
 
-def get_model(mlmodel, opt, mode):
-    """Get an instace of an AutoMorf model."""
-    name = "_".join([mlmodel, opt])
-    if mlmodel == "morf":
-        if mode == "train":
-            model = AutoMorf(
-                name=name, framework=opt, n_jobs=NUM_CPUS, cv=5, n_calls=10 ** 2
-            )
-        elif mode == "test":
-            model = AutoMorf(name=name, framework=opt, n_jobs=NUM_CPUS, cv=2, n_calls=5)
-    else:
-        raise NotImplementedError()
-
-    return model
-
-
-def perform_cv(X, y, estimator, seed, mode, tissue=None):
+def perform_cv(X, y, model, debug, n_jobs=-1):
     """Unbiased performance estimation.
 
     Parameters
@@ -264,9 +215,9 @@ def perform_cv(X, y, estimator, seed, mode, tissue=None):
         "relevance": [],
     }
 
-    n_repeats = 5 if mode == "test" else 10
-    n_splits = 2 if mode == "test" else 10
-    skf = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=seed)
+    n_repeats = 5 if debug else 10
+    n_splits = 2 if debug else 10
+    skf = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=0)
 
     iter_ = 0
     for train_index, test_index in skf.split(X):
@@ -276,7 +227,9 @@ def perform_cv(X, y, estimator, seed, mode, tissue=None):
         X_train, X_test = X.iloc[train_index, :], X.iloc[test_index, :]
         y_train, y_test = y.iloc[train_index, :], y.iloc[test_index, :]
 
-        estimator.fit(X_train, y_train)
+        estimator = clone(model)
+        with joblib.parallel_backend("multiprocessing", n_jobs=n_jobs):
+            estimator.fit(X_train, y_train)
 
         y_train_hat = estimator.predict(X_train)
         y_test_hat = estimator.predict(X_test)
@@ -396,7 +349,7 @@ def perform_cv(X, y, estimator, seed, mode, tissue=None):
 
 
 def plot(results_path, gene_ids, circuit_ids, cv_stats):
-    #_, folder, use_task, use_circuit_dict = sys.argv
+    # _, folder, use_task, use_circuit_dict = sys.argv
 
     plt.style.use("fivethirtyeight")
     sns.set_context("paper")
@@ -423,6 +376,7 @@ def plot(results_path, gene_ids, circuit_ids, cv_stats):
 
     for fname in ["shap_summary.tsv", "shap_selection.tsv"]:
         ml_plots.convert_frame_ids(fname, results_path, circuit_dict, gene_symbols_dict)
+
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
