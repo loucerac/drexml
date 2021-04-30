@@ -30,6 +30,7 @@ import multiprocessing
 from functools import partial
 import pathlib
 
+
 def matcorr(O, P):
     (n, t) = O.shape  # n traces of t samples
     (n_bis, m) = P.shape  # n predictions for each of m candidates
@@ -50,28 +51,17 @@ def matcorr(O, P):
     return cov / np.sqrt(tmp)
 
 
-def compute_shap_fs(relevances, q=0.95, by_circuit=False):
-
-    by_circuit_frame = relevances.abs().apply(lambda x: x > np.quantile(x, q), axis=1)
-
-    if by_circuit:
-        res = by_circuit_frame
-    else:
-        res = by_circuit_frame.any().values
-
-    return res
-
-
-def compute_shap_values(
-    estimator, background, new, gpu
-):
+def compute_shap_values(estimator, background, new, gpu, split=True):
     print(gpu)
     if gpu:
         explainer = shap.GPUTreeExplainer(estimator, background)
     else:
         explainer = shap.TreeExplainer(estimator, background)
-    shap_values = np.array(explainer.shap_values(new))
 
+    # shap_values = np.zeros((estimator.n_outputs_, new.shape[0], new.shape[1]))
+    # for i in np.arange(new.shape[0])[:100:]:
+    #    shap_values[:, i, :] = np.array(explainer.shap_values(new.values[i, :]))
+    shap_values = np.array(explainer.shap_values(new))
     return shap_values
 
 
@@ -140,15 +130,18 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
         X_train = pd.concat((X_learn, X_val), axis=0)
         Y_train = pd.concat((Y_learn, Y_val), axis=0)
 
-        filt_i = fs[n_split]
+        filt_i = fs[n_split].any().values
+        if not filt_i.any():
+            model.fit(X_learn, Y_learn)
+            filt_i[model.feature_importances_.argmax()] = True
 
         X_train_filt = X_train.loc[:, filt_i]
         X_test_filt = X_test.loc[:, filt_i]
 
         with joblib.parallel_backend("multiprocessing", n_jobs=n_jobs):
             sub_model = clone(model)
-            sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
-            # sub_model.set_params(max_features=1.0)
+            # sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
+            sub_model.set_params(max_features=1.0)
             sub_model.fit(X_train_filt, Y_train)
             Y_test_filt_preds = sub_model.predict(X_test_filt)
 
@@ -165,15 +158,45 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
         Z[n_split, :] = values[0] * 1
         errors[n_split] = values[1]
 
+    err_by_circuit = [
+        pd.Series(values[2], index=Y.columns)
+        for n_split, values in enumerate(stab_values)
+    ]
+    err_by_circuit = pd.concat(err_by_circuit, axis=1).T.describe().T[["mean", "std"]]
+    err_by_circuit.columns = "r2_" + err_by_circuit.columns
+
+    stab_by_circuit = {
+        y: stab.confidenceIntervals(
+            pd.concat([x.loc[y] for x in fs], axis=1).T.values * 1
+        )
+        for y in Y.columns
+    }
+
+    stab_by_circuit = pd.DataFrame(stab_by_circuit).T
+
+    res_by_circuit = pd.concat((stab_by_circuit, err_by_circuit), axis=1)
+
     res = build_stability_dict(Z, errors, alpha)
+
+    res_df = pd.DataFrame(
+        {
+            "stability": [res["stability_score"]],
+            "lower": [res["stability_score"] - res["stability_error"]],
+            "upper": [res["stability_score"] + res["stability_error"]],
+            "r2_mean": [np.mean(res["scores"])],
+            "r2_std": [np.std(res["scores"])],
+        },
+        index=["map"],
+    )
+
+    res_df = pd.concat((res_df, res_by_circuit), axis=0)
+
     print(res["stability_score"])
 
-    return res
+    return res, res_df
 
 
-def compute_shap(
-    model, X, Y, gpu, test_size=0.3, q=0.95
-):
+def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
     X_learn, X_val, Y_learn, Y_val = train_test_split(
         X, Y, test_size=test_size, random_state=42
     )
@@ -181,25 +204,54 @@ def compute_shap(
     model_ = clone(model)
     model_.fit(X_learn, Y_learn)
 
-    shap_values = compute_shap_values(
-        model_,
-        X_learn,
-        X_val,
-        gpu
-    )
+    shap_values = compute_shap_values(model_, X_learn, X_val, gpu)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
-    fs = compute_shap_fs(shap_relevances, q=q, by_circuit=True)
+    fs = compute_shap_fs(
+        shap_relevances, model=model_, X=X_val, Y=Y_val, q=q, by_circuit=True
+    )
     fs = fs * 1
 
     return shap_relevances, fs
 
 
+def get_quantile_by_circuit(model, X, Y, threshold=0.5):
+    r = r2_score(Y, model.predict(X), multioutput="raw_values")
+    r[r < threshold] = threshold
+    q = 0.95 + ((1 - r) / (1 - threshold)) * (1 - 0.95)
+    q = {y: q[i] for i, y in enumerate(Y)}
+
+    return q
+
+
+def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=False):
+    if q == "r2":
+        q = get_quantile_by_circuit(model, X, Y)
+        by_circuit_frame = pd.concat(
+            [
+                relevances.loc[p].abs() > np.quantile(relevances.loc[p].abs(), q[p])
+                for p in relevances.index
+            ],
+            axis=1,
+        )
+        by_circuit_frame = by_circuit_frame.T
+    else:
+        by_circuit_frame = relevances.abs().apply(
+            lambda x: x > np.quantile(x, q), axis=1
+        )
+
+    if by_circuit:
+        res = by_circuit_frame
+    else:
+        res = by_circuit_frame.any().values
+
+    return res
+
+
 if __name__ == "__main__":
     import sys
-    from dask.distributed import Client
     from joblib import parallel_backend
 
-    #client = Client('127.0.0.1:8786')
+    # client = Client('127.0.0.1:8786')
 
     _, data_folder, n_iters, gpu, n_jobs, debug = sys.argv
 
@@ -220,7 +272,7 @@ if __name__ == "__main__":
     cv = list(cv.split(X, Y))
     cv = [(*train_test_split(cv[i][0], test_size=0.3), cv[i][1]) for i in range(n)]
 
-    fname = f"cv.jbl"   
+    fname = f"cv.jbl"
     fpath = data_folder.joinpath(fname)
     joblib.dump(cv, fpath)
     n_features = X.shape[1]
@@ -258,7 +310,7 @@ if __name__ == "__main__":
         filt_i = None
         try:
             os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-            print('device', os.environ["CUDA_VISIBLE_DEVICES"])
+            print("device", os.environ["CUDA_VISIBLE_DEVICES"])
 
             fname = f"cv.jbl"
             fpath = data_folder.joinpath(fname)
@@ -283,11 +335,14 @@ if __name__ == "__main__":
 
             shap_values = compute_shap_values(model, X_learn, X_val, gpu)
             shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
-            filt_i = compute_shap_fs(shap_relevances, q=0.95, by_circuit=False)
+            filt_i = compute_shap_fs(
+                shap_relevances, model=model, X=X_val, Y=Y_val, q="r2", by_circuit=True
+            )
 
             fname = f"filt_{i}.jbl"
             fpath = data_folder.joinpath(fname)
             joblib.dump(filt_i, fpath)
+            # print(filt_i.sum(axis=1).value_counts())
 
         finally:
             queue.put(gpu_id)

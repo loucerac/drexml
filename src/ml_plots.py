@@ -133,10 +133,12 @@ def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
 
     if symb_dict is not None:
         to_plot.rename(columns=symb_dict, inplace=True)
+    n_genes = to_plot.shape[1]
 
     # sns.set_context("poster")
     plt.figure()
-    ax = to_plot.plot(kind="box", figsize=(16, 9), rot=90)
+    figsize_x = 1.0 if n_genes < 90 else 1.2
+    ax = to_plot.plot(kind="box", figsize=(16*figsize_x, 9), rot=90)
     ax.set_ylabel("Relevance")
     plt.tight_layout()
 
@@ -159,9 +161,11 @@ def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
 
     d = pd.DataFrame(cv_stats[stat]["test"], columns=circuit_ids)
     d = d.rename(columns=circuit_dict)
+    n_circuits=d.shape[1]
     d = d.melt(value_name="score", var_name="Circuit")
     d["score"] = 1 - d["score"]
-    plt.figure(figsize=(10, 20))
+    figsize_y = int((20 * n_circuits) / 150)
+    plt.figure(figsize=(10, figsize_y))
     g = sns.boxplot(x="score", y="Circuit", data=d, color="lightgray")
     g.set_xlabel(
         "10 times 10-fold $1 - R^{2}$ Cross-Validation Distribution", fontsize=12

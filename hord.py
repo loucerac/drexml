@@ -42,7 +42,6 @@ from functools import partial
 import subprocess
 
 
-
 def warn(*args, **kwargs):
     pass
 
@@ -59,12 +58,16 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="sklearn")
 @click.command()
 @click.option("--disease", type=click.Path(exists=True), help="Experiment path.")
 @click.option("--n-iters", default=100, help="Number of Optimization iterations.")
-@click.option("--gpu/--no-gpu", is_flag=True, default=True, help="Flag to use CUDA-enabled GPUs.")
+@click.option(
+    "--gpu/--no-gpu", is_flag=True, default=True, help="Flag to use CUDA-enabled GPUs."
+)
 @click.option("--n-jobs", default=-1, help="Number of jobs, -1 uses all devices.")
 @click.option("--debug", is_flag=True, default=False, help="Flag to run in debug mode.")
 @click.version_option("1.0.0")
 def hord(disease, n_iters, gpu, n_jobs, debug):
-    print("Working on disease {} {} {} {} {}".format(disease, n_iters, gpu, n_jobs, debug))
+    print(
+        "Working on disease {} {} {} {} {}".format(disease, n_iters, gpu, n_jobs, debug)
+    )
 
     run_(disease, n_iters, gpu, n_jobs, debug)
 
@@ -95,15 +98,25 @@ def get_out_path(disease, n_iters, gpu, n_jobs, debug):
     return out_path
 
 
-def get_data(disease, debug):
+def get_data(disease, debug, scale=True):
     """Load disease data and metadata."""
     gene_xpr, pathvals, circuits, genes = get_disease_data(disease)
+
+    if scale:
+        from sklearn.preprocessing import MinMaxScaler
+
+        pathvals = pd.DataFrame(
+            MinMaxScaler().fit_transform(pathvals),
+            columns=pathvals.columns,
+            index=pathvals.index,
+        )
 
     print(gene_xpr.shape, pathvals.shape)
 
     if debug:
-        gene_xpr = gene_xpr.iloc[:100, :]
-        pathvals = pathvals.iloc[:100, :]
+        size = 100
+        gene_xpr = gene_xpr.iloc[:size, :]
+        pathvals = pathvals.iloc[:size, :]
 
     return gene_xpr, pathvals, circuits, genes
 
@@ -132,48 +145,58 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
 
     # Save results
     stats_fname = "cv_stats.pkl"
-    stats_fpath = output_folder.joinpath(output_folder, stats_fname)
+    stats_fpath = output_folder.joinpath(stats_fname)
     with open(stats_fpath, "wb") as f:
         joblib.dump(cv_stats, f)
     print("Unbiased CV stats saved to: {}".format(stats_fpath))
+
+    # fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
+    cmd = [
+        "python",
+        "src/explain.py",
+        data_folder.as_posix(),
+        str(n_iters),
+        str(int(gpu)),
+        str(n_jobs),
+        str(int(debug)),
+    ]
+    subprocess.Popen(cmd).wait()
+    # from src.explain2 import run_gpu
+    # fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
+    fs = joblib.load(data_folder.joinpath("fs.jbl"))
+    cv = joblib.load(data_folder.joinpath("cv.jbl"))
+    stability_results, res_df = run_stability(
+        estimator, gene_xpr, pathvals, cv, fs, n_jobs, alpha=0.05
+    )
+    # Save results
+    stability_results_fname = "stability_results.json"
+    stability_results_fpath = output_folder.joinpath(stability_results_fname)
+    with open(stability_results_fpath, "w") as fjson:
+        json.dump(stability_results, fjson, indent=4)
+    print("Stability results saved to: {}".format(stability_results_fpath))
+    print(stability_results["stability_score"])
+    print(stability_results["stability_error"])
+
+    tsv_stability_results_fname = "stability_results.tsv"
+    tsv_res_results_fpath = output_folder.joinpath(tsv_stability_results_fname)
+    res_df.to_csv(tsv_res_results_fpath, sep="\t")
 
     # Compute shap relevances
     shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals, gpu)
 
     # Save results
     shap_summary_fname = "shap_summary.tsv"
-    shap_summary_fpath = output_folder.joinpath(output_folder, shap_summary_fname)
+    shap_summary_fpath = output_folder.joinpath(shap_summary_fname)
     shap_summary.to_csv(shap_summary_fpath, sep="\t")
     print("Shap summary results saved to: {}".format(shap_summary_fpath))
 
     # Save results
     fs_fname = "shap_selection.tsv"
-    fs_fpath = output_folder.joinpath(output_folder, fs_fname)
+    fs_fpath = output_folder.joinpath(fs_fname)
     fs.to_csv(fs_fpath, sep="\t")
     print("Shap selection results saved to: {}".format(fs_fpath))
 
     plot(output_folder, gene_xpr.columns, pathvals.columns, cv_stats)
-
-    #fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
-    cmd = ['python', 'src/explain.py', data_folder.as_posix(), str(n_iters), str(int(gpu)), str(n_jobs), str(int(debug))]
-    subprocess.Popen(cmd).wait()
-    #from src.explain2 import run_gpu
-    #fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
-    fs = joblib.load(data_folder.joinpath("fs.jbl"))
-    cv = joblib.load(data_folder.joinpath("cv.jbl"))
-    stability_results = run_stability(
-        estimator, gene_xpr, pathvals, cv, fs, n_jobs, alpha=0.05
-    )
-    # Save results
-    stability_results_fname = "stability_results.json"
-    stability_results_fpath = output_folder.joinpath(
-        output_folder, stability_results_fname
-    )
-    with open(stability_results_fpath, "w") as fjson:
-        json.dump(stability_results, fjson, indent=4)
-    print("Stability results saved to: {}".format(stability_results_fpath))
-    print(stability_results["stability_score"])
-    print(stability_results["stability_error"])
 
 
 def perform_cv(X, y, model, debug, n_jobs=-1):

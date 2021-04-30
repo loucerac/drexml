@@ -33,6 +33,9 @@ def get_disease_data(disease):
     dotenv.load_dotenv(experiment_env_path)
     experiment_data_path = pathlib.Path(os.getenv("data_path"))
 
+    genes_column = os.getenv("genes_column")
+    circuits_column = os.getenv("circuits_column")
+
     gene_exp_fname = os.getenv("gene_exp")
     gene_exp_fpath = experiment_data_path.joinpath(gene_exp_fname)
     gene_exp = pd.read_feather(gene_exp_fpath)
@@ -54,10 +57,9 @@ def get_disease_data(disease):
     genes_fname = os.getenv("genes")
     genes_fpath = experiment_data_path.joinpath(genes_fname)
     genes = pd.read_feather(genes_fpath)
-    genes = genes.set_index("entrezs", drop=True)
-    genes = genes.drop("index", axis=1)
+    genes = genes.set_index("index", drop=True)
 
-    gene_exp = gene_exp[genes.index[genes["approved_targets"]]]
-    pathvals = pathvals[circuits.index[circuits["in_disease"]]]
+    gene_exp = gene_exp[genes.index[genes[genes_column]]]
+    pathvals = pathvals[circuits.index[circuits[circuits_column]]]
 
     return gene_exp, pathvals, circuits, genes
