@@ -10,6 +10,7 @@ def entrez2symbol(entrez_lst):
         entrez_lst, 
         scopes="entrezgene",
         fields="symbol", 
+        returnall=True,
         as_dataframe=True)
 
     return frame

@@ -92,10 +92,10 @@ def compute_shap_relevance(shap_values, X, Y):
     return shap_relevance
 
 
-def build_stability_dict(z_mat, errors, alpha=0.05):
+def build_stability_dict(z_mat, scores, alpha=0.05):
 
     support_matrix = np.squeeze(z_mat)
-    scores = np.squeeze(1 - errors)
+    scores = np.squeeze(scores)
 
     stab_res = stab.confidenceIntervals(support_matrix, alpha=alpha)
     stability = stab_res["stability"]
@@ -145,10 +145,10 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
             sub_model.fit(X_train_filt, Y_train)
             Y_test_filt_preds = sub_model.predict(X_test_filt)
 
-        r2_loss = 1.0 - r2_score(Y_test, Y_test_filt_preds)
-        mo_r2_loss = 1.0 - r2_score(Y_test, Y_test_filt_preds, multioutput="raw_values")
+        r2 = r2_score(Y_test, Y_test_filt_preds)
+        mo_r2 = r2_score(Y_test, Y_test_filt_preds, multioutput="raw_values")
 
-        return (filt_i, r2_loss, mo_r2_loss)
+        return (filt_i, r2, mo_r2)
 
     stab_values = []
     for n_split, split in enumerate(cv):
@@ -158,12 +158,16 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
         Z[n_split, :] = values[0] * 1
         errors[n_split] = values[1]
 
-    err_by_circuit = [
+    score_by_circuit = [
         pd.Series(values[2], index=Y.columns)
         for n_split, values in enumerate(stab_values)
     ]
-    err_by_circuit = pd.concat(err_by_circuit, axis=1).T.describe().T[["mean", "std"]]
-    err_by_circuit.columns = "r2_" + err_by_circuit.columns
+    score_by_circuit = (
+        pd.concat(score_by_circuit, axis=1)
+        .T.describe()
+        .T[["mean", "std", "25%", "75%"]]
+    )
+    score_by_circuit.columns = "r2_" + score_by_circuit.columns
 
     stab_by_circuit = {
         y: stab.confidenceIntervals(
@@ -174,7 +178,7 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
 
     stab_by_circuit = pd.DataFrame(stab_by_circuit).T
 
-    res_by_circuit = pd.concat((stab_by_circuit, err_by_circuit), axis=1)
+    res_by_circuit = pd.concat((stab_by_circuit, score_by_circuit), axis=1)
 
     res = build_stability_dict(Z, errors, alpha)
 
@@ -185,13 +189,18 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
             "upper": [res["stability_score"] + res["stability_error"]],
             "r2_mean": [np.mean(res["scores"])],
             "r2_std": [np.std(res["scores"])],
+            "r2_25%": [np.quantile(res["scores"], 0.25)],
+            "r2_75%": [np.quantile(res["scores"], 0.75)],
         },
         index=["map"],
     )
 
     res_df = pd.concat((res_df, res_by_circuit), axis=0)
+    res_df = res_df.rename(
+        {"lower": "stability_lower_95ci", "upper": "stability_upper_95ci"}, axis=1
+    )
 
-    print(res["stability_score"])
+    print("Stability score for the disease map: ", res["stability_score"])
 
     return res, res_df
 
@@ -290,7 +299,7 @@ if __name__ == "__main__":
             print(f"50-50 split {i}")
 
     # Define number of GPUs available
-    N_GPU = 3
+    N_GPU = 4
 
     # filts = Parallel(n_jobs=N_GPU, backend="multiprocessing")(
     #    delayed(runner)(n_split, data_folder) for n_split in range(n))

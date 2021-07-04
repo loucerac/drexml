@@ -86,7 +86,7 @@ def get_out_path(disease, n_iters, gpu, n_jobs, debug):
     env_possible = Path(disease)
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
-        print("Working with experiment {}".format(env_possible.stem))
+        print("Working with experiment {}".format(env_possible.parent.name))
         out_path = env_possible.parent.joinpath("ml")
     else:
         raise NotImplementedError("Use experiment")
@@ -180,6 +180,10 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     tsv_stability_results_fname = "stability_results.tsv"
     tsv_res_results_fpath = output_folder.joinpath(tsv_stability_results_fname)
     res_df.to_csv(tsv_res_results_fpath, sep="\t")
+    circuit_dict = ml_plots.get_circuit_dict()
+    ml_plots.convert_frame_ids(
+        tsv_stability_results_fname, output_folder, circuit_dict, frame=res_df
+    )
 
     # Compute shap relevances
     shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals, gpu)

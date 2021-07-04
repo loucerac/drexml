@@ -2,42 +2,45 @@
 
 # some weird conda init things (cluster and gpu server issues)
 source ~/.bashrc
-# read and export .env
 
-export $(egrep -v '^#' .env | xargs)
+DATA_PATH="$1"
 conda activate ./.venv
 export PYTHONPATH="${PYTHONPATH}:$(pwd)" 
+echo $( which python )
 
-DISEASE_LIST=$(find ${DATA_PATH}/results  -mindepth 1 -maxdepth 1 -type d ! -path ${DATA_PATH}/results | sort)
-DISEASES_DONE_FPATH="${DATA_PATH}/results/diseases_done.txt"
+DISEASE_LIST=$(find ${DATA_PATH}  -mindepth 1 -maxdepth 1 -type d ! -path ${DATA_PATH}/results | sort)
+DISEASES_DONE_FPATH="${DATA_PATH}/diseases_done.txt"
 #rm ${DISEASES_DONE_FPATH}
 #touch ${DISEASES_DONE_FPATH}
 
-for f in ${DISEASE_LIST}; do
+for DISEASE_FOLDER in ${DISEASE_LIST}; do
     echo $f
-    DISEASE=$(basename ${f})
+    DISEASE=$(basename ${DISEASE_FOLDER})
     is_disease_done=$( grep  "${DISEASE}" "${DISEASES_DONE_FPATH}" )
     if [ -n "${is_disease_done}" ]; then 
         echo "${DISEASE} already done"
     else
         echo "Begin disease ${DISEASE}"
-        DISEASE_FOLDER="${DATA_PATH}/results/${DISEASE}"
+        #DISEASE_FOLDER="${DATA_PATH}/results/${DISEASE}"
         EXPERIMENT_PATH="${DISEASE_FOLDER}/experiment.env"
-        TMP_FOLDER="${DISEASE_FOLDER}/ml/tmp"
+        ML_FOLDER="${DISEASE_FOLDER}/ml"
+        TMP_FOLDER="${ML_FOLDER}/tmp"
         rm -rf "${DISEASE_FOLDER}/ml"
-        mkdir "${DISEASE_FOLDER}/ml"
+        mkdir -p "${TMP_FOLDER}"
+        out_path="${ML_FOLDER}/out.log"
+        err_path="${ML_FOLDER}/err.log"
 
         STARTTIME=$(date +%s)
         
-        python hord.py --n-jobs 24 --gpu --disease ${EXPERIMENT_PATH} 
+        python hord.py --n-jobs 110 --gpu --disease ${EXPERIMENT_PATH} > ${out_path} 2> ${err_path}
 
         ENDTIME=$(date +%s)
 
         t=$(($ENDTIME - $STARTTIME))
 
         echo "End disease ${DISEASE} in ${t} s"
-
+        echo "End disease ${DISEASE} in ${t} s" >> ${out_path}
         echo "End disease ${DISEASE} in ${t} s" >> ${DISEASES_DONE_FPATH}
-        sleep 5m
+        sleep 1m
     fi
 done
