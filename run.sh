@@ -8,13 +8,14 @@ conda activate ./.venv
 export PYTHONPATH="${PYTHONPATH}:$(pwd)" 
 echo $( which python )
 
-DISEASE_LIST=$(find ${DATA_PATH}  -mindepth 1 -maxdepth 1 -type d ! -path ${DATA_PATH}/results | sort)
+DISEASE_LIST=$(find ${DATA_PATH} -mindepth 1 -maxdepth 1 -type d | sort)
+echo $DISEASE_LIST
 DISEASES_DONE_FPATH="${DATA_PATH}/diseases_done.txt"
 #rm ${DISEASES_DONE_FPATH}
 #touch ${DISEASES_DONE_FPATH}
 
 for DISEASE_FOLDER in ${DISEASE_LIST}; do
-    echo $f
+    echo $DISEASE_FOLDER
     DISEASE=$(basename ${DISEASE_FOLDER})
     is_disease_done=$( grep  "${DISEASE}" "${DISEASES_DONE_FPATH}" )
     if [ -n "${is_disease_done}" ]; then 
@@ -23,6 +24,7 @@ for DISEASE_FOLDER in ${DISEASE_LIST}; do
         echo "Begin disease ${DISEASE}"
         #DISEASE_FOLDER="${DATA_PATH}/results/${DISEASE}"
         EXPERIMENT_PATH="${DISEASE_FOLDER}/experiment.env"
+        echo "Experiment $EXPERIMENT_PATH"
         ML_FOLDER="${DISEASE_FOLDER}/ml"
         TMP_FOLDER="${ML_FOLDER}/tmp"
         rm -rf "${DISEASE_FOLDER}/ml"

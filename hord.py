@@ -140,16 +140,6 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     # Get ML model
     estimator = get_model(n_features, n_jobs, debug)
 
-    # CV with optimal hyperparameters (unbiased performance)
-    cv_stats = perform_cv(gene_xpr, pathvals, estimator, debug)
-
-    # Save results
-    stats_fname = "cv_stats.pkl"
-    stats_fpath = output_folder.joinpath(stats_fname)
-    with open(stats_fpath, "wb") as f:
-        joblib.dump(cv_stats, f)
-    print("Unbiased CV stats saved to: {}".format(stats_fpath))
-
     # fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
     cmd = [
         "python",
@@ -165,7 +155,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     # fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
     fs = joblib.load(data_folder.joinpath("fs.jbl"))
     cv = joblib.load(data_folder.joinpath("cv.jbl"))
-    stability_results, res_df = run_stability(
+    stability_results, stab_res_df = run_stability(
         estimator, gene_xpr, pathvals, cv, fs, n_jobs, alpha=0.05
     )
     # Save results
@@ -176,14 +166,6 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     print("Stability results saved to: {}".format(stability_results_fpath))
     print(stability_results["stability_score"])
     print(stability_results["stability_error"])
-
-    tsv_stability_results_fname = "stability_results.tsv"
-    tsv_res_results_fpath = output_folder.joinpath(tsv_stability_results_fname)
-    res_df.to_csv(tsv_res_results_fpath, sep="\t")
-    circuit_dict = ml_plots.get_circuit_dict()
-    ml_plots.convert_frame_ids(
-        tsv_stability_results_fname, output_folder, circuit_dict, frame=res_df
-    )
 
     # Compute shap relevances
     shap_summary, fs = compute_shap(estimator, gene_xpr, pathvals, gpu)
@@ -200,7 +182,40 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     fs.to_csv(fs_fpath, sep="\t")
     print("Shap selection results saved to: {}".format(fs_fpath))
 
-    plot(output_folder, gene_xpr.columns, pathvals.columns, cv_stats)
+    # CV with optimal hyperparameters (unbiased performance)
+    genes_selected = fs.any(axis=0).index
+    features = gene_xpr.loc[:, genes_selected]
+    rf_params = {"max_depth": 32, "max_features": 1.0}
+    estimator.set_params(**rf_params)
+    cv_stats = perform_cv(features, pathvals, estimator, debug)
+
+    # Save results
+    stats_fname = "cv_stats.pkl"
+    stats_fpath = output_folder.joinpath(stats_fname)
+    with open(stats_fpath, "wb") as f:
+        joblib.dump(cv_stats, f)
+    print("Unbiased CV stats saved to: {}".format(stats_fpath))
+
+    tsv_stability_results_fname = "performance_stability_results.tsv"
+    tsv_res_results_fpath = output_folder.joinpath(tsv_stability_results_fname)
+
+    cvmo = pd.DataFrame(cv_stats["r2_mo"]["test"], columns=pathvals.columns)
+    cvmo = cvmo.describe().T[["mean", "std", "25%", "75%"]]
+    cvmo.columns = "r2_cv_" + cvmo.columns
+    cvmap = pd.DataFrame(cv_stats["r2_ua"]["test"])
+    cvmap = cvmap.describe().T[["mean", "std", "25%", "75%"]]
+    cvmap.columns = "r2_cv_" + cvmap.columns
+    cvmap.index = ["map"]
+    cv_df = pd.concat((cvmap, cvmo), axis=0)
+    stab_res_df = pd.concat((stab_res_df, cv_df), axis=1)
+
+    stab_res_df.to_csv(tsv_res_results_fpath, sep="\t")
+    circuit_dict = ml_plots.get_circuit_dict()
+    ml_plots.convert_frame_ids(
+        tsv_stability_results_fname, output_folder, circuit_dict, frame=stab_res_df
+    )
+
+    plot(output_folder, features.columns, pathvals.columns, cv_stats)
 
 
 def perform_cv(X, y, model, debug, n_jobs=-1):
