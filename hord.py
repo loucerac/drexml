@@ -185,7 +185,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     # CV with optimal hyperparameters (unbiased performance)
     genes_selected = fs.any(axis=0).index
     features = gene_xpr.loc[:, genes_selected]
-    rf_params = {"max_depth": 32, "max_features": 1.0}
+    rf_params = {"max_features": 1.0}
     estimator.set_params(**rf_params)
     cv_stats = perform_cv(features, pathvals, estimator, debug)
 
