@@ -18,7 +18,7 @@ out_path="${parentdir}/out.log"
 err_path="${parentdir}/err.log"
 
 
-python hord.py --n-jobs 24 --gpu --debug --disease ${EXPERIMENT_PATH} > ${out_path} 2> ${err_path}
+python hord.py --n-jobs 100 --gpu --disease ${EXPERIMENT_PATH} > ${out_path} 2> ${err_path}
 #python src/explain.py data/experiments/RP_2021/ml/tmp/ 100 1 33 1
 
 ENDTIME=$(date +%s)
