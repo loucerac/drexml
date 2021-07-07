@@ -299,7 +299,10 @@ if __name__ == "__main__":
             print(f"50-50 split {i}")
 
     # Define number of GPUs available
-    N_GPU = 4
+    if gpu:
+        N_GPU = 4
+    else:
+        N_GPU = n_jobs
 
     # filts = Parallel(n_jobs=N_GPU, backend="multiprocessing")(
     #    delayed(runner)(n_split, data_folder) for n_split in range(n))
@@ -351,7 +354,7 @@ if __name__ == "__main__":
             fname = f"filt_{i}.jbl"
             fpath = data_folder.joinpath(fname)
             joblib.dump(filt_i, fpath)
-            # print(filt_i.sum(axis=1).value_counts())
+            print(gpu_id, filt_i.sum(axis=1).value_counts())
 
         finally:
             queue.put(gpu_id)
