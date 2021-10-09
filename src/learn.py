@@ -15,22 +15,23 @@ import numpy as np
 import pandas as pd
 from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
-from lightgbm.sklearn import LightGBMError
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.externals import joblib
+import joblib
 from sklearn.model_selection import cross_val_score
-from sklearn.utils.validation import check_X_y, check_is_fitted
-from skopt import gp_minimize
-from skopt import load
-from skopt.space import Real, Integer, Categorical
-from skopt.utils import use_named_args
-from xgboost.core import XGBoostError
+from sklearn.utils.validation import check_is_fitted, check_X_y
+import json
 
 
-def plot_feature_importances(clf, X_train, y_train=None,
-                             top_n=10, figsize=(8, 8), print_table=False,
-                             title="Feature Importances"):
+def plot_feature_importances(
+    clf,
+    X_train,
+    y_train=None,
+    top_n=10,
+    figsize=(8, 8),
+    print_table=False,
+    title="Feature Importances",
+):
     """Plot feature importances of a tree-based sklearn estimator.
 
     Parameters
@@ -65,31 +66,35 @@ def plot_feature_importances(clf, X_train, y_train=None,
     """
 
     try:
-        if not hasattr(clf, 'feature_importances_'):
+        if not hasattr(clf, "feature_importances_"):
             clf.fit(X_train.values, y_train.values.ravel())
 
-            if not hasattr(clf, 'feature_importances_'):
-                raise AttributeError("{} does not have feature_importances_ attribute".
-                                     format(clf.__class__.__name__))
+            if not hasattr(clf, "feature_importances_"):
+                raise AttributeError(
+                    "{} does not have feature_importances_ attribute".format(
+                        clf.__class__.__name__
+                    )
+                )
 
-    except (XGBoostError, LightGBMError, ValueError):
+    except ValueError:
         clf.fit(X_train.values, y_train.values.ravel())
 
-    feat_imp = pd.DataFrame({'importance': clf.feature_importances_})
-    feat_imp['feature'] = X_train.columns
-    feat_imp.sort_values(by='importance', ascending=False, inplace=True)
+    feat_imp = pd.DataFrame({"importance": clf.feature_importances_})
+    feat_imp["feature"] = X_train.columns
+    feat_imp.sort_values(by="importance", ascending=False, inplace=True)
     feat_imp = feat_imp.iloc[:top_n]
 
-    feat_imp.sort_values(by='importance', inplace=True)
-    feat_imp = feat_imp.set_index('feature', drop=True)
+    feat_imp.sort_values(by="importance", inplace=True)
+    feat_imp = feat_imp.set_index("feature", drop=True)
     feat_imp.plot.barh(title=title, figsize=figsize)
-    plt.xlabel('Feature Importance Score')
+    plt.xlabel("Feature Importance Score")
     plt.show()
 
     if print_table:
         from IPython.display import display
+
         print("Top {} features in descending order of importance".format(top_n))
-        display(feat_imp.sort_values(by='importance', ascending=False))
+        display(feat_imp.sort_values(by="importance", ascending=False))
 
     return feat_imp
 
@@ -101,11 +106,20 @@ class AutoMorf(BaseEstimator, RegressorMixin):
     Optimization (BO).
     """
 
-    def __init__(self, name, framework="hyperopt", n_jobs=1, cv=10, n_calls=100, copy_X_train=True, random_state=42):
+    def __init__(
+        self,
+        name,
+        framework="hyperopt",
+        n_jobs=1,
+        cv=10,
+        n_calls=100,
+        copy_X_train=True,
+        random_state=42,
+    ):
         self.name = name
         self.framework = framework
         self.n_jobs = n_jobs
-        self.copy_X_train = copy_X_train,
+        self.copy_X_train = (copy_X_train,)
         self.random_state = random_state
         self.cv = cv
         self.n_calls = n_calls
@@ -142,9 +156,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         fit the model to data.
 
         """
-        if self.framework == "sko":
-            self.fit_sko(X, y)
-        elif self.framework == "hyperopt":
+        if self.framework == "hyperopt":
             self.fit_hyperopt(X, y)
 
         self.best_model.fit(X, y)
@@ -158,19 +170,18 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.y_train_ = self.best_model.X_train_
 
     def fit_hyperopt(self, X, y):
-        """Tree-structured Parzen Estimator (TPE)-based hyperparameter search.
-        """
+        """Tree-structured Parzen Estimator (TPE)-based hyperparameter search."""
         estimator = random_forest_regression(
-            self.name,
-            n_jobs=self.n_jobs,
-            random_state=self.random_state)
+            self.name, n_jobs=self.n_jobs, random_state=self.random_state
+        )
 
         self.opt = HyperoptEstimator(
             regressor=estimator,
             algo=tpe.suggest,
             max_evals=self.n_calls,
             trial_timeout=None,
-            seed=self.random_state)
+            seed=self.random_state,
+        )
 
         self.opt.fit(X, y)
 
@@ -178,33 +189,6 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         self.opt.n_calls = self.n_calls
 
         self.best_model = self.opt.best_model()["learner"]
-
-    def fit_sko(self, X, y):
-        """Bayesian Optimization-based hyperparameter search.
-        """
-        from skopt.callbacks import VerboseCallback
-
-        estimator, space, objective = self.get_optimizer(
-            X,
-            y,
-            self.n_jobs,
-            self.cv,
-            self.random_state
-        )
-
-        self.opt = gp_minimize(
-            objective,
-            space,
-            acq_optimizer="lbfgs",
-            n_jobs=self.n_jobs,
-            n_calls=self.n_calls,
-            random_state=self.random_state,
-            callback=VerboseCallback(n_total=1)
-        )
-
-        self.opt.cv = self.cv
-
-        self.best_model = self.build_model_from_sko(self.opt)
 
     def predict(self, X):
         """Predict multiple regression targets for X.
@@ -261,11 +245,11 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         feature_importances_ : array, shape = [n_features]
         """
 
-        check_is_fitted(self.best_model, 'estimators_')
+        check_is_fitted(self.best_model, "estimators_")
 
         return self.best_model.feature_importances_
 
-    def save(self, out):
+    def save(self, out, fmt="json"):
         """Save the model to specified folder.
 
         Due to serialization limitations the saved model is split into
@@ -278,20 +262,18 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             The path where the model must be stored in '.gz' format.
         """
         out = self.get_output_folder(out)
-        opt_path = out.joinpath(self.get_opt_fname(self.name))
-        if self.framework == "sko":
-            estimator, space, objective = self.get_optimizer(
-                self.X_train_,
-                self.y_train_,
-                self.n_jobs,
-                self.cv,
-                self.random_state
-            )
-            joblib.dump(self.opt, opt_path)
-        elif self.framework == "hyperopt":
-            joblib.dump(self.opt, opt_path)
-        estimator_path = out.joinpath(self.get_estimator_fname(self.name))
-        joblib.dump(self.best_model, estimator_path)
+        if fmt == "json":
+            json_fname = "model_hyperparameters.json"
+            json_fpath = out.joinpath(json_fname)
+            model_hp = self.best_model.get_params()
+            with open(json_fpath, "w") as fjson:
+                json.dump(model_hp, fjson, indent=4)
+        else:
+            opt_path = out.joinpath(self.get_opt_fname(self.name))
+            if self.framework == "hyperopt":
+                joblib.dump(self.opt, opt_path)
+            estimator_path = out.joinpath(self.get_estimator_fname(self.name))
+            joblib.dump(self.best_model, estimator_path)
 
     @classmethod
     def load(cls, out, name):
@@ -319,23 +301,7 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         # load optimization result
         opt_path = out.joinpath(cls.get_opt_fname(name))
 
-        if "sko" in name:
-            print(
-                estimator.X_train_.shape, estimator.y_train_.shape,
-                estimator.n_jobs, estimator.cv, estimator.random_state
-            )
-            estimator, space, objective = cls.get_optimizer(
-                estimator.X_train_,
-                estimator.y_train_,
-                estimator.n_jobs,
-                estimator.cv,
-                estimator.random_state
-            )
-
-            print(estimator, space, objective)
-
-            opt = load(opt_path)
-        elif "hyperopt" in name:
+        if "hyperopt" in name:
             with open(opt_path, "rb") as f:
                 opt = joblib.load(f)
 
@@ -345,7 +311,8 @@ class AutoMorf(BaseEstimator, RegressorMixin):
             cv=opt.cv,
             n_calls=opt.n_calls,
             copy_X_train=estimator.copy_X_train,
-            random_state=estimator.random_state)
+            random_state=estimator.random_state,
+        )
         bomorf.best_model = estimator
         bomorf.opt = opt
 
@@ -357,71 +324,32 @@ class AutoMorf(BaseEstimator, RegressorMixin):
         scikit-learn estimator.
         """
         hyperparameters = {
-            'max_depth': opt.x[0],
-            'max_features': opt.x[1],
-            'min_samples_split': opt.x[2],
-            'min_samples_leaf': opt.x[3],
-            'n_estimators': opt.x[4]
+            "max_depth": opt.x[0],
+            "max_features": opt.x[1],
+            "min_samples_split": opt.x[2],
+            "min_samples_leaf": opt.x[3],
+            "n_estimators": opt.x[4],
         }
 
         model = RandomForestRegressor(
-            n_jobs=n_jobs,
-            random_state=random_state,
-            **hyperparameters
+            n_jobs=n_jobs, random_state=random_state, **hyperparameters
         )
 
         return model
 
     @staticmethod
     def get_opt_fname(name):
-        """Construct the optimization history file name.
-        """
+        """Construct the optimization history file name."""
         return "{}_opt.pkl".format(name)
 
     @staticmethod
     def get_estimator_fname(name):
-        """Construct the estimator file name.
-        """
+        """Construct the estimator file name."""
         return "{}_estimator.pkl".format(name)
 
     @staticmethod
     def get_output_folder(out):
-        """Pathlib check and conversion of output folder.
-        """
+        """Pathlib check and conversion of output folder."""
         if out:
             out = Path(out)
         return out
-
-    @staticmethod
-    def get_optimizer(X, y, n_jobs, cv, random_state):
-        """Get Bayesian Optiization helper functions.
-        """
-        estimator = RandomForestRegressor(
-            n_jobs=n_jobs,
-            random_state=random_state
-        )
-
-        # n_features = y.shape[1]
-        space = [
-            Integer(1, 10, name='max_depth'),
-            Real(0.1, 1.0, name="max_features"),
-            Integer(2, 100, name='min_samples_split'),
-            Integer(1, 100, name='min_samples_leaf'),
-            Categorical([10 ** 2, 500, 10 ** 3, 5000, 10 ** 4], name="n_estimators")]
-
-        @use_named_args(space)
-        def objective(**params):
-            estimator.set_params(**params)
-
-            cv_scores = cross_val_score(
-                estimator,
-                X,
-                y,
-                cv=cv,
-                n_jobs=n_jobs,
-                scoring="r2"
-            )
-
-            return -np.mean(cv_scores)
-
-        return estimator, space, objective

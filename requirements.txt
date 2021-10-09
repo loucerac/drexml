@@ -1,0 +1,16 @@
+click==7.1.2
+joblib==1.0.1
+matplotlib==3.4.1
+numpy==1.20.2
+pandas==1.2.3
+pyarrow==3.0.0
+python-dotenv==0.16.0
+scikit-learn==0.24.1
+scipy==1.6.2
+seaborn==0.11.1
+ipython==7.18.1
+shap @ git+https://github.com/slundberg/shap@v0.39.0#egg=shap
+isort==5.8.0
+autoflake==1.4
+pylint==2.7.4
+black==20.8b1
