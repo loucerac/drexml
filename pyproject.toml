@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "dreml"
+version = "0.9.1"
+description = "Drug repurposing  using machine learning and mechanistic models of signal transduction"
+authors = ["Carlos Loucera <carlos.loucera@junatdeandalucia.es>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+cloudpickle = "2.0.0"
+joblib = "1.1.0"
+numpy = "1.22.1"
+numba = "0.53.1"
+shap = {git = "https://github.com/loucerac/shap.git", rev = "adapt-to-cuda11"}
+click = "8"
+seaborn = "0.11.1"
+pyarrow = "3.0.0"
+matplotlib = "3.4.1"
+python-dotenv = "0.16.0"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+isort = "^5.10.1"
+pylint = "^2.12.2"
+autoflake = "^1.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
