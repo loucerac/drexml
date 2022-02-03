@@ -23,16 +23,16 @@ import joblib
 from sklearn.model_selection import RepeatedKFold
 import json
 
-from src.datasets import get_disease_data
-from src.explain import (
+from dreml.datasets import get_disease_data
+from dreml.explain import (
     run_stability,
     compute_shap,
     compute_shap_values,
     compute_shap_relevance,
     compute_shap_fs,
 )
-from src import ml_plots
-from src.models import get_model
+from dreml import ml_plots
+from dreml.models import get_model
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pathlib
@@ -143,7 +143,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     # fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
     cmd = [
         "python",
-        "src/explain.py",
+        "dreml/explain.py",
         data_folder.as_posix(),
         str(n_iters),
         str(int(gpu)),
@@ -151,7 +151,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
         str(int(debug)),
     ]
     subprocess.Popen(cmd).wait()
-    # from src.explain2 import run_gpu
+    # from dreml.explain2 import run_gpu
     # fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
     fs = joblib.load(data_folder.joinpath("fs.jbl"))
     cv = joblib.load(data_folder.joinpath("cv.jbl"))

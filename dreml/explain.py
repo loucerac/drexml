@@ -20,8 +20,8 @@ from sklearn.model_selection import (
     train_test_split,
 )
 
-from src import stability as stab
-from src.models import get_model
+from dreml import stability as stab
+from dreml.models import get_model
 from joblib import Parallel, delayed
 from scipy.stats import pearsonr
 import joblib
@@ -32,6 +32,20 @@ import pathlib
 
 
 def matcorr(O, P):
+    """[summary]
+
+    Parameters
+    ----------
+    O : [type]
+        [description]
+    P : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     (n, t) = O.shape  # n traces of t samples
     (n_bis, m) = P.shape  # n predictions for each of m candidates
 
@@ -52,21 +66,54 @@ def matcorr(O, P):
 
 
 def compute_shap_values(estimator, background, new, gpu, split=True):
-    print(gpu)
+    """[summary]
+
+    Parameters
+    ----------
+    estimator : [type]
+        [description]
+    background : [type]
+        [description]
+    new : [type]
+        [description]
+    gpu : [type]
+        [description]
+    split : bool, optional
+        [description], by default True
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     if gpu:
+        check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
     else:
+        check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
-    # shap_values = np.zeros((estimator.n_outputs_, new.shape[0], new.shape[1]))
-    # for i in np.arange(new.shape[0])[:100:]:
-    #    shap_values[:, i, :] = np.array(explainer.shap_values(new.values[i, :]))
-    shap_values = np.array(explainer.shap_values(new))
+    shap_values = np.array(explainer.shap_values(new, check_additivity=check_add))
     return shap_values
 
 
 def compute_shap_relevance(shap_values, X, Y):
+    """[summary]
 
+    Parameters
+    ----------
+    shap_values : [type]
+        [description]
+    X : [type]
+        [description]
+    Y : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     feature_names = X.columns
     task_names = Y.columns
 
@@ -93,7 +140,22 @@ def compute_shap_relevance(shap_values, X, Y):
 
 
 def build_stability_dict(z_mat, scores, alpha=0.05):
+    """[summary]
 
+    Parameters
+    ----------
+    z_mat : [type]
+        [description]
+    scores : [type]
+        [description]
+    alpha : float, optional
+        [description], by default 0.05
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     support_matrix = np.squeeze(z_mat)
     scores = np.squeeze(scores)
 
@@ -112,6 +174,30 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
 
 
 def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
+    """[summary]
+
+    Parameters
+    ----------
+    model : [type]
+        [description]
+    X : [type]
+        [description]
+    Y : [type]
+        [description]
+    cv : [type]
+        [description]
+    fs : [type]
+        [description]
+    n_jobs : [type]
+        [description]
+    alpha : float, optional
+        [description], by default 0.05
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     n_bootstraps = len(fs)
     n_samples, n_features = X.shape
 
@@ -206,6 +292,28 @@ def run_stability(model, X, Y, cv, fs, n_jobs, alpha=0.05):
 
 
 def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
+    """[summary]
+
+    Parameters
+    ----------
+    model : [type]
+        [description]
+    X : [type]
+        [description]
+    Y : [type]
+        [description]
+    gpu : [type]
+        [description]
+    test_size : float, optional
+        [description], by default 0.3
+    q : str, optional
+        [description], by default "r2"
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     X_learn, X_val, Y_learn, Y_val = train_test_split(
         X, Y, test_size=test_size, random_state=42
     )
@@ -224,6 +332,24 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
 
 
 def get_quantile_by_circuit(model, X, Y, threshold=0.5):
+    """[summary]
+
+    Parameters
+    ----------
+    model : [type]
+        [description]
+    X : [type]
+        [description]
+    Y : [type]
+        [description]
+    threshold : float, optional
+        [description], by default 0.5
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     r = r2_score(Y, model.predict(X), multioutput="raw_values")
     r[r < threshold] = threshold
     q = 0.95 + ((1 - r) / (1 - threshold)) * (1 - 0.95)
@@ -233,6 +359,28 @@ def get_quantile_by_circuit(model, X, Y, threshold=0.5):
 
 
 def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=False):
+    """[summary]
+
+    Parameters
+    ----------
+    relevances : [type]
+        [description]
+    model : [type], optional
+        [description], by default None
+    X : [type], optional
+        [description], by default None
+    Y : [type], optional
+        [description], by default None
+    q : str, optional
+        [description], by default "r2"
+    by_circuit : bool, optional
+        [description], by default False
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     if q == "r2":
         q = get_quantile_by_circuit(model, X, Y)
         by_circuit_frame = pd.concat(
@@ -313,6 +461,8 @@ if __name__ == "__main__":
     # initialize the queue with the GPU ids
 
     def runner(data_folder, gpu, gpu_id_list, i):
+        """ Run instance.
+        """
         cpu_name = multiprocessing.current_process().name
         cpu_id = int(cpu_name[cpu_name.find("-") + 1 :]) - 1
         # print(gpu0, gpu)

@@ -9,4 +9,4 @@
 module load anaconda2
 conda activate ./.venv
 
-python src/ml_plots.py $MLPATH 0 0
+python dreml/ml_plots.py $MLPATH 0 0
