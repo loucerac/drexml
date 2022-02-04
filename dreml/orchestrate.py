@@ -9,15 +9,22 @@ Entry CLI point for orchestrate.
 """
 
 import click
-import pkg_resources
+
+from dreml.utils import get_version
 
 @click.command()
-def orchestrate():
+@click.option(
+    "--download/--no-download", is_flag=True, default=False, help="Download data from zenodo."
+)
+@click.argument("disease_path", type=click.Path(exists=True))
+@click.version_option(get_version())
+def orchestrate(disease_path, download):
     """[summary]
     """
-    version = pkg_resources.get_distribution('dreml').version
-    print(f"running DREML orchestrate v {version}")
 
+    print(f"running DREML orchestrate v {get_version()}")
+    print(disease_path)
+    print(download)
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
