@@ -82,11 +82,11 @@ def getVarianceofStability(Z):
                     hatPF,
                 )
             )
-            - (k[i] * kbar) / d ** 2
-            + (stab / 2) * ((2 * k[i] * kbar) / d ** 2 - k[i] / d - kbar / d + 1)
+            - (k[i] * kbar) / d**2
+            + (stab / 2) * ((2 * k[i] * kbar) / d**2 - k[i] / d - kbar / d + 1)
         )
     phiAv = np.mean(phi)
-    variance = (4 / M ** 2) * np.sum(
+    variance = (4 / M**2) * np.sum(
         np.power(phi - phiAv, 2)
     )  # the variance of the stability estimate as given in [1]
     return {"stability": stab, "variance": variance}

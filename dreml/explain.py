@@ -461,8 +461,7 @@ if __name__ == "__main__":
     # initialize the queue with the GPU ids
 
     def runner(data_folder, gpu, gpu_id_list, i):
-        """ Run instance.
-        """
+        """Run instance."""
         cpu_name = multiprocessing.current_process().name
         cpu_id = int(cpu_name[cpu_name.find("-") + 1 :]) - 1
         # print(gpu0, gpu)

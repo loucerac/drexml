@@ -12,16 +12,21 @@ import click
 import joblib
 from dreml.utils import get_version, get_out_path, get_data
 
+
 @click.command()
 @click.option(
-    "--download/--no-download", is_flag=True, default=False, help="Download data from zenodo."
+    "--download/--no-download",
+    is_flag=True,
+    default=False,
+    help="Download data from zenodo.",
 )
-@click.option("--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode.")
+@click.option(
+    "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
+)
 @click.argument("disease_path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(disease_path, download, debug):
-    """[summary]
-    """
+    """[summary]"""
 
     print(f"running DREML orchestrate v {get_version()}")
     output_folder = get_out_path(disease_path, debug)
@@ -32,6 +37,7 @@ def orchestrate(disease_path, download, debug):
     gene_xpr, pathvals, circuits, genes = get_data(disease_path, debug)
     joblib.dump(gene_xpr, data_folder.joinpath("features.jbl"))
     joblib.dump(pathvals, data_folder.joinpath("target.jbl"))
+
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter

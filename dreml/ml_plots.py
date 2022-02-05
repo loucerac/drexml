@@ -138,19 +138,19 @@ def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
 
     # sns.set_context("poster")
     fig, ax = plt.subplots(1, 1)
-    #def set_size(fig):
-    #fig.set_size_inches(6, 3)
-        #plt.tight_layout()
+    # def set_size(fig):
+    # fig.set_size_inches(6, 3)
+    # plt.tight_layout()
     figsize_x = 1.0 if n_genes < 90 else 1.2
     to_plot = to_plot.melt()
     sns.boxplot(x="variable", y="value", data=to_plot, color="lightgray", ax=ax)
-    #ax = to_plot.plot(kind="box", rot=90, color="lightgray")
+    # ax = to_plot.plot(kind="box", rot=90, color="lightgray")
     ax.set_ylabel("Relevance", fontsize=12)
     ax.set_xlabel("Gene", fontsize=12)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
-    #set_size(fig)
+    # set_size(fig)
     sns.despine()
-    #g.fig.set_size_inches(6, 3)
+    # g.fig.set_size_inches(6, 3)
     fig.set_size_inches(6, 3)
     plt.tight_layout()
 
