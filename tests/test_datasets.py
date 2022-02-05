@@ -1,4 +1,12 @@
-from pathlib import Path
+# -*- coding: utf-8 -*-
+"""
+Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
+Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
+Author: Marina Esteban <marina.estebanm@gmail.com>
+
+Unit testing for datasets module.
+"""
+
 try:
     import importlib.resources as pkg_resources
 except ImportError:
@@ -20,6 +28,8 @@ def get_disease_path():
 
 
 def test_get_disease_data():
+    """Test get_disease_data."""
+    
     disease_path = get_disease_path()
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
 
