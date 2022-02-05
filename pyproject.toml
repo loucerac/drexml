@@ -30,7 +30,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-dreml-orchestrate = 'dreml.orchestrate:orchestrate'
+dreml-orchestrate = 'dreml.cli.orchestrate:orchestrate'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
