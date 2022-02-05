@@ -8,8 +8,10 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Learning module for HORD multi-task framework.
 """
 
+import json
 from pathlib import Path
 
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -17,10 +19,8 @@ from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
-import joblib
 from sklearn.model_selection import cross_val_score
 from sklearn.utils.validation import check_is_fitted, check_X_y
-import json
 
 
 def plot_feature_importances(

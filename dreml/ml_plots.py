@@ -1,13 +1,13 @@
+import pathlib
 import sys
 from pathlib import Path
 
+import dotenv
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import joblib
-import dotenv
-import pathlib
 
 dotenv_filepath = dotenv.find_dotenv()
 project_path = pathlib.Path(dotenv_filepath).parent

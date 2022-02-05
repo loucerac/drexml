@@ -8,9 +8,10 @@ Utilities module.
 """
 
 from pathlib import Path
+
+import pandas as pd
 import pkg_resources
 from sklearn.preprocessing import MinMaxScaler
-import pandas as pd
 
 from dreml.datasets import get_disease_data
 

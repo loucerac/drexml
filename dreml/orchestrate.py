@@ -10,7 +10,8 @@ Entry CLI point for orchestrate.
 
 import click
 import joblib
-from dreml.utils import get_version, get_out_path, get_data
+
+from dreml.utils import get_data, get_out_path, get_version
 
 
 @click.command()

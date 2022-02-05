@@ -7,28 +7,24 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Explainability module for multi-task framework.
 """
 
+import multiprocessing
 import os
+import pathlib
+from functools import partial
 from time import time
 
+import joblib
 import numpy as np
 import pandas as pd
 import shap
+from joblib import Parallel, delayed
+from scipy.stats import pearsonr
 from sklearn.base import clone
 from sklearn.metrics import r2_score
-from sklearn.model_selection import (
-    ShuffleSplit,
-    train_test_split,
-)
+from sklearn.model_selection import ShuffleSplit, train_test_split
 
 from dreml import stability as stab
 from dreml.models import get_model
-from joblib import Parallel, delayed
-from scipy.stats import pearsonr
-import joblib
-
-import multiprocessing
-from functools import partial
-import pathlib
 
 
 def matcorr(O, P):
@@ -406,6 +402,7 @@ def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=F
 
 if __name__ == "__main__":
     import sys
+
     from joblib import parallel_backend
 
     # client = Client('127.0.0.1:8786')

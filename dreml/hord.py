@@ -8,38 +8,34 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Entry CLI point for HORD multi-task framework.
 """
 
+import json
+import multiprocessing
 import os
+import pathlib
+import subprocess
 import warnings
+from functools import partial
 from pathlib import Path
 
 import click
+import joblib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import shap
 from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
 from sklearn.base import clone
-import joblib
-from sklearn.model_selection import RepeatedKFold
-import json
+from sklearn.model_selection import (RepeatedKFold, ShuffleSplit,
+                                     train_test_split)
 
-from dreml.datasets import get_disease_data
-from dreml.explain import (
-    run_stability,
-    compute_shap,
-    compute_shap_values,
-    compute_shap_relevance,
-    compute_shap_fs,
-)
 from dreml import ml_plots
+from dreml.datasets import get_disease_data
+from dreml.explain import (compute_shap, compute_shap_fs,
+                           compute_shap_relevance, compute_shap_values,
+                           run_stability)
 from dreml.models import get_model
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pathlib
-from sklearn.model_selection import ShuffleSplit, train_test_split
-import multiprocessing
-from functools import partial
-import subprocess
 
 
 def warn(*args, **kwargs):
