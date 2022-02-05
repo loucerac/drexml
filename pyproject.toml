@@ -23,6 +23,7 @@ black = "^22.1.0"
 isort = "^5.10.1"
 pylint = "^2.12.2"
 autoflake = "^1.4"
+pytest = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -30,3 +31,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 dreml-orchestrate = 'dreml.orchestrate:orchestrate'
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+    "integration",
+]
