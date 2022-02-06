@@ -60,8 +60,8 @@ def get_data(disease, debug, scale=True):
     print(gene_xpr.shape, pathvals.shape)
 
     if debug:
-        size = 100
-        gene_xpr = gene_xpr.iloc[:size, :]
-        pathvals = pathvals.iloc[:size, :]
+        size = 10
+        gene_xpr = gene_xpr.sample(n=size)
+        pathvals = pathvals.sample(n=size)
 
     return gene_xpr, pathvals, circuits, genes
