@@ -6,15 +6,25 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 
 Unit testing for datasets module.
 """
+import shutil
 import tempfile
 from pathlib import Path
-import shutil
+import joblib
+
+import pytest
+
+import dreml.cli.orchestrate
 
 try:
     import importlib.resources as pkg_resources
 except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
+
+import click
+from click.testing import CliRunner
+
+from dreml.cli import orchestrate
 from dreml.datasets import get_disease_data
 
 
@@ -31,7 +41,8 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
-def prepare_disease():
+@pytest.fixture
+def disease_path():
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
     disease_path_in = get_resource_path("experiment.env")
@@ -50,14 +61,36 @@ def prepare_disease():
     return disease_path_out
 
 
-def test_get_disease_data():
+def test_get_disease_data(disease_path):
     """Test get_disease_data."""
 
-    disease_path = get_resource_path("experiment.env")
-    disease_path = prepare_disease()
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
 
     assert gene_exp.to_numpy().ndim == 2
     assert pathvals.to_numpy().ndim == 2
     assert circuits.to_numpy().ndim == 2
     assert genes.to_numpy().ndim == 2
+
+
+@pytest.mark.parametrize("debug", [(True,), (False,)])
+def test_orchestrate(disease_path, debug):
+    """Unit tests for CLI app."""
+    click.echo("Running CLI tests fro DREML.")
+
+    opts = ["--debug" if debug else "--no-debug", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(dreml.cli.orchestrate.orchestrate, " ".join(opts))
+
+    ml_name = "ml" if debug else "debug"
+    ml_folder_expected = disease_path.parent.joinpath(ml_name)
+    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
+
+    assert ml_folder_expected.exists()
+    assert tmp_folder_expected.exists()
+
+    features = joblib.load(tmp_folder_expected.joinpath("features.jbl"))
+    if debug:
+        assert features.shape[0] == 9
+    else:
+        assert features.shape[0] > 9

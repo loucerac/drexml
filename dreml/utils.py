@@ -45,9 +45,9 @@ def get_out_path(disease, debug):
     return out_path
 
 
-def get_data(disease, debug, scale=True):
+def get_data(disease, debug, fmt="tsv.gz", scale=True):
     """Load disease data and metadata."""
-    gene_xpr, pathvals, circuits, genes = get_disease_data(disease)
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, fmt=fmt)
 
     if scale:
 
@@ -60,7 +60,7 @@ def get_data(disease, debug, scale=True):
     print(gene_xpr.shape, pathvals.shape)
 
     if debug:
-        size = 10
+        size = 9
         gene_xpr = gene_xpr.sample(n=size)
         pathvals = pathvals.sample(n=size)
 
