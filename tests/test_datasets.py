@@ -9,6 +9,7 @@ Unit testing for datasets module.
 import tempfile
 from pathlib import Path
 import shutil
+
 try:
     import importlib.resources as pkg_resources
 except ImportError:
@@ -38,13 +39,16 @@ def prepare_disease():
     # Use as_posix to make it compatible with python<=3.7
     shutil.copy(disease_path_in.as_posix(), disease_path_out.as_posix())
 
-    with open(disease_path_out, 'r', encoding="utf8") as this_file :
+    with open(disease_path_out, "r", encoding="utf8") as this_file:
         disease_path_out_data = this_file.read()
-    disease_path_out_data = disease_path_out_data.replace('%THIS_PATH', disease_path_in.parent.as_posix())
-    with open(disease_path_out, 'w', encoding="utf8") as this_file:
+    disease_path_out_data = disease_path_out_data.replace(
+        "%THIS_PATH", disease_path_in.parent.as_posix()
+    )
+    with open(disease_path_out, "w", encoding="utf8") as this_file:
         this_file.write(disease_path_out_data)
 
     return disease_path_out
+
 
 def test_get_disease_data():
     """Test get_disease_data."""
