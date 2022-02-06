@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 
 
-def get_model(n_features, n_jobs, debug):
+def get_model(n_features, n_targets, n_jobs, debug, n_iters):
     """[summary]
 
     Parameters
@@ -25,10 +25,13 @@ def get_model(n_features, n_jobs, debug):
     if debug:
         n_estimators = 200
     else:
-        n_estimators = 200
+        n_estimators = int(1.5 * (n_features + n_targets))
 
     model = RandomForestRegressor(
-        n_jobs=n_jobs, n_estimators=n_estimators, max_depth=8, max_features=mtry
+        n_jobs=n_jobs,
+        n_estimators=n_estimators,
+        max_depth=8,
+        max_features=mtry,
     )
 
     return model

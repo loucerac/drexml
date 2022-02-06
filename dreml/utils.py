@@ -7,6 +7,7 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Utilities module.
 """
 
+import ctypes
 from pathlib import Path
 
 import pandas as pd
@@ -21,7 +22,7 @@ def get_version():
     return pkg_resources.get_distribution("dreml").version
 
 
-def get_out_path(disease, debug):
+def get_out_path(disease):
     """Construct the path where the model must be saved.
 
     Returns
@@ -37,8 +38,7 @@ def get_out_path(disease, debug):
         out_path = env_possible.parent.joinpath("ml")
     else:
         raise NotImplementedError("Use experiment")
-    if debug:
-        out_path.joinpath("debug")
+
     out_path.mkdir(parents=True, exist_ok=True)
     print(f"Storage folder: {out_path}")
 
@@ -65,3 +65,42 @@ def get_data(disease, debug, fmt="tsv.gz", scale=True):
         pathvals = pathvals.sample(n=size)
 
     return gene_xpr, pathvals, circuits, genes
+
+
+def get_cuda_lib():
+    """Get CUDA library name."""
+    lib_names = ("libcuda.so", "libcuda.dylib", "cuda.dll")
+    for lib_name in lib_names:
+        try:
+            cuda = ctypes.CDLL(lib_name)
+        except OSError:
+            continue
+        else:
+            break
+    else:
+        raise OSError("could not load any of: " + " ".join(lib_names))
+
+    return cuda
+
+
+def get_number_cuda_devices():
+    """Get number of CUDA devices."""
+
+    try:
+        n_gpus = get_number_cuda_devices_()
+    except Exception as e:
+        print("No CUDA devices found.")
+        n_gpus = 0
+
+    return n_gpus
+
+
+def get_number_cuda_devices_():
+    """Get number of CUDA devices."""
+
+    cuda = get_cuda_lib()
+    cuda_query = cuda.cuInit(0)
+    n_gpus = ctypes.c_int()
+    cuda_query = cuda.cuDeviceGetCount(ctypes.byref(n_gpus))
+
+    return int(n_gpus.value)

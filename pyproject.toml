@@ -31,6 +31,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 dreml-orchestrate = 'dreml.cli.orchestrate:orchestrate'
+dreml-stability = 'dreml.cli.stab:stability'
 
 [tool.pytest.ini_options]
 minversion = "6.0"

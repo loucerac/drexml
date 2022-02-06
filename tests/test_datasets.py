@@ -9,11 +9,9 @@ Unit testing for datasets module.
 import shutil
 import tempfile
 from pathlib import Path
+
 import joblib
-
 import pytest
-
-import dreml.cli.orchestrate
 
 try:
     import importlib.resources as pkg_resources
@@ -24,7 +22,8 @@ except ImportError:
 import click
 from click.testing import CliRunner
 
-from dreml.cli import orchestrate
+from dreml.cli.orchestrate import orchestrate
+from dreml.cli.stab import stability
 from dreml.datasets import get_disease_data
 
 
@@ -41,8 +40,7 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
-@pytest.fixture
-def disease_path():
+def make_disease_path():
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
     disease_path_in = get_resource_path("experiment.env")
@@ -61,9 +59,10 @@ def disease_path():
     return disease_path_out
 
 
-def test_get_disease_data(disease_path):
+def test_get_disease_data():
     """Test get_disease_data."""
 
+    disease_path = make_disease_path()
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
 
     assert gene_exp.to_numpy().ndim == 2
@@ -73,17 +72,18 @@ def test_get_disease_data(disease_path):
 
 
 @pytest.mark.parametrize("debug", [(True,), (False,)])
-def test_orchestrate(disease_path, debug):
+def test_orchestrate(debug):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
+
+    disease_path = make_disease_path()
 
     opts = ["--debug" if debug else "--no-debug", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(dreml.cli.orchestrate.orchestrate, " ".join(opts))
+    runner.invoke(orchestrate, " ".join(opts))
 
-    ml_name = "ml" if debug else "debug"
-    ml_folder_expected = disease_path.parent.joinpath(ml_name)
+    ml_folder_expected = disease_path.parent.joinpath("ml")
     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
 
     assert ml_folder_expected.exists()
@@ -94,3 +94,25 @@ def test_orchestrate(disease_path, debug):
         assert features.shape[0] == 9
     else:
         assert features.shape[0] > 9
+
+@pytest.mark.parametrize("n_gpus", [(0,), (-1,)])
+def test_stab(n_gpus):
+    """Unit tests for CLI app."""
+    click.echo("Running CLI tests fro DREML.")
+
+    disease_path = make_disease_path()
+    opts = ["--debug", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(orchestrate, " ".join(opts))
+
+    opts = ["--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(stability, " ".join(opts))
+
+    ml_folder_expected = disease_path.parent.joinpath("ml")
+    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
+
+    fs = joblib.load(tmp_folder_expected.joinpath("filt_0.jbl"))
+    assert fs.sum() > 0

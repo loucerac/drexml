@@ -31,9 +31,10 @@ def orchestrate(disease_path, format_data, debug, download):
     """[summary]"""
 
     print(f"running DREML orchestrate v {get_version()}")
-    output_folder = get_out_path(disease_path, debug)
+    output_folder = get_out_path(disease_path)
     data_folder = output_folder.joinpath("tmp")
     data_folder.mkdir(parents=True, exist_ok=True)
+    print(f"Tmp storage: {data_folder}")
 
     # Load data
     gene_xpr, pathvals, circuits, genes = get_data(disease_path, debug, fmt=format_data)

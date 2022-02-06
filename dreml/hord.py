@@ -27,14 +27,17 @@ import shap
 from dotenv import find_dotenv, load_dotenv
 from sklearn import metrics
 from sklearn.base import clone
-from sklearn.model_selection import (RepeatedKFold, ShuffleSplit,
-                                     train_test_split)
+from sklearn.model_selection import RepeatedKFold, ShuffleSplit, train_test_split
 
 from dreml import ml_plots
 from dreml.datasets import get_disease_data
-from dreml.explain import (compute_shap, compute_shap_fs,
-                           compute_shap_relevance, compute_shap_values,
-                           run_stability)
+from dreml.explain import (
+    compute_shap,
+    compute_shap_fs,
+    compute_shap_relevance,
+    compute_shap_values,
+    run_stability,
+)
 from dreml.models import get_model
 
 
