@@ -17,7 +17,7 @@ except ImportError:
 from dreml.datasets import get_disease_data
 
 
-def get_disease_path():
+def get_resource_path(fname):
     """Get path to example disease env path.
 
     Returns
@@ -25,23 +25,32 @@ def get_disease_path():
     pathlib.PosixPath
         Path to file.
     """
-    with pkg_resources.path("dreml.resources", "experiment.env") as f:
+    with pkg_resources.path("dreml.resources", fname) as f:
         data_file_path = f
     return Path(data_file_path)
+
 
 def prepare_disease():
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
-    disease_path_in = get_disease_path()
-    disease_path_out = tmp_dir.joinpath(disease_path_in)
-    # Use as posix to make it compatible with python<=3.7
+    disease_path_in = get_resource_path("experiment.env")
+    disease_path_out = tmp_dir.joinpath(disease_path_in.name)
+    # Use as_posix to make it compatible with python<=3.7
     shutil.copy(disease_path_in.as_posix(), disease_path_out.as_posix())
 
+    with open(disease_path_out, 'r', encoding="utf8") as this_file :
+        disease_path_out_data = this_file.read()
+    disease_path_out_data = disease_path_out_data.replace('%THIS_PATH', disease_path_in.parent.as_posix())
+    with open(disease_path_out, 'w', encoding="utf8") as this_file:
+        this_file.write(disease_path_out_data)
+
+    return disease_path_out
 
 def test_get_disease_data():
     """Test get_disease_data."""
 
-    disease_path = get_disease_path()
+    disease_path = get_resource_path("experiment.env")
+    disease_path = prepare_disease()
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
 
     assert gene_exp.to_numpy().ndim == 2

@@ -14,7 +14,7 @@ import dotenv
 import pandas as pd
 
 
-def get_disease_data(disease):
+def get_disease_data(disease, fmt="tsv.gz"):
     """[summary]
 
     Parameters
@@ -38,26 +38,39 @@ def get_disease_data(disease):
 
     gene_exp_fname = os.getenv("gene_exp")
     gene_exp_fpath = experiment_data_path.joinpath(gene_exp_fname)
-    gene_exp = pd.read_feather(gene_exp_fpath)
+    if fmt == "tsv.gz":
+        gene_exp = pd.read_csv(gene_exp_fpath, sep="\t")
+    else:
+        gene_exp = pd.read_feather(gene_exp_fpath)
     gene_exp = gene_exp.set_index("index", drop=True).replace("X", "")
     gene_exp.columns = gene_exp.columns.str.replace("X", "")
 
     pathvals_fname = os.getenv("pathvals")
     pathvals_fpath = experiment_data_path.joinpath(pathvals_fname)
-    pathvals = pd.read_feather(pathvals_fpath)
+    if fmt == "tsv.gz":
+        pathvals = pd.read_csv(pathvals_fpath, sep="\t")
+    else:
+        pathvals = pd.read_feather(pathvals_fpath)
     pathvals = pathvals.set_index("index", drop=True)
     pathvals.columns = pathvals.columns.str.replace("-", ".").str.replace(" ", ".")
 
     circuits_fname = os.getenv("circuits")
     circuits_fpath = experiment_data_path.joinpath(circuits_fname)
-    circuits = pd.read_feather(circuits_fpath)
+    if fmt == "tsv.gz":
+        circuits = pd.read_csv(circuits_fpath, sep="\t")
+    else:
+        circuits = pd.read_feather(circuits_fpath)
     circuits = circuits.set_index("index", drop=True)
     circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
 
     genes_fname = os.getenv("genes")
     genes_fpath = experiment_data_path.joinpath(genes_fname)
-    genes = pd.read_feather(genes_fpath)
+    if fmt == "tsv.gz":
+        genes = pd.read_csv(genes_fpath, sep="\t")
+    else:
+        genes = pd.read_feather(genes_fpath)
     genes = genes.set_index("index", drop=True)
+    genes.index = genes.index.astype(str)
 
     gene_exp = gene_exp[genes.index[genes[genes_column]]]
     pathvals = pathvals[circuits.index[circuits[circuits_column]]]
