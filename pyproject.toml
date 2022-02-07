@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dreml"
-version = "0.9.1"
+version = "0.9.2"
 description = "Drug repurposing  using machine learning and mechanistic models of signal transduction"
 authors = ["Carlos Loucera <carlos.loucera@junatdeandalucia.es>"]
 license = "MIT"
