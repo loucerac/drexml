@@ -88,7 +88,8 @@ def get_number_cuda_devices():
 
     try:
         n_gpus = get_number_cuda_devices_()
-    except Exception as e:
+    except Exception as exc:
+        print(exc)
         print("No CUDA devices found.")
         n_gpus = 0
 
