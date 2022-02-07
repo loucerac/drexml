@@ -144,3 +144,7 @@ if __name__ == "__main__":
     print("Stability score for the disease map: ", stability_results["stability_score"])
 
     joblib.dump(stability_results_df, data_folder.joinpath("stability_results_df.jbl"))
+
+    stability_results_df.to_csv(
+        data_folder.joinpath("stability_results_df.tsv"), sep="\t", index_label="name"
+    )
