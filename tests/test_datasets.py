@@ -71,7 +71,7 @@ def test_get_disease_data():
     assert genes.to_numpy().ndim == 2
 
 
-@pytest.mark.parametrize("debug", [(True,), (False,)])
+@pytest.mark.parametrize("debug", [True, False])
 def test_orchestrate(debug):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
@@ -103,7 +103,7 @@ def get_cli_file(fname):
     return Path(data_file_path)
 
 
-@pytest.mark.parametrize("n_gpus", [(0, True), (-1, True)])
+@pytest.mark.parametrize("n_gpus", [0, -1])
 def test_stab(n_gpus):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
@@ -114,7 +114,7 @@ def test_stab(n_gpus):
     runner = CliRunner()
     runner.invoke(orchestrate, " ".join(opts))
 
-    opts = ["--debug", f"--n-gpus {n_gpus[0]}", f"{disease_path}"]
+    opts = ["--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(stability, " ".join(opts))
