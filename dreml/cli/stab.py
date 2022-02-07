@@ -15,8 +15,6 @@ import subprocess
 import click
 
 from dreml.utils import get_number_cuda_devices, get_out_path, get_version
-from dreml.cli.stab_explainer import score_stab
-import joblib
 
 try:
     import importlib.resources as pkg_resources
@@ -28,8 +26,9 @@ except ImportError:
 FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
-    "score": "stab_scorer.py"
+    "score": "stab_scorer.py",
 }
+
 
 def get_cli_file(fname):
     """Get cli file path."""
@@ -65,10 +64,7 @@ def run_cmd(ctx):
 @click.command()
 @click.option(
     "--mode",
-    type=click.Choice(
-        ["train", "explain", "score"],
-        case_sensitive=False
-    ),
+    type=click.Choice(["train", "explain", "score"], case_sensitive=False),
 )
 @click.option(
     "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."

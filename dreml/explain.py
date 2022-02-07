@@ -169,8 +169,6 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
     return res
 
 
-
-
 def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
     """[summary]
 

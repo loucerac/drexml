@@ -109,20 +109,32 @@ def test_stab(n_gpus):
     click.echo("Running CLI tests fro DREML.")
 
     disease_path = make_disease_path()
+
+    ml_folder_expected = disease_path.parent.joinpath("ml")
+    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
+
     opts = ["--debug", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(orchestrate, " ".join(opts))
+
+    opts = ["--mode train", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(stability, " ".join(opts))
+
+    model_fpath = tmp_folder_expected.joinpath("model_0.jbl")
+    assert model_fpath.exists()
 
     opts = ["--mode explain", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(stability, " ".join(opts))
 
-    # run_stab(data_folder, n_iters, n_gpus, n_cpus, debug)
+    opts = ["--mode score", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(stability, " ".join(opts))
 
-    ml_folder_expected = disease_path.parent.joinpath("ml")
-    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
-
-    fs_0 = tmp_folder_expected.joinpath("filt_0.jbl")
-    assert fs_0.exists()
+    res_fpath = tmp_folder_expected.joinpath("stability_results_df.jbl")
+    assert res_fpath.exists()
