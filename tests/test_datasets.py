@@ -24,6 +24,7 @@ from click.testing import CliRunner
 
 from dreml.cli.orchestrate import orchestrate
 from dreml.cli.stab import stability
+from dreml.cli.explainer import explainer
 from dreml.datasets import get_disease_data
 
 
@@ -138,3 +139,14 @@ def test_stab(n_gpus):
 
     res_fpath = tmp_folder_expected.joinpath("stability_results_df.jbl")
     assert res_fpath.exists()
+
+    opts = ["--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(explainer, " ".join(opts))
+
+    shap_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
+    assert shap_fpath.exists()
+
+    fs_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
+    assert fs_fpath.exists()
