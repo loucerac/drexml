@@ -81,4 +81,6 @@ def stability(disease_path, debug, n_iters, n_gpus, n_cpus):
         str(n_cpus),
         str(int(debug)),
     ]
+
+    # Unpythonic, update with daks's LocalCudaCluster (currently unreliable).
     subprocess.Popen(cmd).wait()
