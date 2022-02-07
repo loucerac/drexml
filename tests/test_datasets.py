@@ -114,7 +114,7 @@ def test_stab(n_gpus):
     runner = CliRunner()
     runner.invoke(orchestrate, " ".join(opts))
 
-    opts = ["--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    opts = ["--mode explain", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(stability, " ".join(opts))
