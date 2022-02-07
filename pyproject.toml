@@ -36,8 +36,17 @@ dreml-explain = 'dreml.cli.explainer:explainer'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "--ff -ra -v"
+python_functions = [
+    "test_*",
+]
 testpaths = [
     "tests",
-    "integration",
 ]
+
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 88
