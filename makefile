@@ -1,4 +1,5 @@
 .PHONY: install test format
+all: format install test
 install:
 	poetry install
 format:
@@ -7,4 +8,3 @@ format:
 	poetry run autoflake -ri --remove-all-unused-imports dreml/
 test:
 	poetry run pytest
-all: format install test
