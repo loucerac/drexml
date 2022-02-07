@@ -33,32 +33,32 @@ if __name__ == "__main__":
     n_cpus = int(n_cpus)
     debug = bool(debug)
 
-    X_fpath = data_folder.joinpath("features.jbl")
-    X = joblib.load(X_fpath)
+    features_orig_fpath = data_folder.joinpath("features.jbl")
+    features_orig = joblib.load(features_orig_fpath)
 
-    Y_fpath = data_folder.joinpath("target.jbl")
-    Y = joblib.load(Y_fpath)
+    targets_orig_fpath = data_folder.joinpath("target.jbl")
+    targets_orig = joblib.load(targets_orig_fpath)
 
     n_splits = 5 if debug else 100
-    cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
-    cv = list(cv.split(X, Y))
-    cv = [
-        (*train_test_split(cv[i][0], test_size=0.3), cv[i][1]) for i in range(n_splits)
+    stab_cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
+    stab_cv = list(stab_cv.split(features_orig, targets_orig))
+    stab_cv = [
+        (*train_test_split(stab_cv[i][0], test_size=0.3), stab_cv[i][1]) for i in range(n_splits)
     ]
 
-    fname = f"cv.jbl"
+    fname = "cv.jbl"
     fpath = data_folder.joinpath(fname)
-    joblib.dump(cv, fpath)
-    n_features = X.shape[1]
-    n_targets = Y.shape[1]
+    joblib.dump(stab_cv, fpath)
+    n_features = features_orig.shape[1]
+    n_targets = targets_orig.shape[1]
 
     model = get_model(n_features, n_targets, n_cpus, debug, n_iters)
 
-    for i, split in enumerate(cv):
+    for i, split in enumerate(stab_cv):
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
             model_ = clone(model)
             model_.set_params(random_state=i)
-            model_.fit(X.iloc[split[0], :], Y.iloc[split[0], :])
+            model_.fit(features_orig.iloc[split[0], :], targets_orig.iloc[split[0], :])
             fname = f"model_{i}.jbl"
             fpath = data_folder.joinpath(fname)
             joblib.dump(model_, fpath)
