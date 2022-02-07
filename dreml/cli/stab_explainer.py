@@ -93,10 +93,8 @@ if __name__ == "__main__":
     for gpu_ids in range(n_devices):
         queue.put(gpu_ids)
 
-    r = partial(runner, data_path=data_folder, gpu_flag=use_gpu)
-
     with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
-        fs = joblib.Parallel()(
+        fs_lst = joblib.Parallel()(
             joblib.delayed(runner)(
                 data_path=data_folder,
                 gpu_flag=use_gpu,
@@ -104,4 +102,4 @@ if __name__ == "__main__":
             )
             for i_split in range(n_splits)
         )
-    joblib.dump(fs, data_folder.joinpath("fs.jbl"))
+    joblib.dump(fs_lst, data_folder.joinpath("fs.jbl"))
