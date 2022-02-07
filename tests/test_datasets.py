@@ -95,11 +95,13 @@ def test_orchestrate(debug):
     else:
         assert features.shape[0] > 9
 
+
 def get_cli_file(fname):
     """Get cli file path."""
     with pkg_resources.path("dreml.cli", fname) as f:
         data_file_path = f
     return Path(data_file_path)
+
 
 @pytest.mark.parametrize("n_gpus", [(0, True), (-1, True)])
 def test_stab(n_gpus):
@@ -117,10 +119,10 @@ def test_stab(n_gpus):
     runner = CliRunner()
     runner.invoke(stability, " ".join(opts))
 
-        # run_stab(data_folder, n_iters, n_gpus, n_cpus, debug)
+    # run_stab(data_folder, n_iters, n_gpus, n_cpus, debug)
 
     ml_folder_expected = disease_path.parent.joinpath("ml")
     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
 
-    fs = tmp_folder_expected.joinpath("filt_0.jbl")
-    assert fs.exists()
+    fs_0 = tmp_folder_expected.joinpath("filt_0.jbl")
+    assert fs_0.exists()
