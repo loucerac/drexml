@@ -1,6 +1,4 @@
 import pathlib
-import sys
-from pathlib import Path
 
 import dotenv
 import joblib

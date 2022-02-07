@@ -19,7 +19,6 @@ from hpsklearn import HyperoptEstimator, random_forest_regression
 from hyperopt import tpe
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score
 from sklearn.utils.validation import check_is_fitted, check_X_y
 
 

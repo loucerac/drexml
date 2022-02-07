@@ -11,7 +11,6 @@ Entry CLI point for stab.
 import multiprocessing
 import os
 import pathlib
-from functools import partial
 
 import joblib
 
