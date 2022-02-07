@@ -23,7 +23,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters):
     """
     mtry = int(np.sqrt(n_features) + 20)
     if debug:
-        n_estimators = 200
+        n_estimators = 20
     else:
         n_estimators = int(1.5 * (n_features + n_targets))
 
