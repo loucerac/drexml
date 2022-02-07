@@ -9,18 +9,11 @@ Entry CLI point for stab.
 """
 
 import multiprocessing
-import os
 import pathlib
 import subprocess
-from functools import partial
 
 import click
-import joblib
-from sklearn.base import clone
-from sklearn.model_selection import ShuffleSplit, train_test_split
 
-from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
-from dreml.models import get_model
 from dreml.utils import get_number_cuda_devices, get_out_path, get_version
 
 try:
