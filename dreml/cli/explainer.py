@@ -52,7 +52,6 @@ def run_explainer(ctx):
     print(f"Shap selection results saved to: {fs_fpath}")
 
 
-
 @click.command()
 @click.option(
     "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
@@ -104,4 +103,3 @@ def explainer(ctx, disease_path, debug, n_iters, n_gpus, n_cpus):
     ctx.obj["n_cpus"] = n_cpus
 
     run_explainer(ctx)
-

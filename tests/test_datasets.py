@@ -22,9 +22,9 @@ except ImportError:
 import click
 from click.testing import CliRunner
 
+from dreml.cli.explainer import explainer
 from dreml.cli.orchestrate import orchestrate
 from dreml.cli.stab import stability
-from dreml.cli.explainer import explainer
 from dreml.datasets import get_disease_data
 
 
