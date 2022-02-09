@@ -17,6 +17,7 @@ seaborn = "0.11.1"
 pyarrow = "3.0.0"
 matplotlib = "3.4.1"
 python-dotenv = "0.16.0"
+zenodo-client = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -33,6 +34,7 @@ build-backend = "poetry.core.masonry.api"
 dreml-orchestrate = 'dreml.cli.orchestrate:orchestrate'
 dreml-stability = 'dreml.cli.stab:stability'
 dreml-explain = 'dreml.cli.explainer:explainer'
+dreml = 'dreml.cli.cli:main'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
