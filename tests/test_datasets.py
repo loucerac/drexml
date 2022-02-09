@@ -25,7 +25,14 @@ from click.testing import CliRunner
 from dreml.cli.explainer import explainer
 from dreml.cli.orchestrate import orchestrate
 from dreml.cli.stab import stability
-from dreml.datasets import get_disease_data
+from dreml.datasets import get_disease_data, load_df
+
+DATA_NAMES = [
+    "circuits.tsv.gz",
+    "gene_exp.tsv.gz",
+    "pathvals.tsv.gz",
+    "genes.tsv.gz",
+]
 
 
 def get_resource_path(fname):
@@ -39,6 +46,15 @@ def get_resource_path(fname):
     with pkg_resources.path("dreml.resources", fname) as f:
         data_file_path = f
     return Path(data_file_path)
+
+
+@pytest.mark.parametrize("fname", DATA_NAMES)
+def test_load_df(fname):
+    """Test laod_df"""
+
+    fpath = get_resource_path(fname)
+    data = load_df(fpath)
+    assert data.shape[0] > 0
 
 
 def make_disease_path():
