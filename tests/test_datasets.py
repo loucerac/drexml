@@ -50,7 +50,7 @@ def get_resource_path(fname):
 
 @pytest.mark.parametrize("fname", DATA_NAMES)
 def test_load_df(fname):
-    """Test laod_df"""
+    """Test load_df"""
 
     fpath = get_resource_path(fname)
     data = load_df(fpath)
@@ -80,7 +80,7 @@ def test_get_disease_data():
     """Test get_disease_data."""
 
     disease_path = make_disease_path()
-    gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
+    gene_exp, pathvals, circuits, genes = get_disease_data(disease_path, debug=True)
 
     assert gene_exp.to_numpy().ndim == 2
     assert pathvals.to_numpy().ndim == 2

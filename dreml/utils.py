@@ -45,9 +45,9 @@ def get_out_path(disease):
     return out_path
 
 
-def get_data(disease, debug, fmt="tsv.gz", scale=True):
+def get_data(disease, debug, scale=True):
     """Load disease data and metadata."""
-    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, fmt=fmt)
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
 
     if scale:
 
