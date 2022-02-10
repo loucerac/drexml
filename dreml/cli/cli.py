@@ -8,6 +8,7 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 Entry CLI point for stab.
 """
 
+import importlib.resources as pkg_resources
 import multiprocessing
 import pathlib
 import subprocess
@@ -16,13 +17,44 @@ import sys
 import click
 import joblib
 
+from dreml.explain import compute_shap
+from dreml.models import get_model
 from dreml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
+
+def run_explainer(ctx):
+    """Run explainer."""
+
+    use_gpu = ctx.obj["n_gpus"] > 0
+
+    features_orig_fpath = ctx.obj["data_folder"].joinpath("features.jbl")
+    features_orig = joblib.load(features_orig_fpath)
+
+    targets_orig_fpath = ctx.obj["data_folder"].joinpath("target.jbl")
+    targets_orig = joblib.load(targets_orig_fpath)
+
+    n_features = features_orig.shape[1]
+    n_targets = targets_orig.shape[1]
+
+    estimator = get_model(
+        n_features, n_targets, ctx.obj["n_cpus"], ctx.obj["debug"], ctx.obj["n_iters"]
+    )
+
+    # Compute shap relevances
+    shap_summary, fs_df = compute_shap(estimator, features_orig, targets_orig, use_gpu)
+
+    # Save results
+    shap_summary_fname = "shap_summary.tsv"
+    shap_summary_fpath = ctx.obj["output_folder"].joinpath(shap_summary_fname)
+    shap_summary.to_csv(shap_summary_fpath, sep="\t")
+    print(f"Shap summary results saved to: {shap_summary_fpath}")
+
+    # Save results
+    fs_fname = "shap_selection.tsv"
+    fs_fpath = ctx.obj["output_folder"].joinpath(fs_fname)
+    fs_df.to_csv(fs_fpath, sep="\t")
+    print(f"Shap selection results saved to: {fs_fpath}")
+
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
@@ -99,7 +131,6 @@ def get_cli_file(fname):
     with pkg_resources.path("dreml.cli", fname) as f:
         data_file_path = f
     return pathlib.Path(data_file_path)
-
 
 
 def build_ctx(ctx, required_step=None):
@@ -199,7 +230,7 @@ def stability(**kwargs):
         previous_step = "stab-explain"
     else:
         sys.exit("Unknown stability analysis step.")
-    
+
     ctx = build_ctx(kwargs, required_step=previous_step)
 
     run_cmd(ctx)
