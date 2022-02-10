@@ -31,6 +31,62 @@ FNAME_DICT = {
 }
 
 
+_n_iters_option = [
+    click.option(
+        "--n-iters",
+        default=0,
+        type=int,
+        help="Number of Optimization iterations. 0 means use sensible hyperparameters.",
+    )
+]
+_n_gpus_option = [
+    click.option(
+        "--n-gpus",
+        default=-1,
+        type=int,
+        help="Number of CUDA devices, -1 use all decices.",
+    )
+]
+_n_cpus_option = [
+    click.option(
+        "--n-cpus",
+        default=-1,
+        type=int,
+        help="Number of CPUs, -1 use all decices.",
+    )
+]
+
+_overwrite_option = [
+    click.option(
+        "--overwrite",
+        default=False,
+        is_flag=True,
+        help="Overwrite previous options.",
+    )
+]
+
+
+_debug_option = [
+    click.option(
+        "--debug/--no-debug",
+        is_flag=True,
+        default=False,
+        help="Flag to run in debug mode.",
+    )
+]
+
+
+def add_options(options):
+    """Add options to click command."""
+
+    def _add_options(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+
+    return _add_options
+
+
 def get_cli_file(fname):
     """Get cli file path."""
     with pkg_resources.path("dreml.cli", fname) as this_file:
@@ -63,26 +119,18 @@ def run_cmd(ctx):
 
 
 @click.group()
-@click.option(
-    "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
-)
 @click.version_option(get_version())
-@click.argument("disease-path", type=click.Path(exists=True))
 @click.pass_context
-def main(ctx, disease_path, debug):
+def main(ctx):
     """CLI entry point."""
 
     click.echo(f"Running DREML stability v {get_version()}")
-    output_folder = get_out_path(disease_path)
-    data_folder = output_folder.joinpath("tmp")
 
     ctx.ensure_object(dict)
-    ctx.obj["debug"] = debug
-    ctx.obj["data_folder"] = data_folder
-    ctx.obj["output_folder"] = output_folder
 
 
 @main.command("orchestrate")
+@add_options(_debug_option)
 @click.version_option(get_version())
 @click.pass_context
 def orchestrate(ctx):
@@ -96,35 +144,13 @@ def orchestrate(ctx):
 
 
 @main.command("run")
-@click.option(
-    "--mode",
-    type=click.Choice(["train", "explain", "score"], case_sensitive=False),
-)
-@click.option(
-    "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
-)
-@click.option(
-    "--n-iters",
-    default=0,
-    type=int,
-    help="Number of Optimization iterations. 0 means use sensible hyperparameters.",
-)
-@click.option(
-    "--n-gpus",
-    default=-1,
-    type=int,
-    help="Number of CUDA devices, -1 use all decices.",
-)
-@click.option(
-    "--n-cpus",
-    default=-1,
-    type=int,
-    help="Number of CPUs, -1 use all decices.",
-)
-@click.option("-f", "--format-data", default="tsv.gz", type=str, help="Data format.")
+@add_options(_debug_option)
+@add_options(_n_iters_option)
+@add_options(_n_gpus_option)
+@add_options(_n_cpus_option)
 @click.version_option(get_version())
 @click.pass_context
-def run(ctx):
+def run(ctx, **kwargs):
     """Run the full procedure."""
 
 
