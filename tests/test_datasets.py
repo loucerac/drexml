@@ -6,20 +6,14 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 
 Unit testing for datasets module.
 """
+import importlib.resources as pkg_resources
 import shutil
 import tempfile
 from pathlib import Path
 
+import click
 import joblib
 import pytest
-
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
-
-import click
 from click.testing import CliRunner
 
 from dreml.cli.explainer import explainer
