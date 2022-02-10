@@ -196,15 +196,12 @@ def orchestrate(**kwargs):
     """[summary]"""
 
     print(f"running DREML orchestrate v {get_version()}")
-    output_folder = get_out_path(kwargs["disease_path"])
-    data_folder = output_folder.joinpath("tmp")
-    data_folder.mkdir(parents=True, exist_ok=True)
-    print(f"Tmp storage: {data_folder}")
+    ctx = build_ctx(kwargs)
 
     # Load data
     gene_xpr, pathvals, _, _ = get_data(kwargs["disease_path"], kwargs["debug"])
-    joblib.dump(gene_xpr, data_folder.joinpath("features.jbl"))
-    joblib.dump(pathvals, data_folder.joinpath("target.jbl"))
+    joblib.dump(gene_xpr, ctx["data_folder"].joinpath("features.jbl"))
+    joblib.dump(pathvals, ctx["data_folder"].joinpath("target.jbl"))
 
 
 @main.command()
@@ -234,6 +231,21 @@ def stability(**kwargs):
     ctx = build_ctx(kwargs, required_step=previous_step)
 
     run_cmd(ctx)
+
+
+@click.command()
+@add_options(_debug_option)
+@add_options(_n_iters_option)
+@add_options(_n_gpus_option)
+@add_options(_n_cpus_option)
+@click.argument("disease-path", type=click.Path(exists=True))
+@click.version_option(get_version())
+@click.pass_context
+def explainer(**kwargs):
+    """[summary]"""
+    ctx = build_ctx(kwargs, required_step="orchestrate")
+
+    run_explainer(ctx)
 
 
 if __name__ == "__main__":
