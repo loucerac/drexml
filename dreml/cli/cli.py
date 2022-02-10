@@ -23,7 +23,6 @@ except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
 
-
 FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
@@ -89,8 +88,8 @@ def add_options(options):
 
 def get_cli_file(fname):
     """Get cli file path."""
-    with pkg_resources.path("dreml.cli", fname) as this_file:
-        data_file_path = this_file
+    with pkg_resources.path("dreml.cli", fname) as f:
+        data_file_path = f
     return pathlib.Path(data_file_path)
 
 
@@ -118,99 +117,49 @@ def run_cmd(ctx):
     subprocess.Popen(cmd).wait()
 
 
-@click.group()
-@click.version_option(get_version())
-@click.pass_context
-def main(ctx):
-    """CLI entry point."""
-
-    click.echo(f"Running DREML stability v {get_version()}")
-
-    ctx.ensure_object(dict)
-
-
-@main.command("orchestrate")
+@click.command()
 @add_options(_debug_option)
+@click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
-@click.pass_context
-def orchestrate(ctx):
-    """Orchestrate disease."""
+def orchestrate(disease_path, **kwargs):
+    """[summary]"""
 
     print(f"running DREML orchestrate v {get_version()}")
+    output_folder = get_out_path(disease_path)
+    data_folder = output_folder.joinpath("tmp")
+    data_folder.mkdir(parents=True, exist_ok=True)
+    print(f"Tmp storage: {data_folder}")
+
     # Load data
-    gene_xpr, pathvals, _, _ = get_data(ctx.obj["disease_path"], ctx.obj["debug"])
-    joblib.dump(gene_xpr, ctx.obj["data_folder"].joinpath("features.jbl"))
-    joblib.dump(pathvals, ctx.obj["data_folder"].joinpath("target.jbl"))
+    gene_xpr, pathvals, _, _ = get_data(disease_path, debug)
+    joblib.dump(gene_xpr, data_folder.joinpath("features.jbl"))
+    joblib.dump(pathvals, data_folder.joinpath("target.jbl"))
 
 
-@main.command("run")
-@add_options(_debug_option)
-@add_options(_n_iters_option)
-@add_options(_n_gpus_option)
-@add_options(_n_cpus_option)
-@click.version_option(get_version())
-@click.pass_context
-def run(ctx, **kwargs):
-    """Run the full procedure."""
-
-
-@main.command()
+@click.command()
 @click.option(
     "--mode",
     type=click.Choice(["train", "explain", "score"], case_sensitive=False),
 )
-@click.option(
-    "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
-)
-@click.option(
-    "--n-iters",
-    default=0,
-    type=int,
-    help="Number of Optimization iterations. 0 means use sensible hyperparameters.",
-)
-@click.option(
-    "--n-gpus",
-    default=-1,
-    type=int,
-    help="Number of CUDA devices, -1 use all decices.",
-)
-@click.option(
-    "--n-cpus",
-    default=-1,
-    type=int,
-    help="Number of CPUs, -1 use all decices.",
-)
+@add_options(_debug_option)
+@add_options(_n_iters_option)
+@add_options(_n_gpus_option)
+@add_options(_n_cpus_option)
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
-@click.pass_context
-def stability(ctx, disease_path, debug, n_iters, n_gpus, n_cpus, mode, overwrite):
+def stability(**kwargs):
     """[summary]"""
 
-    ctx.obj["mode"] = mode
-
     click.echo(f"Running DREML stability v {get_version()}")
-    output_folder = get_out_path(disease_path)
+    output_folder = get_out_path(kwargs["disease_path"])
     data_folder = output_folder.joinpath("tmp")
+    kwargs["output_folder"] = output_folder
+    kwargs["data_folder"] = data_folder
 
-    if n_gpus < 0:
-        n_gpus = get_number_cuda_devices()
-    click.echo(f"Using {n_gpus} GPU devices.")
+    if kwargs["n_gpus"] < 0:
+        kwargs["n_gpus"] = get_number_cuda_devices()
 
-    if n_cpus < 0:
-        n_cpus = multiprocessing.cpu_count()
-    click.echo(f"Using {n_cpus} CPU devices.")
+    if kwargs["n_cpus"] < 0:
+        kwargs["n_cpus"] = multiprocessing.cpu_count()
 
-    if overwrite:
-        ctx.obj["disease_path"] = disease_path
-        ctx.obj["debug"] = debug
-        ctx.obj["n_iters"] = n_iters
-        ctx.obj["data_folder"] = data_folder
-        ctx.obj["n_gpus"] = n_gpus
-        ctx.obj["n_cpus"] = n_cpus
-
-    run_cmd(ctx)
-
-
-if __name__ == "__main__":
-    # pylint: disable=no-value-for-parameter
-    main()
+    run_cmd(kwargs)
