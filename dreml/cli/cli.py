@@ -34,8 +34,8 @@ FNAME_DICT = {
 
 def get_cli_file(fname):
     """Get cli file path."""
-    with pkg_resources.path("dreml.cli", fname) as f:
-        data_file_path = f
+    with pkg_resources.path("dreml.cli", fname) as this_file:
+        data_file_path = this_file
     return pathlib.Path(data_file_path)
 
 
@@ -65,17 +65,12 @@ def run_cmd(ctx):
 
 @click.group()
 @click.option(
-    "--download/--no-download",
-    default=False,
-    help="Download data from zenodo.",
-)
-@click.option(
     "--debug/--no-debug", is_flag=True, default=False, help="Flag to run in debug mode."
 )
 @click.version_option(get_version())
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.pass_context
-def main(ctx, disease_path, debug, download):
+def main(ctx, disease_path, debug):
     """CLI entry point."""
 
     click.echo(f"Running DREML stability v {get_version()}")
@@ -87,23 +82,16 @@ def main(ctx, disease_path, debug, download):
     ctx.obj["data_folder"] = data_folder
     ctx.obj["output_folder"] = output_folder
 
-    if download:
-
-        fetch_data()
-
 
 @main.command("orchestrate")
-@click.option("-f", "--format-data", default="tsv.gz", type=str, help="Data format.")
 @click.version_option(get_version())
 @click.pass_context
-def orchestrate(ctx, format_data):
+def orchestrate(ctx):
     """Orchestrate disease."""
 
     print(f"running DREML orchestrate v {get_version()}")
     # Load data
-    gene_xpr, pathvals, _, _ = get_data(
-        ctx.obj["disease_path"], ctx.obj["debug"], fmt=ctx.obj["format_data"]
-    )
+    gene_xpr, pathvals, _, _ = get_data(ctx.obj["disease_path"], ctx.obj["debug"])
     joblib.dump(gene_xpr, ctx.obj["data_folder"].joinpath("features.jbl"))
     joblib.dump(pathvals, ctx.obj["data_folder"].joinpath("target.jbl"))
 
