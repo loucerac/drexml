@@ -11,6 +11,7 @@ Entry CLI point for stab.
 import multiprocessing
 import pathlib
 import subprocess
+import sys
 
 import click
 import joblib
@@ -27,6 +28,13 @@ FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
     "score": "stab_scorer.py",
+}
+
+STEPS = {
+    "stab-train": {"previous": "orchestrate", "names": ["features.jbl", "targets.jbl"]},
+    "stab-explain": {"previous": "stab-train", "names": ["cv.jbl", "model_0.jbl"]},
+    "stab-score": {"previous": "stab-explain", "name": ["stability_results_df.tsv"]},
+    "explain": {"previous": "stab-score", "names": ["features.jbl", "targets.jbl"]},
 }
 
 
@@ -93,6 +101,31 @@ def get_cli_file(fname):
     return pathlib.Path(data_file_path)
 
 
+
+def build_ctx(ctx, required_step=None):
+    """Generate context for command."""
+    ctx_new = dict(ctx)
+    output_folder = get_out_path(ctx_new["disease_path"])
+    data_folder = output_folder.joinpath("tmp")
+    ctx_new["output_folder"] = output_folder
+    ctx_new["data_folder"] = data_folder
+
+    if "n_gpus" in ctx_new.keys():
+        if ctx_new["n_gpus"] < 0:
+            ctx_new["n_gpus"] = get_number_cuda_devices()
+    if "n_cpus" in ctx_new.keys():
+        if ctx_new["n_cpus"] < 0:
+            ctx_new["n_cpus"] = multiprocessing.cpu_count()
+
+    if required_step is not None:
+        previous_step = STEPS[required_step]["previous"]
+        for fname in STEPS[required_step]["names"]:
+            if not data_folder.joinpath(fname).exists():
+                sys.exit(f"{previous_step} step is missing")
+
+    return ctx_new
+
+
 def build_cmd(ctx):
     """Generate command to launch"""
     script_path = get_cli_file(FNAME_DICT[ctx.obj["mode"]]).as_posix()
@@ -117,26 +150,33 @@ def run_cmd(ctx):
     subprocess.Popen(cmd).wait()
 
 
-@click.command()
+@click.group()
+@click.version_option(get_version())
+def main():
+    """DREML CLI entry point."""
+    print(f"running DREML orchestrate v {get_version()}")
+
+
+@main.command()
 @add_options(_debug_option)
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
-def orchestrate(disease_path, **kwargs):
+def orchestrate(**kwargs):
     """[summary]"""
 
     print(f"running DREML orchestrate v {get_version()}")
-    output_folder = get_out_path(disease_path)
+    output_folder = get_out_path(kwargs["disease_path"])
     data_folder = output_folder.joinpath("tmp")
     data_folder.mkdir(parents=True, exist_ok=True)
     print(f"Tmp storage: {data_folder}")
 
     # Load data
-    gene_xpr, pathvals, _, _ = get_data(disease_path, debug)
+    gene_xpr, pathvals, _, _ = get_data(kwargs["disease_path"], kwargs["debug"])
     joblib.dump(gene_xpr, data_folder.joinpath("features.jbl"))
     joblib.dump(pathvals, data_folder.joinpath("target.jbl"))
 
 
-@click.command()
+@main.command()
 @click.option(
     "--mode",
     type=click.Choice(["train", "explain", "score"], case_sensitive=False),
@@ -151,15 +191,19 @@ def stability(**kwargs):
     """[summary]"""
 
     click.echo(f"Running DREML stability v {get_version()}")
-    output_folder = get_out_path(kwargs["disease_path"])
-    data_folder = output_folder.joinpath("tmp")
-    kwargs["output_folder"] = output_folder
-    kwargs["data_folder"] = data_folder
+    if kwargs["mode"].lower() == "train":
+        previous_step = "orchestrate"
+    elif kwargs["mode"].lower() == "explain":
+        previous_step = "stab-train"
+    elif kwargs["mode"].lower() == "score":
+        previous_step = "stab-explain"
+    else:
+        sys.exit("Unknown stability analysis step.")
+    
+    ctx = build_ctx(kwargs, required_step=previous_step)
 
-    if kwargs["n_gpus"] < 0:
-        kwargs["n_gpus"] = get_number_cuda_devices()
+    run_cmd(ctx)
 
-    if kwargs["n_cpus"] < 0:
-        kwargs["n_cpus"] = multiprocessing.cpu_count()
 
-    run_cmd(kwargs)
+if __name__ == "__main__":
+    main()
