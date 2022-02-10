@@ -15,7 +15,6 @@ import subprocess
 import click
 import joblib
 
-from dreml.datasets import fetch_data
 from dreml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
 try:
