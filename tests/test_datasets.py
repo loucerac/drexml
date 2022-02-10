@@ -57,21 +57,31 @@ def test_load_df(fname):
     assert data.shape[0] > 0
 
 
-def make_disease_path():
+def make_disease_path(default=False):
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
-    disease_path_in = get_resource_path("experiment.env")
+    if default:
+        disease_path_in = get_resource_path("experiment_default.env")
+    else:
+        disease_path_in = get_resource_path("experiment.env")
     disease_path_out = tmp_dir.joinpath(disease_path_in.name)
     # Use as_posix to make it compatible with python<=3.7
     shutil.copy(disease_path_in.as_posix(), disease_path_out.as_posix())
 
     with open(disease_path_out, "r", encoding="utf8") as this_file:
         disease_path_out_data = this_file.read()
-    disease_path_out_data = disease_path_out_data.replace(
-        "%THIS_PATH", disease_path_in.parent.as_posix()
-    )
+    if not default:
+        disease_path_out_data = disease_path_out_data.replace(
+            "%THIS_PATH", disease_path_in.parent.as_posix()
+        )
     with open(disease_path_out, "w", encoding="utf8") as this_file:
         this_file.write(disease_path_out_data)
+
+    if default:
+        shutil.copy(
+            get_resource_path("circuits.tsv.gz").as_posix(),
+            disease_path_out.parent.as_posix(),
+        )
 
     return disease_path_out
 
@@ -79,7 +89,7 @@ def make_disease_path():
 def test_get_disease_data():
     """Test get_disease_data."""
 
-    disease_path = make_disease_path()
+    disease_path = make_disease_path(default=False)
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path, debug=True)
 
     assert gene_exp.to_numpy().ndim == 2
@@ -89,11 +99,12 @@ def test_get_disease_data():
 
 
 @pytest.mark.parametrize("debug", [True, False])
-def test_orchestrate(debug):
+@pytest.mark.parametrize("default", [True, False])
+def test_orchestrate(debug, default):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
 
-    disease_path = make_disease_path()
+    disease_path = make_disease_path(default)
 
     opts = ["--debug" if debug else "--no-debug", f"{disease_path}"]
     click.echo(" ".join(opts))
@@ -125,7 +136,7 @@ def test_stab(n_gpus):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
 
-    disease_path = make_disease_path()
+    disease_path = make_disease_path(default=False)
 
     ml_folder_expected = disease_path.parent.joinpath("ml")
     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
