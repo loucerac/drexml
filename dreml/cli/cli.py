@@ -203,7 +203,7 @@ def main():
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(**kwargs):
-    """[summary]"""
+    """Orchestrate the DREML procedure. Entry point for multi-disease workflows."""
 
     print(f"running DREML explainer v {get_version()}")
     ctx = build_ctx(kwargs)
@@ -226,7 +226,7 @@ def orchestrate(**kwargs):
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def stability(**kwargs):
-    """[summary]"""
+    """Run the stability analyses."""
 
     click.echo(f"Running DREML stability v {get_version()}")
     if kwargs["mode"].lower() == "train":
@@ -255,7 +255,7 @@ def stability(**kwargs):
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def explain(**kwargs):
-    """[summary]"""
+    """Explain how KDTs modulate a given disease map."""
     ctx = build_ctx(kwargs, step="explain")
 
     run_explainer(ctx)
@@ -272,7 +272,7 @@ def explain(**kwargs):
 @click.version_option(get_version())
 @click.pass_context
 def run(ctx, **kwargs):
-    """[summary]"""
+    """Run the full procedure."""
     # ctx = build_ctx(kwargs, step=None)
     # orchestrate(kwargs["disease_path"], **orchestrate_ctx)
     ctx.forward(orchestrate)
