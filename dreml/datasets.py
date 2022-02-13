@@ -106,27 +106,26 @@ def load_df(path):
     NotImplementedError
         Data for mat not implemented.
     """
-    errors = {}
     try:
         # tsv, and compressed tsv
-        return pd.read_csv(path, sep="\t").set_index("index", drop=True)
-    except ParserError as err:
-        errors["tsv"] = err
-    except KeyError as key_err:
-        errors["key"] = key_err
+        res = pd.read_csv(path, sep="\t").set_index("index", drop=True)
+    except (ParserError, KeyError, UnicodeDecodeError) as err:
+        print("Error found while trying to load a TSV or compressed TSV.")
+        print(err)
+        res = pd.DataFrame()
 
-    try:
-        # feather
-        return pd.read_feather(path).set_index("index", drop=True)
-    except ParserError as err:
-        errors["feather"] = err
-    except KeyError as key_err:
-        errors["key"] = key_err
+        try:
+            # feather
+            res = pd.read_feather(path).set_index("index", drop=True)
+        except (ParserError, KeyError) as err:
+            print("Error found while trying to load a Feather.")
+            print(err)
+            res = pd.DataFrame()
 
-    print("The following exceptions have been catched:")
-    for key, value in errors:
-        print(f"{key}: {value}")
-    raise NotImplementedError("Format not implemented yet.")
+    if res.shape[0] == 0:
+        raise NotImplementedError("Format not implemented yet.")
+
+    return res
 
 
 def get_disease_data(disease, debug):

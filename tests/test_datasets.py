@@ -16,9 +16,7 @@ import joblib
 import pytest
 from click.testing import CliRunner
 
-from dreml.cli.explainer import explainer
-from dreml.cli.orchestrate import orchestrate
-from dreml.cli.stab import stability
+from dreml.cli.cli import main
 from dreml.datasets import get_disease_data, load_df
 
 DATA_NAMES = [
@@ -100,29 +98,20 @@ def test_orchestrate(debug, default):
 
     disease_path = make_disease_path(default)
 
-    opts = ["--debug" if debug else "--no-debug", f"{disease_path}"]
+    opts = ["orchestrate", "--debug" if debug else "--no-debug", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(orchestrate, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
     ml_folder_expected = disease_path.parent.joinpath("ml")
     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
 
-    assert ml_folder_expected.exists()
-    assert tmp_folder_expected.exists()
-
+    fpath = tmp_folder_expected.joinpath("features.jbl")
     features = joblib.load(tmp_folder_expected.joinpath("features.jbl"))
     if debug:
-        assert features.shape[0] == 9
+        assert (fpath.exists()) and (features.shape[0] == 9)
     else:
-        assert features.shape[0] > 9
-
-
-def get_cli_file(fname):
-    """Get cli file path."""
-    with pkg_resources.path("dreml.cli", fname) as f:
-        data_file_path = f
-    return Path(data_file_path)
+        assert (fpath.exists()) and (features.shape[0] > 9)
 
 
 @pytest.mark.parametrize("n_gpus", [0, -1])
@@ -135,39 +124,63 @@ def test_stab(n_gpus):
     ml_folder_expected = disease_path.parent.joinpath("ml")
     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
 
-    opts = ["--debug", f"{disease_path}"]
+    opts = ["orchestrate", "--debug", f"{disease_path}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(orchestrate, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
-    opts = ["--mode train", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    opts = [
+        "stability",
+        "--mode train",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path}",
+    ]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(stability, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
     model_fpath = tmp_folder_expected.joinpath("model_0.jbl")
     assert model_fpath.exists()
 
-    opts = ["--mode explain", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    opts = [
+        "stability",
+        "--mode explain",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path}",
+    ]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(stability, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
-    opts = ["--mode score", "--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    model_fpath = tmp_folder_expected.joinpath("fs.jbl")
+    assert model_fpath.exists()
+
+    opts = [
+        "stability",
+        "--mode score",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path}",
+    ]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(stability, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
-    res_fpath = tmp_folder_expected.joinpath("stability_results_df.jbl")
-    assert res_fpath.exists()
+    stability_results_fpath = ml_folder_expected.joinpath("stability_results.tsv")
+    assert stability_results_fpath.exists()
 
-    opts = ["--debug", f"--n-gpus {n_gpus}", f"{disease_path}"]
+    opts = [
+        "explain",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path}",
+    ]
     click.echo(" ".join(opts))
     runner = CliRunner()
-    runner.invoke(explainer, " ".join(opts))
+    runner.invoke(main, " ".join(opts))
 
-    shap_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
-    assert shap_fpath.exists()
-
-    fs_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
-    assert fs_fpath.exists()
+    shap_selection_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
+    shap_summary_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
+    assert shap_selection_fpath.exists() and shap_summary_fpath.exists()

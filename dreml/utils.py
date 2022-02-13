@@ -62,7 +62,7 @@ def get_data(disease, debug, scale=True):
     if debug:
         size = 9
         gene_xpr = gene_xpr.sample(n=size)
-        pathvals = pathvals.sample(n=size)
+        pathvals = pathvals.loc[gene_xpr.index, :]
 
     return gene_xpr, pathvals, circuits, genes
 

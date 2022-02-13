@@ -11,6 +11,7 @@ Entry CLI point for stab.
 import importlib.resources as pkg_resources
 import multiprocessing
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -21,41 +22,6 @@ from dreml.explain import compute_shap
 from dreml.models import get_model
 from dreml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
-
-def run_explainer(ctx):
-    """Run explainer."""
-
-    use_gpu = ctx.obj["n_gpus"] > 0
-
-    features_orig_fpath = ctx.obj["data_folder"].joinpath("features.jbl")
-    features_orig = joblib.load(features_orig_fpath)
-
-    targets_orig_fpath = ctx.obj["data_folder"].joinpath("target.jbl")
-    targets_orig = joblib.load(targets_orig_fpath)
-
-    n_features = features_orig.shape[1]
-    n_targets = targets_orig.shape[1]
-
-    estimator = get_model(
-        n_features, n_targets, ctx.obj["n_cpus"], ctx.obj["debug"], ctx.obj["n_iters"]
-    )
-
-    # Compute shap relevances
-    shap_summary, fs_df = compute_shap(estimator, features_orig, targets_orig, use_gpu)
-
-    # Save results
-    shap_summary_fname = "shap_summary.tsv"
-    shap_summary_fpath = ctx.obj["output_folder"].joinpath(shap_summary_fname)
-    shap_summary.to_csv(shap_summary_fpath, sep="\t")
-    print(f"Shap summary results saved to: {shap_summary_fpath}")
-
-    # Save results
-    fs_fname = "shap_selection.tsv"
-    fs_fpath = ctx.obj["output_folder"].joinpath(fs_fname)
-    fs_df.to_csv(fs_fpath, sep="\t")
-    print(f"Shap selection results saved to: {fs_fpath}")
-
-
 FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
@@ -63,10 +29,10 @@ FNAME_DICT = {
 }
 
 STEPS = {
-    "stab-train": {"previous": "orchestrate", "names": ["features.jbl", "targets.jbl"]},
+    "stab-train": {"previous": "orchestrate", "names": ["features.jbl", "target.jbl"]},
     "stab-explain": {"previous": "stab-train", "names": ["cv.jbl", "model_0.jbl"]},
-    "stab-score": {"previous": "stab-explain", "name": ["stability_results_df.tsv"]},
-    "explain": {"previous": "stab-score", "names": ["features.jbl", "targets.jbl"]},
+    "stab-score": {"previous": "stab-explain", "names": ["fs.jbl"]},
+    "explain": {"previous": "orchestrate", "names": ["features.jbl", "target.jbl"]},
 }
 
 
@@ -115,6 +81,49 @@ _debug_option = [
 ]
 
 
+def copy_files(ctx, fnames):
+    """Copy files from tmp to ml folder."""
+    for fname in fnames:
+        shutil.copy(
+            ctx["data_folder"].joinpath(fname).as_posix(),
+            ctx["output_folder"].joinpath(fname).as_posix(),
+        )
+
+
+def run_explainer(ctx):
+    """Run explainer."""
+
+    use_gpu = ctx["n_gpus"] > 0
+
+    features_orig_fpath = ctx["data_folder"].joinpath("features.jbl")
+    features_orig = joblib.load(features_orig_fpath)
+
+    targets_orig_fpath = ctx["data_folder"].joinpath("target.jbl")
+    targets_orig = joblib.load(targets_orig_fpath)
+
+    n_features = features_orig.shape[1]
+    n_targets = targets_orig.shape[1]
+
+    estimator = get_model(
+        n_features, n_targets, ctx["n_cpus"], ctx["debug"], ctx["n_iters"]
+    )
+
+    # Compute shap relevances
+    shap_summary, fs_df = compute_shap(estimator, features_orig, targets_orig, use_gpu)
+
+    # Save results
+    shap_summary_fname = "shap_summary.tsv"
+    shap_summary_fpath = ctx["output_folder"].joinpath(shap_summary_fname)
+    shap_summary.to_csv(shap_summary_fpath, sep="\t")
+    print(f"Shap summary results saved to: {shap_summary_fpath}")
+
+    # Save results
+    fs_fname = "shap_selection.tsv"
+    fs_fpath = ctx["data_folder"].joinpath(fs_fname)
+    fs_df.to_csv(fs_fpath, sep="\t")
+    print(f"Shap selection results saved to: {fs_fpath}")
+
+
 def add_options(options):
     """Add options to click command."""
 
@@ -133,13 +142,14 @@ def get_cli_file(fname):
     return pathlib.Path(data_file_path)
 
 
-def build_ctx(ctx, required_step=None):
+def build_ctx(ctx, step=None):
     """Generate context for command."""
     ctx_new = dict(ctx)
     output_folder = get_out_path(ctx_new["disease_path"])
     data_folder = output_folder.joinpath("tmp")
     ctx_new["output_folder"] = output_folder
     ctx_new["data_folder"] = data_folder
+    data_folder.mkdir(parents=True, exist_ok=True)
 
     if "n_gpus" in ctx_new.keys():
         if ctx_new["n_gpus"] < 0:
@@ -148,9 +158,9 @@ def build_ctx(ctx, required_step=None):
         if ctx_new["n_cpus"] < 0:
             ctx_new["n_cpus"] = multiprocessing.cpu_count()
 
-    if required_step is not None:
-        previous_step = STEPS[required_step]["previous"]
-        for fname in STEPS[required_step]["names"]:
+    if step is not None:
+        previous_step = STEPS[step]["previous"]
+        for fname in STEPS[step]["names"]:
             if not data_folder.joinpath(fname).exists():
                 sys.exit(f"{previous_step} step is missing")
 
@@ -159,16 +169,16 @@ def build_ctx(ctx, required_step=None):
 
 def build_cmd(ctx):
     """Generate command to launch"""
-    script_path = get_cli_file(FNAME_DICT[ctx.obj["mode"]]).as_posix()
+    script_path = get_cli_file(FNAME_DICT[ctx["mode"]]).as_posix()
 
     cmd = [
         "python",
         script_path,
-        ctx.obj["data_folder"],
-        str(ctx.obj["n_iters"]),
-        str(int(ctx.obj["n_gpus"])),
-        str(ctx.obj["n_cpus"]),
-        str(int(ctx.obj["debug"])),
+        ctx["data_folder"].as_posix(),
+        str(ctx["n_iters"]),
+        str(int(ctx["n_gpus"])),
+        str(ctx["n_cpus"]),
+        str(int(ctx["debug"])),
     ]
 
     return cmd
@@ -177,8 +187,8 @@ def build_cmd(ctx):
 def run_cmd(ctx):
     """Train/explain/score each stability partition"""
     cmd = build_cmd(ctx)
-    # Unpythonic, update with daks's LocalCudaCluster (currently unreliable).
-    subprocess.Popen(cmd).wait()
+    # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
+    subprocess.run(cmd, capture_output=True, text=True, check=True)
 
 
 @click.group()
@@ -195,11 +205,11 @@ def main():
 def orchestrate(**kwargs):
     """[summary]"""
 
-    print(f"running DREML orchestrate v {get_version()}")
+    print(f"running DREML explainer v {get_version()}")
     ctx = build_ctx(kwargs)
 
     # Load data
-    gene_xpr, pathvals, _, _ = get_data(kwargs["disease_path"], kwargs["debug"])
+    gene_xpr, pathvals, _, _ = get_data(ctx["disease_path"], ctx["debug"])
     joblib.dump(gene_xpr, ctx["data_folder"].joinpath("features.jbl"))
     joblib.dump(pathvals, ctx["data_folder"].joinpath("target.jbl"))
 
@@ -220,32 +230,37 @@ def stability(**kwargs):
 
     click.echo(f"Running DREML stability v {get_version()}")
     if kwargs["mode"].lower() == "train":
-        previous_step = "orchestrate"
+        current_step = "stab-train"
     elif kwargs["mode"].lower() == "explain":
-        previous_step = "stab-train"
+        current_step = "stab-explain"
     elif kwargs["mode"].lower() == "score":
-        previous_step = "stab-explain"
+        current_step = "stab-score"
     else:
         sys.exit("Unknown stability analysis step.")
 
-    ctx = build_ctx(kwargs, required_step=previous_step)
+    ctx = build_ctx(kwargs, step=current_step)
 
     run_cmd(ctx)
 
+    if ctx["mode"].lower() == "score":
+        fnames = ["stability_results.tsv"]
+        copy_files(ctx, fnames)
 
-@click.command()
+
+@main.command()
 @add_options(_debug_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
-@click.pass_context
-def explainer(**kwargs):
+def explain(**kwargs):
     """[summary]"""
-    ctx = build_ctx(kwargs, required_step="orchestrate")
+    ctx = build_ctx(kwargs, step="explain")
 
     run_explainer(ctx)
+    fnames = ["shap_selection.tsv", "shap_summary.tsv"]
+    copy_files(ctx, fnames)
 
 
 if __name__ == "__main__":
