@@ -114,73 +114,94 @@ def test_orchestrate(debug, default):
         assert (fpath.exists()) and (features.shape[0] > 9)
 
 
+# @pytest.mark.parametrize("n_gpus", [0, -1])
+# def test_cli_single(n_gpus):
+#     """Unit tests for CLI app."""
+#     click.echo("Running CLI tests fro DREML.")
+
+#     disease_path = make_disease_path(default=False)
+
+#     ml_folder_expected = disease_path.parent.joinpath("ml")
+#     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
+
+#     opts = ["orchestrate", "--debug", f"{disease_path}"]
+#     click.echo(" ".join(opts))
+#     runner = CliRunner()
+#     runner.invoke(main, " ".join(opts))
+
+#     opts = [
+#         "stability",
+#         "--mode train",
+#         "--debug",
+#         f"--n-gpus {n_gpus}",
+#         f"{disease_path}",
+#     ]
+#     click.echo(" ".join(opts))
+#     runner = CliRunner()
+#     runner.invoke(main, " ".join(opts))
+
+#     model_fpath = tmp_folder_expected.joinpath("model_0.jbl")
+#     assert model_fpath.exists()
+
+#     opts = [
+#         "stability",
+#         "--mode explain",
+#         "--debug",
+#         f"--n-gpus {n_gpus}",
+#         f"{disease_path}",
+#     ]
+#     click.echo(" ".join(opts))
+#     runner = CliRunner()
+#     runner.invoke(main, " ".join(opts))
+
+#     model_fpath = tmp_folder_expected.joinpath("fs.jbl")
+#     assert model_fpath.exists()
+
+#     opts = [
+#         "stability",
+#         "--mode score",
+#         "--debug",
+#         f"--n-gpus {n_gpus}",
+#         f"{disease_path}",
+#     ]
+#     click.echo(" ".join(opts))
+#     runner = CliRunner()
+#     runner.invoke(main, " ".join(opts))
+
+#     stability_results_fpath = ml_folder_expected.joinpath("stability_results.tsv")
+#     assert stability_results_fpath.exists()
+
+#     opts = [
+#         "explain",
+#         "--debug",
+#         f"--n-gpus {n_gpus}",
+#         f"{disease_path}",
+#     ]
+#     click.echo(" ".join(opts))
+#     runner = CliRunner()
+#     runner.invoke(main, " ".join(opts))
+
+#     shap_selection_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
+#     shap_summary_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
+#     assert shap_selection_fpath.exists() and shap_summary_fpath.exists()
+
+
 @pytest.mark.parametrize("n_gpus", [0, -1])
-def test_stab(n_gpus):
+def test_cli_run(n_gpus):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
 
     disease_path = make_disease_path(default=False)
-
     ml_folder_expected = disease_path.parent.joinpath("ml")
-    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
 
-    opts = ["orchestrate", "--debug", f"{disease_path}"]
+    opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(main, " ".join(opts))
 
-    opts = [
-        "stability",
-        "--mode train",
-        "--debug",
-        f"--n-gpus {n_gpus}",
-        f"{disease_path}",
+    exist_files = [
+        ml_folder_expected.joinpath(fname).exists()
+        for fname in ["stability_results.tsv", "shap_selection.tsv", "shap_summary.tsv"]
     ]
-    click.echo(" ".join(opts))
-    runner = CliRunner()
-    runner.invoke(main, " ".join(opts))
 
-    model_fpath = tmp_folder_expected.joinpath("model_0.jbl")
-    assert model_fpath.exists()
-
-    opts = [
-        "stability",
-        "--mode explain",
-        "--debug",
-        f"--n-gpus {n_gpus}",
-        f"{disease_path}",
-    ]
-    click.echo(" ".join(opts))
-    runner = CliRunner()
-    runner.invoke(main, " ".join(opts))
-
-    model_fpath = tmp_folder_expected.joinpath("fs.jbl")
-    assert model_fpath.exists()
-
-    opts = [
-        "stability",
-        "--mode score",
-        "--debug",
-        f"--n-gpus {n_gpus}",
-        f"{disease_path}",
-    ]
-    click.echo(" ".join(opts))
-    runner = CliRunner()
-    runner.invoke(main, " ".join(opts))
-
-    stability_results_fpath = ml_folder_expected.joinpath("stability_results.tsv")
-    assert stability_results_fpath.exists()
-
-    opts = [
-        "explain",
-        "--debug",
-        f"--n-gpus {n_gpus}",
-        f"{disease_path}",
-    ]
-    click.echo(" ".join(opts))
-    runner = CliRunner()
-    runner.invoke(main, " ".join(opts))
-
-    shap_selection_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
-    shap_summary_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
-    assert shap_selection_fpath.exists() and shap_summary_fpath.exists()
+    assert all(exist_files)

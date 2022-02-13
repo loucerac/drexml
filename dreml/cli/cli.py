@@ -113,7 +113,7 @@ def run_explainer(ctx):
 
     # Save results
     shap_summary_fname = "shap_summary.tsv"
-    shap_summary_fpath = ctx["output_folder"].joinpath(shap_summary_fname)
+    shap_summary_fpath = ctx["data_folder"].joinpath(shap_summary_fname)
     shap_summary.to_csv(shap_summary_fpath, sep="\t")
     print(f"Shap summary results saved to: {shap_summary_fpath}")
 
@@ -261,6 +261,25 @@ def explain(**kwargs):
     run_explainer(ctx)
     fnames = ["shap_selection.tsv", "shap_summary.tsv"]
     copy_files(ctx, fnames)
+
+
+@main.command()
+@add_options(_debug_option)
+@add_options(_n_iters_option)
+@add_options(_n_gpus_option)
+@add_options(_n_cpus_option)
+@click.argument("disease-path", type=click.Path(exists=True))
+@click.version_option(get_version())
+@click.pass_context
+def run(ctx, **kwargs):
+    """[summary]"""
+    # ctx = build_ctx(kwargs, step=None)
+    # orchestrate(kwargs["disease_path"], **orchestrate_ctx)
+    ctx.forward(orchestrate)
+    ctx.forward(stability, mode="train")
+    ctx.forward(stability, mode="explain")
+    ctx.forward(stability, mode="score")
+    ctx.forward(explain)
 
 
 if __name__ == "__main__":
