@@ -105,3 +105,11 @@ def get_number_cuda_devices_():
     cuda_query = cuda.cuDeviceGetCount(ctypes.byref(n_gpus))
 
     return int(n_gpus.value)
+
+
+def check_gputree_availability():
+    """Check if GPUTree has been corectly compiled."""
+    try:
+        return True
+    except ImportError as ierr:
+        return False

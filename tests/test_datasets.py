@@ -18,6 +18,9 @@ from click.testing import CliRunner
 
 from dreml.cli.cli import main
 from dreml.datasets import get_disease_data, load_df
+from dreml.utils import check_gputree_availability
+
+N_GPU_LST = [True, False] if check_gputree_availability() else [False]
 
 DATA_NAMES = [
     "circuits.tsv.gz",
@@ -114,9 +117,10 @@ def test_orchestrate(debug):
         assert (fpath.exists()) and (features.shape[0] > 9)
 
 
-@pytest.mark.parametrize("n_gpus", [0, -1])
+@pytest.mark.parametrize("n_gpus", N_GPU_LST)
 def test_cli_run(n_gpus):
     """Unit tests for CLI app."""
+
     click.echo("Running CLI tests fro DREML.")
 
     disease_path = make_disease_path(use_default=False)
