@@ -49,10 +49,10 @@ def test_load_df(fname):
     assert data.shape[0] > 0
 
 
-def make_disease_path(default=False):
+def make_disease_path(use_default):
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
-    if default:
+    if use_default:
         disease_path_in = get_resource_path("experiment_default.env")
     else:
         disease_path_in = get_resource_path("experiment.env")
@@ -62,14 +62,14 @@ def make_disease_path(default=False):
 
     with open(disease_path_out, "r", encoding="utf8") as this_file:
         disease_path_out_data = this_file.read()
-    if not default:
+    if not use_default:
         disease_path_out_data = disease_path_out_data.replace(
             "%THIS_PATH", disease_path_in.parent.as_posix()
         )
     with open(disease_path_out, "w", encoding="utf8") as this_file:
         this_file.write(disease_path_out_data)
 
-    if default:
+    if use_default:
         shutil.copy(
             get_resource_path("circuits.tsv.gz").as_posix(),
             disease_path_out.parent.as_posix(),
@@ -78,10 +78,11 @@ def make_disease_path(default=False):
     return disease_path_out
 
 
-def test_get_disease_data():
+@pytest.mark.parametrize("default", [True, False])
+def test_get_disease_data(default):
     """Test get_disease_data."""
 
-    disease_path = make_disease_path(default=False)
+    disease_path = make_disease_path(use_default=default)
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path, debug=True)
 
     assert gene_exp.to_numpy().ndim == 2
@@ -91,12 +92,11 @@ def test_get_disease_data():
 
 
 @pytest.mark.parametrize("debug", [True, False])
-@pytest.mark.parametrize("default", [True, False])
-def test_orchestrate(debug, default):
+def test_orchestrate(debug):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
 
-    disease_path = make_disease_path(default)
+    disease_path = make_disease_path(use_default=False)
 
     opts = ["orchestrate", "--debug" if debug else "--no-debug", f"{disease_path}"]
     click.echo(" ".join(opts))
@@ -114,84 +114,12 @@ def test_orchestrate(debug, default):
         assert (fpath.exists()) and (features.shape[0] > 9)
 
 
-# @pytest.mark.parametrize("n_gpus", [0, -1])
-# def test_cli_single(n_gpus):
-#     """Unit tests for CLI app."""
-#     click.echo("Running CLI tests fro DREML.")
-
-#     disease_path = make_disease_path(default=False)
-
-#     ml_folder_expected = disease_path.parent.joinpath("ml")
-#     tmp_folder_expected = ml_folder_expected.joinpath("tmp")
-
-#     opts = ["orchestrate", "--debug", f"{disease_path}"]
-#     click.echo(" ".join(opts))
-#     runner = CliRunner()
-#     runner.invoke(main, " ".join(opts))
-
-#     opts = [
-#         "stability",
-#         "--mode train",
-#         "--debug",
-#         f"--n-gpus {n_gpus}",
-#         f"{disease_path}",
-#     ]
-#     click.echo(" ".join(opts))
-#     runner = CliRunner()
-#     runner.invoke(main, " ".join(opts))
-
-#     model_fpath = tmp_folder_expected.joinpath("model_0.jbl")
-#     assert model_fpath.exists()
-
-#     opts = [
-#         "stability",
-#         "--mode explain",
-#         "--debug",
-#         f"--n-gpus {n_gpus}",
-#         f"{disease_path}",
-#     ]
-#     click.echo(" ".join(opts))
-#     runner = CliRunner()
-#     runner.invoke(main, " ".join(opts))
-
-#     model_fpath = tmp_folder_expected.joinpath("fs.jbl")
-#     assert model_fpath.exists()
-
-#     opts = [
-#         "stability",
-#         "--mode score",
-#         "--debug",
-#         f"--n-gpus {n_gpus}",
-#         f"{disease_path}",
-#     ]
-#     click.echo(" ".join(opts))
-#     runner = CliRunner()
-#     runner.invoke(main, " ".join(opts))
-
-#     stability_results_fpath = ml_folder_expected.joinpath("stability_results.tsv")
-#     assert stability_results_fpath.exists()
-
-#     opts = [
-#         "explain",
-#         "--debug",
-#         f"--n-gpus {n_gpus}",
-#         f"{disease_path}",
-#     ]
-#     click.echo(" ".join(opts))
-#     runner = CliRunner()
-#     runner.invoke(main, " ".join(opts))
-
-#     shap_selection_fpath = ml_folder_expected.joinpath("shap_selection.tsv")
-#     shap_summary_fpath = ml_folder_expected.joinpath("shap_summary.tsv")
-#     assert shap_selection_fpath.exists() and shap_summary_fpath.exists()
-
-
 @pytest.mark.parametrize("n_gpus", [0, -1])
 def test_cli_run(n_gpus):
     """Unit tests for CLI app."""
     click.echo("Running CLI tests fro DREML.")
 
-    disease_path = make_disease_path(default=False)
+    disease_path = make_disease_path(use_default=False)
     ml_folder_expected = disease_path.parent.joinpath("ml")
 
     opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]

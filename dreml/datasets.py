@@ -18,7 +18,7 @@ from zenodo_client import Zenodo
 DEFAULT_STR = "$default$"
 DEBUG_NAMES = {
     "gene_exp": "gene_exp.tsv.gz",
-    "pathvals": "patvals.tsv.gz",
+    "pathvals": "pathvals.tsv.gz",
     "circuits": "circuits.tsv.gz",
     "genes": "genes.tsv.gz",
 }
@@ -44,7 +44,7 @@ def fetch_file(disease, key, version="latest", debug=False):
             path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
     else:
         data_path = pathlib.Path(os.getenv("data_path"))
-        if data_path == DEFAULT_STR:
+        if data_path.name == DEFAULT_STR:
             data_path = experiment_env_path.parent
         path = data_path.joinpath(os.getenv(key))
 
