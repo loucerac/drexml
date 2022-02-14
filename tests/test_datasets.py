@@ -12,7 +12,6 @@ import tempfile
 from pathlib import Path
 
 import click
-import joblib
 import pytest
 from click.testing import CliRunner
 
@@ -43,15 +42,6 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
-@pytest.mark.parametrize("fname", DATA_NAMES)
-def test_load_df(fname):
-    """Test load_df"""
-
-    fpath = get_resource_path(fname)
-    data = load_df(fpath)
-    assert data.shape[0] > 0
-
-
 def make_disease_path(use_default):
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
@@ -75,46 +65,32 @@ def make_disease_path(use_default):
     if use_default:
         shutil.copy(
             get_resource_path("circuits.tsv.gz").as_posix(),
-            disease_path_out.parent.as_posix(),
+            tmp_dir.joinpath("circuits.tsv.gz").as_posix(),
         )
 
     return disease_path_out
 
 
+@pytest.mark.parametrize("fname", DATA_NAMES)
+def test_load_df(fname):
+    """Test load_df"""
+
+    fpath = get_resource_path(fname)
+    data = load_df(fpath)
+    assert data.shape[0] > 0
+
+
 @pytest.mark.parametrize("default", [True, False])
-def test_get_disease_data(default):
+def get_disease_data_(default):
     """Test get_disease_data."""
 
     disease_path = make_disease_path(use_default=default)
     gene_exp, pathvals, circuits, genes = get_disease_data(disease_path, debug=True)
 
-    assert gene_exp.to_numpy().ndim == 2
+    assert gene_exp.to_numpy().ndim == 3
     assert pathvals.to_numpy().ndim == 2
     assert circuits.to_numpy().ndim == 2
     assert genes.to_numpy().ndim == 2
-
-
-@pytest.mark.parametrize("debug", [True, False])
-def test_orchestrate(debug):
-    """Unit tests for CLI app."""
-    click.echo("Running CLI tests fro DREML.")
-
-    disease_path = make_disease_path(use_default=False)
-
-    opts = ["orchestrate", "--debug" if debug else "--no-debug", f"{disease_path}"]
-    click.echo(" ".join(opts))
-    runner = CliRunner()
-    runner.invoke(main, " ".join(opts))
-
-    ml_folder_expected = disease_path.parent.joinpath("ml")
-    tmp_folder_expected = ml_folder_expected.joinpath("tmp")
-
-    fpath = tmp_folder_expected.joinpath("features.jbl")
-    features = joblib.load(tmp_folder_expected.joinpath("features.jbl"))
-    if debug:
-        assert (fpath.exists()) and (features.shape[0] == 9)
-    else:
-        assert (fpath.exists()) and (features.shape[0] > 9)
 
 
 @pytest.mark.parametrize("n_gpus", N_GPU_LST)

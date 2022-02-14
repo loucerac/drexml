@@ -12,9 +12,15 @@ from pathlib import Path
 
 import pandas as pd
 import pkg_resources
+from shap.utils import assert_import
 from sklearn.preprocessing import MinMaxScaler
 
 from dreml.datasets import get_disease_data
+
+
+def decode_escaped(escaped):
+    """Escape."""
+    return __escape_decoder(escaped)[0]
 
 
 def get_version():
@@ -110,6 +116,8 @@ def get_number_cuda_devices_():
 def check_gputree_availability():
     """Check if GPUTree has been corectly compiled."""
     try:
+        assert_import("cext_gpu")
         return True
     except ImportError as ierr:
+        print(ierr)
         return False

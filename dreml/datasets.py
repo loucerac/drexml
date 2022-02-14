@@ -7,11 +7,10 @@ Author: Marina Esteban <marina.estebanm@gmail.com>
 
 IO module for HORD multi-task framework.
 """
-import os
 import pathlib
 
-import dotenv
 import pandas as pd
+from dotenv.main import dotenv_values
 from pandas.errors import ParserError
 from zenodo_client import Zenodo
 
@@ -37,55 +36,19 @@ RECORD_ID = "6020481"
 def fetch_file(disease, key, version="latest", debug=False):
     """Retrieve data."""
     experiment_env_path = pathlib.Path(disease)
-    dotenv.load_dotenv(experiment_env_path)
-    if os.getenv(key) == DEFAULT_STR:
+    env = dotenv_values(experiment_env_path)
+    if env[key].lower() == DEFAULT_STR:
         if version == "latest":
             zenodo = Zenodo()
             path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
     else:
-        data_path = pathlib.Path(os.getenv("data_path"))
-        if data_path.name == DEFAULT_STR:
+        data_path = pathlib.Path(env["data_path"])
+        if data_path.name.lower() == DEFAULT_STR:
+            print(disease, env[key], data_path)
             data_path = experiment_env_path.parent
-        path = data_path.joinpath(os.getenv(key))
+        path = data_path.joinpath(env[key])
 
     return load_df(path)
-
-
-def fetch_data(zenodo=None, version="latest", debug=False):
-    """[summary]
-
-    Parameters
-    ----------
-    data_home : [type], optional
-        [description], by default None
-    download_if_missing : bool, optional
-        [description], by default True
-    """
-    if zenodo is None:
-        zenodo = Zenodo()
-
-    record_id = "6020481"
-    if debug:
-        fname_lst = [
-            "gene_exp.tsv.gz",
-            "pathvals.tsv.gz",
-            "genes.tsv.gz",
-        ]
-
-    else:
-        fname_lst = [
-            "expreset_Hinorm_gtexV8.rds.feather",
-            "expreset_pathvals_gtexV8.rds.feather",
-            "genes01072021.rds.feather",
-        ]
-
-    for fname in fname_lst:
-        if version == "latest":
-            this_path = zenodo.download_latest(record_id, fname, force=False)
-
-    this_path = pathlib.Path(this_path)
-
-    return this_path.parent
 
 
 def load_df(path):
@@ -144,14 +107,14 @@ def get_disease_data(disease, debug):
 
     # Load data
     experiment_env_path = pathlib.Path(disease)
-    dotenv.load_dotenv(experiment_env_path)
+    env = dotenv_values(experiment_env_path)
     # experiment_folder = experiment_env_path.parent
     # check the cache, download if different, return storage folder
     # zenodo_path = fetch_data(debug=debug)
     # data_path = pathlib.Path(os.getenv("data_path"))
 
-    genes_column = os.getenv("genes_column")
-    circuits_column = os.getenv("circuits_column")
+    genes_column = env["genes_column"]
+    circuits_column = env["circuits_column"]
 
     # gene_exp_fname = os.getenv("gene_exp")
     gene_exp = fetch_file(disease, key="gene_exp", version="latest", debug=debug)
