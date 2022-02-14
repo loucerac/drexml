@@ -20,7 +20,7 @@ from dreml.cli.cli import main
 from dreml.datasets import get_disease_data, load_df
 from dreml.utils import check_gputree_availability
 
-N_GPU_LST = [True, False] if check_gputree_availability() else [False]
+N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 DATA_NAMES = [
     "circuits.tsv.gz",
