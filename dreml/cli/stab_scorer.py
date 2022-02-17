@@ -16,9 +16,9 @@ import pandas as pd
 from sklearn.base import clone
 from sklearn.metrics import r2_score
 
-import dreml.stability as stab
 from dreml.explain import build_stability_dict
 from dreml.models import get_model
+from dreml.pystab import nogueria_test
 
 if __name__ == "__main__":
     import sys
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     score_by_circuit.columns = "r2_" + score_by_circuit.columns
 
     stab_by_circuit = {
-        y: stab.confidenceIntervals(
-            pd.concat([x.loc[y] for x in fs_mat], axis=1).T.values * 1
+        y: nogueria_test(
+            pd.concat([x.loc[y] for x in fs_mat], axis=1).T.values * 1, as_dict=True
         )
         for y in targets_orig.columns
     }

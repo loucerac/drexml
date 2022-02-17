@@ -16,7 +16,7 @@ from sklearn.base import clone
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
-from dreml import stability as stab
+from dreml.pystab import nogueria_test
 
 
 def matcorr(O, P):
@@ -144,17 +144,16 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
     [type]
         [description]
     """
+
     support_matrix = np.squeeze(z_mat)
     scores = np.squeeze(scores)
 
-    stab_res = stab.confidenceIntervals(support_matrix, alpha=alpha)
-    stability = stab_res["stability"]
-    stability_error = stab_res["stability"] - stab_res["lower"]
+    stab_test = nogueria_test(support_matrix, alpha=alpha)
 
     res = {
         "scores": scores.tolist(),
-        "stability_score": stability,
-        "stability_error": stability_error,
+        "stability_score": stab_test.estimator,
+        "stability_error": stab_test.error,
         "alpha": alpha,
     }
 
