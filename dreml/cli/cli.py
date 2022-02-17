@@ -228,7 +228,6 @@ def orchestrate(**kwargs):
 def stability(**kwargs):
     """Run the stability analyses."""
 
-    click.echo(f"Running DREML stability v {get_version()}")
     if kwargs["mode"].lower() == "train":
         current_step = "stab-train"
     elif kwargs["mode"].lower() == "explain":
@@ -237,6 +236,8 @@ def stability(**kwargs):
         current_step = "stab-score"
     else:
         sys.exit("Unknown stability analysis step.")
+
+    click.echo(f"Running DREML {current_step} v {get_version()}")
 
     ctx = build_ctx(kwargs, step=current_step)
 
