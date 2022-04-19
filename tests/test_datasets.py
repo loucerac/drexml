@@ -38,13 +38,16 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
-def make_disease_path(use_default):
+def make_disease_path(use_default, one=False):
     """Prepare fake disease data folder."""
     tmp_dir = Path(tempfile.mkdtemp())
     if use_default:
         disease_path_in = get_resource_path("experiment_default.env")
     else:
-        disease_path_in = get_resource_path("experiment.env")
+        if one:
+            disease_path_in = get_resource_path("experiment1.env")
+        else:
+            disease_path_in = get_resource_path("experiment.env")
     disease_path_out = tmp_dir.joinpath(disease_path_in.name)
     # Use as_posix to make it compatible with python<=3.7
     shutil.copy(disease_path_in.as_posix(), disease_path_out.as_posix())
@@ -95,7 +98,7 @@ def test_cli_run(n_gpus):
 
     click.echo("Running CLI tests fro DREML.")
 
-    disease_path = make_disease_path(use_default=False)
+    disease_path = make_disease_path(use_default=False, one=True)
     ml_folder_expected = disease_path.parent.joinpath("ml")
 
     opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]
