@@ -104,9 +104,12 @@ def compute_shap_relevance(shap_values, X, Y):
     n_tasks = len(task_names)
 
     c = lambda x, y: np.sign(np.diag(matcorr(x, y)))
+    if shap_values.ndim < 3:
+        shap_values = np.expand_dims(shap_values, axis=0)
+    print(X.shape, Y.shape, shap_values.shape)
 
     signs = Parallel(n_jobs=-1)(
-        delayed(c)(X.values, shap_values[y_col, :, :]) for y_col in range(n_tasks)
+        delayed(c)(X.values, shap_values[y_col]) for y_col in range(n_tasks)
     )
 
     signs = np.array(signs).reshape((n_tasks, n_features), order="F")
