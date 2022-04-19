@@ -1,5 +1,5 @@
 .PHONY: install test format
-all: format install test
+all: install format test
 install:
 	poetry install
 format:
