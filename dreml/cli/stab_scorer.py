@@ -27,7 +27,7 @@ if __name__ == "__main__":
     n_gpus = int(n_gpus)
     use_gpu = n_gpus > 0
     n_cpus = int(n_cpus)
-    debug = bool(debug)
+    debug = bool(int(debug))
 
     features_orig_fpath = data_folder.joinpath("features.jbl")
     features_orig = joblib.load(features_orig_fpath)

@@ -23,7 +23,8 @@ if __name__ == "__main__":
     n_gpus = int(n_gpus)
     use_gpu = n_gpus > 0
     n_cpus = int(n_cpus)
-    debug = bool(debug)
+    print("int", debug)
+    debug = bool(int(debug))
 
     features_orig_fpath = data_folder.joinpath("features.jbl")
     features_orig = joblib.load(features_orig_fpath)
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     targets_orig = joblib.load(targets_orig_fpath)
 
     n_splits = 5 if debug else 100
+    print(debug, n_splits)
     stab_cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
     stab_cv = list(stab_cv.split(features_orig, targets_orig))
     stab_cv = [

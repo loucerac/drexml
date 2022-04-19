@@ -23,7 +23,7 @@ if __name__ == "__main__":
     n_gpus = int(n_gpus)
     use_gpu = n_gpus > 0
     n_cpus = int(n_cpus)
-    debug = bool(debug)
+    debug = bool(int(debug))
 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
     device_list = list(range(n_devices))

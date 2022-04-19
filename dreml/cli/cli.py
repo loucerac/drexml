@@ -188,7 +188,9 @@ def run_cmd(ctx):
     """Train/explain/score each stability partition"""
     cmd = build_cmd(ctx)
     # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
-    subprocess.run(cmd, capture_output=True, text=True, check=True)
+    print(" ".join(cmd))
+    output = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    click.echo(output.stdout)
 
 
 @click.group()
