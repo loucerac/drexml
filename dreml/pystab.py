@@ -1,10 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 Implementation of Nogueira's stability measure. See:
 [1] S. Nogueira, K. Sechidis, and G. Brown, “On the Stability of Feature Selection 
- Algorithms,” Journal of Machine Learning Research, vol. 18, no. 174, pp. 1–54, 2018.
-
+Algorithms,” Journal of Machine Learning Research, vol. 18, no. 174, pp. 1–54, 2018.
 """
-
 
 from collections import namedtuple
 

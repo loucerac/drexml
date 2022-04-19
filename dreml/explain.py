@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
-Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
-Author: Marina Esteban <marina.estebanm@gmail.com>
-
 Explainability module for multi-task framework.
 """
-
 
 import numpy as np
 import pandas as pd

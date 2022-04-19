@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Model definition.
+"""
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 

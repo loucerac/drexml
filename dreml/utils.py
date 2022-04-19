@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
-Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
-Author: Marina Esteban <marina.estebanm@gmail.com>
-
 Utilities module.
 """
 

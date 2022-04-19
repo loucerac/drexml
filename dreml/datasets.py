@@ -1,10 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Author: Carlos Loucera <carlos.loucera@juntadeandalucia.es>
-Author: Maria Pena Chilet <maria.pena.chilet.ext@juntadeandalucia.es>
-Author: Marina Esteban <marina.estebanm@gmail.com>
-
 IO module for HORD multi-task framework.
 """
 import pathlib
