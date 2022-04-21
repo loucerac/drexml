@@ -29,8 +29,7 @@ def matcorr(O, P):
     [type]
         [description]
     """
-    (n, t) = O.shape  # n traces of t samples
-    (n_bis, m) = P.shape  # n predictions for each of m candidates
+    n = O.shape[0]
 
     DO = O - (
         np.einsum("nt->t", O, optimize="optimal") / np.double(n)
