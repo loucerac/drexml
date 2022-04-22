@@ -4,7 +4,6 @@
 Entry CLI point for stab.
 """
 
-import pathlib
 
 import joblib
 import numpy as np
@@ -13,47 +12,34 @@ from sklearn.base import clone
 from sklearn.metrics import r2_score
 
 from dreml.explain import build_stability_dict
-from dreml.models import get_model
 from dreml.pystab import nogueria_test
+from dreml.utils import get_stab, parse_stab
 
 if __name__ == "__main__":
     import sys
 
     # client = Client('127.0.0.1:8786')
+    # pylint: disable=unbalanced-tuple-unpacking
+    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
+    model, stab_cv, features, targets = get_stab(
+        data_folder, n_splits, n_cpus, debug, n_iters
+    )
 
-    _, data_folder, n_iters, n_gpus, n_cpus, debug = sys.argv
-    n_iters = int(n_iters)
-    data_folder = pathlib.Path(data_folder)
-    n_gpus = int(n_gpus)
-    use_gpu = n_gpus > 0
-    n_cpus = int(n_cpus)
-    debug = bool(int(debug))
-
-    features_orig_fpath = data_folder.joinpath("features.jbl")
-    features_orig = joblib.load(features_orig_fpath)
-
-    targets_orig_fpath = data_folder.joinpath("target.jbl")
-    targets_orig = joblib.load(targets_orig_fpath)
-
-    n_samples, n_features = features_orig.shape
-    n_targets = targets_orig.shape[1]
-
-    model = get_model(n_features, n_targets, n_cpus, debug, n_iters)
     fs_mat = joblib.load(data_folder.joinpath("fs.jbl"))
     n_bootstraps = len(fs_mat)
 
-    zmat = np.zeros((n_bootstraps, n_features), dtype=np.int8)
+    zmat = np.zeros((n_bootstraps, features.shape[1]), dtype=np.int8)
     errors = np.zeros(n_bootstraps)
 
-    def stab_i(estimator, features, targets, split_id, this_split):
+    def stab_i(estimator, X, Y, split_id, this_split):
         """Score each stab partition."""
         learn, val, test = this_split
-        features_learn = features.iloc[learn, :]
-        targets_learn = targets.iloc[learn, :]
-        features_val = features.iloc[val, :]
-        targets_val = targets.iloc[val, :]
-        features_test = features.iloc[test, :]
-        targets_test = targets.iloc[test, :]
+        features_learn = X.iloc[learn, :]
+        targets_learn = Y.iloc[learn, :]
+        features_val = X.iloc[val, :]
+        targets_val = Y.iloc[val, :]
+        features_test = X.iloc[test, :]
+        targets_test = Y.iloc[test, :]
         features_train = pd.concat((features_learn, features_val), axis=0)
         targets_train = pd.concat((targets_learn, targets_val), axis=0)
 
@@ -83,14 +69,14 @@ if __name__ == "__main__":
     stab_values = []
     cv = joblib.load(data_folder.joinpath("cv.jbl"))
     for n_split, split in enumerate(cv):
-        stab_values.append(stab_i(model, features_orig, targets_orig, n_split, split))
+        stab_values.append(stab_i(model, features, targets, n_split, split))
 
     for n_split, values in enumerate(stab_values):
         zmat[n_split, :] = values[0] * 1
         errors[n_split] = values[1]
 
     score_by_circuit = [
-        pd.Series(values[2], index=targets_orig.columns)
+        pd.Series(values[2], index=targets.columns)
         for n_split, values in enumerate(stab_values)
     ]
     score_by_circuit = (
@@ -104,7 +90,7 @@ if __name__ == "__main__":
         y: nogueria_test(
             pd.concat([x.loc[y] for x in fs_mat], axis=1).T.values * 1, as_dict=True
         )
-        for y in targets_orig.columns
+        for y in targets.columns
     }
 
     stab_by_circuit = pd.DataFrame(stab_by_circuit).T

@@ -6,28 +6,18 @@ Entry CLI point for stab.
 
 import multiprocessing
 import os
-import pathlib
 
 import joblib
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
+from dreml.utils import parse_stab
 
 if __name__ == "__main__":
     import sys
 
     # client = Client('127.0.0.1:8786')
-
-    _, data_folder, n_iters, n_gpus, n_cpus, debug = sys.argv
-    n_iters = int(n_iters)
-    data_folder = pathlib.Path(data_folder)
-    n_gpus = int(n_gpus)
-    use_gpu = n_gpus > 0
-    n_cpus = int(n_cpus)
-    debug = bool(int(debug))
-
-    n_devices = n_gpus if n_gpus > 0 else n_cpus
-    device_list = list(range(n_devices))
-    n_splits = 5 if debug else 100
+    # pylint: disable=unbalanced-tuple-unpacking
+    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
 
     queue = multiprocessing.Queue()
 
@@ -85,6 +75,7 @@ if __name__ == "__main__":
         return filt_i
 
     # Put indices in queue
+    n_devices = n_gpus if n_gpus > 0 else n_cpus
     for gpu_ids in range(n_devices):
         queue.put(gpu_ids)
 
@@ -92,7 +83,7 @@ if __name__ == "__main__":
         fs_lst = joblib.Parallel()(
             joblib.delayed(runner)(
                 data_path=data_folder,
-                gpu_flag=use_gpu,
+                gpu_flag=n_gpus > 0,
                 split_id=i_split,
             )
             for i_split in range(n_splits)

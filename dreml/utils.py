@@ -6,17 +6,54 @@ Utilities module.
 import ctypes
 from pathlib import Path
 
+import joblib
 import pandas as pd
 import pkg_resources
 from shap.utils import assert_import
+from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 from dreml.datasets import get_disease_data
+from dreml.models import get_model
 
 
-def decode_escaped(escaped):
-    """Escape."""
-    return __escape_decoder(escaped)[0]
+def parse_stab(argv):
+    _, data_folder, n_iters, n_gpus, n_cpus, debug = argv
+    n_iters = int(n_iters)
+    data_folder = Path(data_folder)
+    n_gpus = int(n_gpus)
+    n_cpus = int(n_cpus)
+    debug = bool(int(debug))
+
+    n_splits = 5 if debug else 100
+
+    return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug
+
+
+def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
+
+    features_orig_fpath = data_folder.joinpath("features.jbl")
+    features_orig = joblib.load(features_orig_fpath)
+
+    targets_orig_fpath = data_folder.joinpath("target.jbl")
+    targets_orig = joblib.load(targets_orig_fpath)
+
+    stab_cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
+    stab_cv = list(stab_cv.split(features_orig, targets_orig))
+    stab_cv = [
+        (*train_test_split(stab_cv[i][0], test_size=0.3), stab_cv[i][1])
+        for i in range(n_splits)
+    ]
+
+    name = "cv.jbl"
+    path = data_folder.joinpath(name)
+    joblib.dump(stab_cv, path)
+    n_features = features_orig.shape[1]
+    n_targets = targets_orig.shape[1]
+
+    model = get_model(n_features, n_targets, n_cpus, debug, n_iters)
+
+    return model, stab_cv, features_orig, targets_orig
 
 
 def get_version():
@@ -90,7 +127,7 @@ def get_number_cuda_devices():
 
     try:
         n_gpus = get_number_cuda_devices_()
-    except Exception as exc:
+    except OSError as exc:
         print(exc)
         print("No CUDA devices found.")
         n_gpus = 0
@@ -102,9 +139,9 @@ def get_number_cuda_devices_():
     """Get number of CUDA devices."""
 
     cuda = get_cuda_lib()
-    cuda_query = cuda.cuInit(0)
+    cuda.cuInit(0)
     n_gpus = ctypes.c_int()
-    cuda_query = cuda.cuDeviceGetCount(ctypes.byref(n_gpus))
+    cuda.cuDeviceGetCount(ctypes.byref(n_gpus))
 
     return int(n_gpus.value)
 
