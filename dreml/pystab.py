@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Implementation of Nogueira's stability measure. See:
-[1] S. Nogueira, K. Sechidis, and G. Brown, “On the Stability of Feature Selection 
+[1] S. Nogueira, K. Sechidis, and G. Brown, “On the Stability of Feature Selection
 Algorithms,” Journal of Machine Learning Research, vol. 18, no. 174, pp. 1–54, 2018.
 """
 
@@ -80,8 +80,7 @@ def nogueria_test(pop_mat, alpha=0.05, as_dict=False):
 
     if as_dict:
         return {"stability": estimator, "lower": lower, "upper": upper}
-    else:
-        return NogueiraTest(estimator, upper, lower, phi_var, error, alpha)
+    return NogueiraTest(estimator, upper, lower, phi_var, error, alpha)
 
 
 def fdr(p_vals):
