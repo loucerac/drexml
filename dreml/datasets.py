@@ -75,9 +75,9 @@ def load_df(path):
         try:
             # feather
             res = pd.read_feather(path).set_index("index", drop=True)
-        except (ParserError, KeyError) as err:
+        except (ParserError, KeyError) as new_err:
             print("Error found while trying to load a Feather.")
-            print(err)
+            print(new_err)
             res = pd.DataFrame()
 
     if res.shape[0] == 0:
