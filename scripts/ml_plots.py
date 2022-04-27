@@ -1,0 +1,204 @@
+import pathlib
+
+import dotenv
+import joblib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+dotenv_filepath = dotenv.find_dotenv()
+project_path = pathlib.Path(dotenv_filepath).parent
+resources_folder = project_path.joinpath("resources")
+exts = ["pdf", "png", "eps", "svg"]
+
+
+def get_symbol_dict():
+    fname = "entrez_sym-table.tsv"
+    fpath = resources_folder.joinpath(fname)
+
+    gene_names = pd.read_csv(fpath, sep="\t", dtype={"entrez": str})
+    gene_names.set_index("entrez", drop=True, inplace=True)
+
+    gene_symbols_dict = gene_names.to_dict()["symbol"]
+
+    return gene_symbols_dict
+
+
+def get_circuit_dict():
+    fname = "circuit_names.tsv"
+    fpath = resources_folder.joinpath(fname)
+    circuit_names = pd.read_csv(
+        fpath, sep="\t", index_col=0, header=None, names=["NAME"]
+    )
+    circuit_names.index = circuit_names.index.str.replace(r"-| ", ".")
+
+    return circuit_names["NAME"].to_dict()
+
+
+def plot_median(rel_cv, use_symb, symb_dict, pdir, extensions=exts):
+
+    name = "median"
+    if use_symb:
+        name = f"{name}_symbol"
+        df_plot = rel_cv.rename(columns=symb_dict).copy()
+    else:
+        name = f"{name}_entrez"
+        df_plot = rel_cv.copy()
+
+    df_plot = df_plot.median().sort_values(ascending=False)
+    cut = get_cut_point(rel_cv)
+
+    plt.figure()
+    df_plot.plot(figsize=(16, 9), rot=90)
+    plt.axhline(cut, color="k", linestyle="--")
+    fnz = np.nonzero(df_plot.values.ravel() < cut)[0][0] - 1
+    plt.axvline(fnz, color="k", linestyle="--")
+    plt.xlabel("Gene")
+    plt.ylabel("Median Relevance")
+    plt.tight_layout()
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
+
+
+def plot_task_distribution(target, pdir, pdict, extensions=exts):
+    name = "task_distribution"
+    df_plot = target.apply(np.log1p).rename(columns=pdict)
+
+    plt.figure()
+    df_plot.plot(kind="box", figsize=(16, 9))
+    plt.tight_layout()
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
+
+
+def get_shap_relevance(results_path):
+    fname = "shap_values_task_relevance.tsv"
+    fpath = results_path.joinpath(fname)
+    task_rel = pd.read_csv(fpath, sep="\t", index_col=0)
+
+    return task_rel
+
+
+def get_cv_stats(results_path):
+    fname = "cv_stats.pkl"
+    fpath = results_path.joinpath(results_path, fname)
+    cv_stats = joblib.load(fpath)
+
+    return cv_stats
+
+
+def get_rel_cv(cv_stats, gene_ids):
+    rel_cv = pd.DataFrame(cv_stats["relevance"], columns=gene_ids)
+
+    return rel_cv
+
+
+def get_cut_point(rel_cv):
+    return rel_cv.median().mean() + 0.1 * rel_cv.median().std()
+
+
+def save_median_df(rel_cv, cut, symbol_dict, results_path):
+    entrez_list = rel_cv.median().index.values.ravel()
+    symbol_list = [
+        symbol_dict[entrez] if entrez in symbol_dict.keys() else None
+        for entrez in entrez_list
+    ]
+    is_selected = (rel_cv.median() > cut).values.ravel()
+    median_rel = rel_cv.median().values.ravel()
+
+    sel = pd.DataFrame(
+        {
+            "entrez": entrez_list,
+            "symbol": symbol_list,
+            "is_selected": is_selected,
+            "median_rel": median_rel,
+        }
+    )
+
+    sel.sort_values(by="median_rel", ascending=False, inplace=True)
+    sel.to_csv(results_path.joinpath("median_relevance" + ".csv"), index=False)
+
+
+def plot_relevance_distribution(rel_cv, cut, symb_dict, pdir, extensions=exts):
+    sns.set_theme(context="paper", style="whitegrid")
+    query_top = rel_cv.columns[rel_cv.median() > cut]
+    to_plot = rel_cv.loc[:, query_top].copy()
+    to_plot = to_plot.loc[:, to_plot.median().sort_values(ascending=False).index]
+
+    if symb_dict is not None:
+        to_plot.rename(columns=symb_dict, inplace=True)
+    n_genes = to_plot.shape[1]
+
+    # sns.set_context("poster")
+    fig, ax = plt.subplots(1, 1)
+    # def set_size(fig):
+    # fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    figsize_x = 1.0 if n_genes < 90 else 1.2
+    to_plot = to_plot.melt()
+    sns.boxplot(x="variable", y="value", data=to_plot, color="lightgray", ax=ax)
+    # ax = to_plot.plot(kind="box", rot=90, color="lightgray")
+    ax.set_ylabel("Relevance", fontsize=12)
+    ax.set_xlabel("Gene", fontsize=12)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    # set_size(fig)
+    sns.despine()
+    # g.fig.set_size_inches(6, 3)
+    fig.set_size_inches(6, 3)
+    plt.tight_layout()
+
+    name = "cv_relevance_distribution"
+    if symb_dict is None:
+        name = f"{name}_entrez"
+    else:
+        name = f"{name}_symbol"
+
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        fig.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0.05)
+    plt.close()
+
+
+def plot_stats(cv_stats, circuit_ids, circuit_dict, pdir, extensions=exts):
+    stat = "r2_mo"
+    sns.set_theme(context="paper", style="whitegrid")
+
+    d = pd.DataFrame(cv_stats[stat]["test"], columns=circuit_ids)
+    d = d.rename(columns=circuit_dict)
+    n_circuits = d.shape[1]
+    d = d.melt(value_name="score", var_name="Circuit")
+    figsize_y = int((20 * n_circuits) / 150)
+    plt.figure(figsize=(8, figsize_y))
+    g = sns.boxplot(x="score", y="Circuit", data=d, color="lightgray")
+    g.set_xlabel("10 times 10-fold $R^{2}$ Cross-Validation Distribution", fontsize=12)
+    g.set_ylabel("Circuit", fontsize=12)
+    sns.despine(left=True, bottom=True)
+
+    name = f"{stat}_cv_performance_distribution"
+    for ext in extensions:
+        fname = f"{name}.{ext}"
+        fpath = pdir.joinpath(fname)
+        plt.savefig(fpath, dpi=300, bbox_inches="tight", pad_inches=0)
+
+
+def convert_frame_ids(
+    fname, results_path, circuit_dict, gene_symbols_dict=None, frame=None
+):
+    fpath = results_path.joinpath(fname)
+    if frame is None:
+        frame = pd.read_csv(fpath, sep="\t", index_col=0)
+    frame = frame.rename(index=circuit_dict)
+    if gene_symbols_dict is not None:
+        frame = frame.rename(columns=gene_symbols_dict)
+
+    fname_out = fname.replace(".tsv", "_symbol.tsv")
+    fpath_out = results_path.joinpath(fname_out)
+    frame.to_csv(fpath_out, sep="\t")
+
+    return frame

@@ -1,6 +1,0 @@
-*.jbl
-*.json
-*.pkl
-*.feather
-tmp/
-results/
