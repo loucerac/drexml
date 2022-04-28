@@ -38,6 +38,7 @@ jobs:
         installer-parallel: true
     - name: Install dependencies
       run: |
-        poetry install
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions tox-poetry
     - name: Test with tox
-      run: poetry run tox
+      run: tox
