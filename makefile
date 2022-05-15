@@ -1,6 +1,7 @@
 .PHONY: install test format
 all: install format test
 install:
+	poetry env use 3.8
 	poetry install
 format:
 	poetry run autoflake -ri --remove-all-unused-imports dreml/ tests/
