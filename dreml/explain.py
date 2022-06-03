@@ -79,6 +79,24 @@ def compute_shap_values(estimator, background, new, gpu, split=True):
     return shap_values
 
 
+def compute_corr_sign(x, y):
+    """_summary_
+
+    Parameters
+    ----------
+    x : _type_
+        _description_
+    y : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    return np.sign(np.diag(matcorr(x, y)))
+
+
 def compute_shap_relevance(shap_values, X, Y):
     """[summary]
 
@@ -102,13 +120,13 @@ def compute_shap_relevance(shap_values, X, Y):
     n_features = len(feature_names)
     n_tasks = len(task_names)
 
-    c = lambda x, y: np.sign(np.diag(matcorr(x, y)))
     if shap_values.ndim < 3:
         shap_values = np.expand_dims(shap_values, axis=0)
     print(X.shape, Y.shape, shap_values.shape)
 
     signs = Parallel(n_jobs=-1)(
-        delayed(c)(X.values, shap_values[y_col]) for y_col in range(n_tasks)
+        delayed(compute_corr_sign)(X.values, shap_values[y_col])
+        for y_col in range(n_tasks)
     )
 
     signs = np.array(signs).reshape((n_tasks, n_features), order="F")
