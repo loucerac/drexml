@@ -190,6 +190,7 @@ def run_cmd(ctx):
     # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
     print(" ".join(cmd))
     output = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    click.echo(output.stderr)
     click.echo(output.stdout)
 
 
