@@ -4,11 +4,11 @@ Utilities module.
 """
 
 import ctypes
+from importlib.metadata import version
 from pathlib import Path
 
 import joblib
 import pandas as pd
-import pkg_resources
 from shap.utils import assert_import
 from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
@@ -58,7 +58,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
 
 def get_version():
     """Get DREML version."""
-    return pkg_resources.get_distribution("dreml").version
+    return version("dreml")
 
 
 def get_out_path(disease):
