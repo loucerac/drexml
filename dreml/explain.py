@@ -75,7 +75,11 @@ def compute_shap_values(estimator, background, new, gpu, split=True):
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
-    shap_values = np.array(explainer.shap_values(new, check_additivity=check_add))
+    shap_values = [
+        np.array(explainer.shap_values(g, check_additivity=check_add))
+        for k, g in new.groupby(np.arange(len(new)) // 1000)
+    ]
+    shap_values = np.hstack(shap_values)
     return shap_values
 
 

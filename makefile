@@ -8,8 +8,4 @@ format:
 	poetry run black dreml tests
 	(cd docs && poetry run make html)
 test:
-	poetry run pytest
-dev:
-	poetry env use 3.8.13
-	python -m venv ./.venv
-	poetry install
+	poetry run tox
