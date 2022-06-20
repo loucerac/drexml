@@ -8,23 +8,25 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
-    """[summary]
+    """Create a model.
 
     Parameters
     ----------
-    n_iters : [type]
-        [description]
-    gpu : [type]
-        [description]
-    n_jobs : [type]
-        [description]
-    debug : [type]
-        [description]
+    n_features : int
+        Number of features (KDTs).
+    n_targets : int
+        Number of targets (circuits).
+    n_jobs : int
+        The number of jobs to run in parallel.
+    debug : bool
+        Debug flag.
+    n_iters : int, optional
+        Number of ietrations for hyperparatemer optimization, by default None
 
     Returns
     -------
-    [type]
-        [description]
+    sklearn.ensemble.RandomForestRegressor
+        The model to be fitted.
     """
     mtry = int(np.sqrt(n_features) + 20)
     if debug:

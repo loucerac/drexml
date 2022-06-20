@@ -8,5 +8,5 @@ To install the `dreml` package use the following:
 
 ```
 conda create -p ./.venv python=3.8
-pip install dreml
+conda run -p ./.cenv pip install dreml
 ```

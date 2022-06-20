@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-IO module for HORD multi-task framework.
+IO module for DREML.
 """
 import pathlib
 
@@ -47,22 +47,22 @@ def fetch_file(disease, key, version="latest", debug=False):
 
 
 def load_df(path):
-    """[summary]
+    """Load dataframe from file. At the moment: stv, tsv crompressed or feather.
 
     Parameters
     ----------
-    path : path-like
-        Data file path.
+    path : pathlib.Path
+        Path to file.
 
     Returns
     -------
-    pd.DataFrame
-        Project data
+    pandas.DataFrame
+        Dataframe.
 
     Raises
     ------
     NotImplementedError
-        Data for mat not implemented.
+        Not implemented yet.
     """
     try:
         # tsv, and compressed tsv
@@ -87,52 +87,39 @@ def load_df(path):
 
 
 def get_disease_data(disease, debug):
-    """[summary]
+    """Get data for a disease.
 
     Parameters
     ----------
-    disease : [type]
-        [description]
+    disease : pathlib.Path
+        Path to the disease configuration file.
 
     Returns
     -------
-    [type]
-        [description]
+    pandas.DataFrame
+        Gene expression data.
+    pandas.DataFrame
+        Circuit activation data (hipathia).
+    pandas.DataFrame
+        Circuit definition binary matrix.
+    pandas.DataFrame
+        KDT definition binary matrix.
     """
 
     # Load data
     experiment_env_path = pathlib.Path(disease)
     env = dotenv_values(experiment_env_path)
-    # experiment_folder = experiment_env_path.parent
-    # check the cache, download if different, return storage folder
-    # zenodo_path = fetch_data(debug=debug)
-    # data_path = pathlib.Path(os.getenv("data_path"))
-
     genes_column = env["genes_column"]
     circuits_column = env["circuits_column"]
 
-    # gene_exp_fname = os.getenv("gene_exp")
     gene_exp = fetch_file(disease, key="gene_exp", version="latest", debug=debug)
-
-    # gene_exp = load_df(data_path.joinpath(os.getenv("gene_exp")))
     gene_exp.columns = gene_exp.columns.str.replace("X", "")
 
-    # pathvals = load_df(data_path.joinpath(os.getenv("pathvals")))
     pathvals = fetch_file(disease, key="pathvals", version="latest", debug=debug)
     pathvals.columns = pathvals.columns.str.replace("-", ".").str.replace(" ", ".")
-
-    # if no data folder is provided, the circuits should be in the same folder as
-    # the env file.
-    # if data_path == zenodo_path:
-    #     circuits_path = experiment_folder.joinpath(os.getenv("circuits"))
-    # else:
-    #     circuits_path = data_path.joinpath(os.getenv("circuits"))
-
-    # circuits = load_df(circuits_path)
     circuits = fetch_file(disease, key="circuits", version="latest", debug=debug)
     circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
 
-    # genes = load_df(data_path.joinpath(os.getenv("genes")))
     genes = fetch_file(disease, key="genes", version="latest", debug=debug)
     genes.index = genes.index.astype(str)
 
