@@ -15,19 +15,19 @@ from dreml.pystab import nogueria_test
 
 
 def matcorr(O, P):
-    """[summary]
+    """Fast correlation matrix computation.
 
     Parameters
     ----------
-    O : [type]
-        [description]
-    P : [type]
-        [description]
+    O : ndarray
+        A matrix of observations.
+    P : ndarray
+        A matrix of predictions.
 
     Returns
     -------
-    [type]
-        [description]
+    ndarray
+        The cross-correlation matrix.
     """
     n = O.shape[0]
 
@@ -48,25 +48,25 @@ def matcorr(O, P):
 
 
 def compute_shap_values(estimator, background, new, gpu, split=True):
-    """[summary]
+    """SHAP values for a given dataset and model.
 
     Parameters
     ----------
-    estimator : [type]
-        [description]
-    background : [type]
-        [description]
-    new : [type]
-        [description]
-    gpu : [type]
-        [description]
+    estimator : sklearn.base.BaseEstimator
+        The model to explain the data.
+    background : pandas.DataFrame [n_samples_bg, n_features]
+        The background dataset.
+    new : pandas.DataFrame [n_samples_new, n_features]
+        The dataset to explain.
+    gpu : bool
+        Whether to use GPU or not.
     split : bool, optional
-        [description], by default True
+        Whether to split the dataset or not.
 
     Returns
     -------
-    [type]
-        [description]
+    ndarray [n_samples_new, n_features, n_tasks]
+        The SHAP values.
     """
     if gpu:
         check_add = True
@@ -84,39 +84,39 @@ def compute_shap_values(estimator, background, new, gpu, split=True):
 
 
 def compute_corr_sign(x, y):
-    """_summary_
+    """Coompute the correlation sign.
 
     Parameters
     ----------
-    x : _type_
-        _description_
-    y : _type_
-        _description_
+    x : ndarray [n_samples, n_features]
+        The feature dataset.
+    y : ndarray [n_samples, n_tasks]
+        The task dataset.
 
     Returns
     -------
-    _type_
-        _description_
+    ndarray [n_features, n_tasks]
+        SHAP feature-task (linear) interaction sign.
     """
     return np.sign(np.diag(matcorr(x, y)))
 
 
 def compute_shap_relevance(shap_values, X, Y):
-    """[summary]
+    """Convert the SHAP values to relevance scores.
 
     Parameters
     ----------
-    shap_values : [type]
-        [description]
-    X : [type]
-        [description]
-    Y : [type]
-        [description]
+    shap_values : ndarray [n_samples_new, n_features, n_tasks]
+        The SHAP values.
+    X : pandas.DataFrame [n_samples, n_features]
+        The feature dataset to explain.
+    Y : pandas.DataFrame [n_samples, n_tasks]
+        The task dataset to explain.
 
     Returns
     -------
-    [type]
-        [description]
+    pandas.DataFrame [n_features, n_tasks]
+        The task-wise feature relevance scores.
     """
     feature_names = X.columns
     task_names = Y.columns
@@ -147,21 +147,21 @@ def compute_shap_relevance(shap_values, X, Y):
 
 
 def build_stability_dict(z_mat, scores, alpha=0.05):
-    """[summary]
+    """Adapt NogueiraTest to old version of dreml (use dicts).
 
     Parameters
     ----------
-    z_mat : [type]
-        [description]
-    scores : [type]
-        [description]
+    z_mat : ndarray [n_model_samples, n_features]
+        The stability matrix.
+    scores : ndarray [n_model_samples]
+        The metric scores over the test sets.
     alpha : float, optional
-        [description], by default 0.05
+        Signficance level for Nogueira's test, by default 0.05
 
     Returns
     -------
-    [type]
-        [description]
+    dict
+        Dictionary with the Nogueira test results and test metric scores.
     """
 
     support_matrix = np.squeeze(z_mat)
@@ -180,27 +180,29 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
 
 
 def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
-    """[summary]
+    """Compute relevance KDT-signalization scores for a given model.
 
     Parameters
     ----------
-    model : [type]
-        [description]
-    X : [type]
-        [description]
-    Y : [type]
-        [description]
-    gpu : [type]
-        [description]
+    model : sklearn.base.BaseEstimator
+        The model to explain the data.
+    X : pandas.DataFrame [n_samples, n_features]
+        The dataset to explain.
+    Y : pandas.DataFrame [n_samples, n_tasks]
+        The dataset to explain.
+    gpu : bool
+        Whether to use GPU or not.
     test_size : float, optional
-        [description], by default 0.3
+        The proportion of the dataset to use for the test set.
     q : str, optional
-        [description], by default "r2"
+        The quality measure to use. Either "r2" or "mse".
 
     Returns
     -------
-    [type]
-        [description]
+    pandas.DataFrame [n_features, n_tasks]
+        The relevance scores.
+    pandas.DataFrame [n_features, n_tasks]
+        The features selected for each task.
     """
     X_learn, X_val, Y_learn, Y_val = train_test_split(
         X, Y, test_size=test_size, random_state=42
@@ -220,23 +222,25 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
 
 
 def get_quantile_by_circuit(model, X, Y, threshold=0.5):
-    """[summary]
+    """Get the selection quantile of the model by circuit (or globally). Select features
+    whose relevance score is above said quantile.
 
     Parameters
     ----------
-    model : [type]
-        [description]
-    X : [type]
-        [description]
-    Y : [type]
-        [description]
+    model : sklearn.base.BaseEstimator
+        Fited model.
+    X : pandas.DataFrame [n_samples, n_features]
+        The feature dataset to explain.
+    Y : pandas.DataFrame [n_samples, n_tasks]
+        The task dataset to explain.
     threshold : float, optional
-        [description], by default 0.5
+        Theshold to use to dicriminate ill-conditioned circuits when performing feature
+        selection, by default 0.5
 
     Returns
     -------
-    [type]
-        [description]
+    float
+        Qauntile to use.
     """
     r = r2_score(Y, model.predict(X), multioutput="raw_values")
     r[r < threshold] = threshold
@@ -247,22 +251,23 @@ def get_quantile_by_circuit(model, X, Y, threshold=0.5):
 
 
 def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=False):
-    """[summary]
+    """Compute the feature selection scores.
 
     Parameters
     ----------
-    relevances : [type]
-        [description]
-    model : [type], optional
-        [description], by default None
-    X : [type], optional
-        [description], by default None
-    Y : [type], optional
-        [description], by default None
-    q : str, optional
-        [description], by default "r2"
+    relevances : pandas.DataFrame [n_features, n_tasks]
+        The relevance scores.
+    model : sklearn.base.BaseEstimator, optional
+        The model to explain the data.
+    X : pandas.DataFrame [n_samples, n_features], optional
+        The feature dataset to explain, by default None.
+    Y : pandas.DataFrame [n_samples, n_tasks], optional
+        The task dataset to explain, by default None
+    q : float or str, optional
+        Either a metric string to discriminate fs tasks or predefined quantile, by
+        default "r2"
     by_circuit : bool, optional
-        [description], by default False
+        Feature selection by circuit or globally, by default False
 
     Returns
     -------

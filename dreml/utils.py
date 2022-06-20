@@ -18,6 +18,27 @@ from dreml.models import get_model
 
 
 def parse_stab(argv):
+    """Parse stab arguments.
+    Parameters
+    ----------
+    argv : list
+        List of arguments.
+
+    Returns
+    -------
+    path-like
+        Path to data folder.
+    int
+        Number of hyperparameter optimizations.
+    int
+        Number of GPUs.
+    int
+        Number of CPUs.
+    int
+        Number of splits.
+    bool
+        Debug flag.
+    """
     _, data_folder, n_iters, n_gpus, n_cpus, debug = argv
     n_iters = int(n_iters)
     data_folder = Path(data_folder)
@@ -31,7 +52,32 @@ def parse_stab(argv):
 
 
 def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
+    """Get stab data.
 
+    Parameters
+    ----------
+    data_folder : path-like
+        Path to data folder.
+    n_splits : int
+        Number of splits.
+    n_cpus : int
+        Number of CPUs.
+    debug : bool
+        Debug flag, by default False.
+    n_iters : int
+        Number of hyperparemeter optimization iterations.
+
+    Returns
+    -------
+    dreml.models.Model
+        Model.
+    list
+        List of splits.
+    panda.DataFrame
+        Gene expression data.
+    panda.DataFrame
+        Circuit activation data (hipathia).
+    """
     features_orig_fpath = data_folder.joinpath("features.jbl")
     features_orig = joblib.load(features_orig_fpath)
 
@@ -84,8 +130,29 @@ def get_out_path(disease):
     return out_path
 
 
-def get_data(disease, debug, scale=True):
-    """Load disease data and metadata."""
+def get_data(disease, debug, scale=False):
+    """Load disease data and metadata.
+
+    Parameters
+    ----------
+    disease : path-like
+        Path to disease config file.
+    debug : bool
+        _description_, by default False.
+    scale : bool, optional
+        _description_, by default False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Gene expression data.
+    pandas.DataFrame
+        Circuit activation data (hipathia).
+    pandas.DataFrame
+        Circuit definition binary matrix.
+    pandas.DataFrame
+        KDT definition binary matrix.
+    """
     gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
 
     if scale:
