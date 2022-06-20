@@ -264,7 +264,7 @@ def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=F
     Y : pandas.DataFrame [n_samples, n_tasks], optional
         The task dataset to explain, by default None
     q : float or str, optional
-        Either a metric string to discriminate fs tasks or predefined quantile, by 
+        Either a metric string to discriminate fs tasks or predefined quantile, by
         default "r2"
     by_circuit : bool, optional
         Feature selection by circuit or globally, by default False

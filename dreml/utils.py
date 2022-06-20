@@ -23,7 +23,7 @@ def parse_stab(argv):
     ----------
     argv : list
         List of arguments.
-    
+
     Returns
     -------
     path-like
