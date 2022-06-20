@@ -1,7 +1,12 @@
-dreml -  Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
-==============================================================================================
+dreml - Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+=============================================================================================
 
 (DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+
+.. figure:: ../fig/holird.png
+   :align: center
+
+   Holistic Drug REpurposing Model
 
 Installation
 =============
@@ -16,8 +21,6 @@ You can install dreml from PyPI using pip:
 
 Getting started
 ===============
-
-Here goes a cool image :)
 
 For more information, check the :ref:`api-reference`.
 
