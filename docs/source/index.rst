@@ -1,7 +1,8 @@
-dreml - Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+DREM³L Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
 =============================================================================================
 
-(DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+DREM³L or dreml is a Python package for finding links between Known Drug Targets (KDTs) 
+and signaling circuits.
 
 .. figure:: ../fig/holird.png
    :align: center
