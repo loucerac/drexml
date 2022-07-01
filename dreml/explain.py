@@ -3,6 +3,9 @@
 Explainability module for multi-task framework.
 """
 
+import os
+
+import joblib
 import numpy as np
 import pandas as pd
 import shap
@@ -47,7 +50,14 @@ def matcorr(O, P):
     return cov / np.sqrt(tmp)
 
 
-def compute_shap_values(estimator, background, new, gpu, split=True):
+def compute_shap_values_(x, explainer, check_add, gpu_id):
+    """Partial function to compute the shap values."""
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+
+    return np.array(explainer.shap_values(x, check_additivity=check_add))
+
+
+def compute_shap_values(estimator, background, new, gpu, n_devices=1):
     """SHAP values for a given dataset and model.
 
     Parameters
@@ -75,11 +85,17 @@ def compute_shap_values(estimator, background, new, gpu, split=True):
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
-    shap_values = [
-        np.array(explainer.shap_values(g, check_additivity=check_add))
-        for k, g in new.groupby(np.arange(len(new)) // 1000)
-    ]
-    shap_values = np.hstack(shap_values)
+    chunk_size = len(new) // n_devices + 1
+    new_gb = new.groupby(np.arange(len(new)) // chunk_size)
+    with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
+        shap_values = joblib.Parallel()(
+            joblib.delayed(compute_shap_values_)(
+                x=gb[1], explainer=explainer, check_add=check_add, gpu_id=i
+            )
+            for i, gb in enumerate(new_gb)
+        )
+    shap_values = np.concatenate(shap_values, axis=0)
+
     return shap_values
 
 
@@ -179,7 +195,7 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
     return res
 
 
-def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
+def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
     """Compute relevance KDT-signalization scores for a given model.
 
     Parameters
@@ -211,7 +227,7 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2"):
     model_ = clone(model)
     model_.fit(X_learn, Y_learn)
 
-    shap_values = compute_shap_values(model_, X_learn, X_val, gpu)
+    shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
     fs = compute_shap_fs(
         shap_relevances, model=model_, X=X_val, Y=Y_val, q=q, by_circuit=True
