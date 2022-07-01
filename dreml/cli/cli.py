@@ -109,7 +109,10 @@ def run_explainer(ctx):
     )
 
     # Compute shap relevances
-    shap_summary, fs_df = compute_shap(estimator, features_orig, targets_orig, use_gpu)
+    n_devices = int(ctx["n_gpus"] if use_gpu else ctx["n_cpus"])
+    shap_summary, fs_df = compute_shap(
+        estimator, features_orig, targets_orig, use_gpu, n_devices=n_devices
+    )
 
     # Save results
     shap_summary_fname = "shap_summary.tsv"
