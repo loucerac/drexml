@@ -20,7 +20,7 @@ if __name__ == "__main__":
     for i, split in enumerate(stab_cv):
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
             model_ = clone(model)
-            model_.random_state=i
+            model_.random_state = i
             model_.fit(X.iloc[split[0], :], Y.iloc[split[0], :])
             fname = f"model_{i}.jbl"
             fpath = data_path.joinpath(fname)

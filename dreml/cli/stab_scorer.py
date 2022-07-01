@@ -55,7 +55,7 @@ if __name__ == "__main__":
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
             estimator_filt = clone(estimator)
             # sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
-            estimator_filt.max_features=1.0
+            estimator_filt.max_features = 1.0
             estimator_filt.fit(features_train_filt, targets_train)
             targets_test_filt_preds = estimator_filt.predict(features_test_filt)
 
