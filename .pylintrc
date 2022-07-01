@@ -76,6 +76,7 @@ disable=
     unused-argument, # sklearn transform does not use "y"
     import-self,
     unsubscriptable-object,
+    too-many-ancestors,
     no-self-use
 
 # Enable the message, report, category or checker with the given id(s). You can
