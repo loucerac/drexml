@@ -284,3 +284,4 @@ out2.txt
 *.err
 *.out
 results_July2021_gpu
+scripts/automorf.ipynb
