@@ -50,9 +50,12 @@ def matcorr(O, P):
     return cov / np.sqrt(tmp)
 
 
-def compute_shap_values_(x, explainer, check_add, gpu_id):
+def compute_shap_values_(x, explainer, check_add, gpu_id, gpu, n_devices):
     """Partial function to compute the shap values."""
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+
+    if gpu and n_devices > 1:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+        print(gpu_id)
 
     return np.array(explainer.shap_values(x, check_additivity=check_add))
 
@@ -78,6 +81,8 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
     ndarray [n_samples_new, n_features, n_tasks]
         The SHAP values.
     """
+    if background.shape[0] > 1000:
+        background = shap.sample(background, nsamples=999, random_state=0)
     if gpu:
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
@@ -87,10 +92,15 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
 
     chunk_size = len(new) // n_devices + 1
     new_gb = new.groupby(np.arange(len(new)) // chunk_size)
-    with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
+    with joblib.parallel_backend("loky", n_jobs=n_devices):
         shap_values = joblib.Parallel()(
             joblib.delayed(compute_shap_values_)(
-                x=gb[1], explainer=explainer, check_add=check_add, gpu_id=i
+                x=gb[1],
+                explainer=explainer,
+                check_add=check_add,
+                gpu_id=i,
+                gpu=gpu,
+                n_devices=n_devices,
             )
             for i, gb in enumerate(new_gb)
         )
