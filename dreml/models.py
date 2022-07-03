@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 class AutoMORF(RandomForestRegressor):
     def __init__(
-        self, n_estimators_min=2, n_estimators_max=100, tol=1e-3, patience=50, **kwargs
+        self, n_estimators_min=50, n_estimators_max=1000, tol=1e-3, patience=50, **kwargs
     ):
         """Extension of RandomForestRegressor that automatically selects the number of
         trees using an early stopping criterion and warm starting. Note that we want to
@@ -28,7 +28,7 @@ class AutoMORF(RandomForestRegressor):
         """
         super().__init__(**kwargs)
         self.n_estimators_min = n_estimators_min
-        self.n_estimators_max = n_estimators_max
+        self.n_estimators_max = max([self.n_estimators, n_estimators_max])
         self.tol = tol
         self.patience = patience
 
@@ -73,13 +73,15 @@ class AutoMORF(RandomForestRegressor):
                 self.n_estimators = i
                 super().fit(X, y, sample_weight)
 
-                # basic early stopping after `patience` ietrations under tol
+                # basic early stopping after `patience` iterations under tol
                 error_rate.append(1 - self.score(X_val, y_val))
                 diffs.append(np.abs(error_rate[-1] - error_rate[-2]))
                 if diffs[-1] < self.tol:
                     n_ok += 1
-                    if n_ok > self.patience:
-                        break
+                else:
+                    n_ok = 0
+                if n_ok > self.patience:
+                    break
 
         self.warm_start = False
         return self
@@ -109,14 +111,21 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
     mtry = int(np.sqrt(n_features) + 20)
     if debug:
         n_estimators = 20
+        n_estimators_min = 10
+        n_estimators_max = 20
+        patience = 5
     else:
         n_estimators = int(1.5 * (n_features + n_targets))
+        n_estimators_min = 50
+        n_estimators_max = n_estimators
+        patience = 50
 
     model = AutoMORF(
         n_jobs=n_jobs,
         n_estimators=n_estimators,
-        n_estimators_min=10,
-        n_estimators_max=n_estimators,
+        n_estimators_min=n_estimators_min,
+        n_estimators_max=n_estimators_max,
+        patience=patience,
         max_depth=8,
         max_features=mtry,
     )
