@@ -57,7 +57,12 @@ def compute_shap_values_(x, explainer, check_add, gpu_id, gpu, n_devices):
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
         print(gpu_id)
 
-    return np.array(explainer.shap_values(x, check_additivity=check_add))
+    shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
+
+    if shap_values.ndim < 3:
+        shap_values = np.expand_dims(shap_values, axis=0)
+
+    return shap_values
 
 
 def compute_shap_values(estimator, background, new, gpu, n_devices=1):
@@ -81,8 +86,7 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
     ndarray [n_samples_new, n_features, n_tasks]
         The SHAP values.
     """
-    if background.shape[0] > 1000:
-        background = shap.sample(background, nsamples=999, random_state=0)
+
     if gpu:
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
@@ -104,7 +108,9 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
             )
             for i, gb in enumerate(new_gb)
         )
-    shap_values = np.concatenate(shap_values, axis=0)
+
+    # (n_tasks, n_samples, n_features)
+    shap_values = np.concatenate(shap_values, axis=1)
 
     return shap_values
 
@@ -149,10 +155,6 @@ def compute_shap_relevance(shap_values, X, Y):
 
     n_features = len(feature_names)
     n_tasks = len(task_names)
-
-    if shap_values.ndim < 3:
-        shap_values = np.expand_dims(shap_values, axis=0)
-    print(X.shape, Y.shape, shap_values.shape)
 
     signs = Parallel(n_jobs=-1)(
         delayed(compute_corr_sign)(X.values, shap_values[y_col])
