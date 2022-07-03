@@ -6,9 +6,15 @@ Model definition.
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 
+
 class AutoMORF(RandomForestRegressor):
     def __init__(
-        self, n_estimators_min=50, n_estimators_max=1000, tol=1e-3, patience=50, **kwargs
+        self,
+        n_estimators_min=50,
+        n_estimators_max=1000,
+        tol=1e-3,
+        patience=50,
+        **kwargs
     ):
         """Extension of RandomForestRegressor that automatically selects the number of
         trees using an early stopping criterion and warm starting. Note that we want to
@@ -27,7 +33,7 @@ class AutoMORF(RandomForestRegressor):
         """
         super().__init__(**kwargs)
         self.n_estimators_min = n_estimators_min
-        self.n_estimators_max = max([self.n_estimators, n_estimators_max])
+        self.n_estimators_max = n_estimators_max
         self.tol = tol
         self.patience = patience
 
