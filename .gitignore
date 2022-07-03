@@ -285,3 +285,4 @@ out2.txt
 *.out
 results_July2021_gpu
 scripts/automorf.ipynb
+debug.ipynb
