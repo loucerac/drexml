@@ -6,7 +6,6 @@ Model definition.
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 
-
 class AutoMORF(RandomForestRegressor):
     def __init__(
         self, n_estimators_min=50, n_estimators_max=1000, tol=1e-3, patience=50, **kwargs
@@ -62,16 +61,16 @@ class AutoMORF(RandomForestRegressor):
         self : object
             Fitted estimator.
         """
-        if X_val is None:
-            super().fit(X, y, sample_weight)
-        else:
-            self.warm_start = True
+        super().fit(X, y, sample_weight)
+
+        if X_val is not None:
+            estimators = self.estimators_
             error_rate = [0]
             diffs = [0]
             n_ok = 0
             for i in range(self.n_estimators_min, self.n_estimators_max):
                 self.n_estimators = i
-                super().fit(X, y, sample_weight)
+                self.estimators_ = estimators[0:i]
 
                 # basic early stopping after `patience` iterations under tol
                 error_rate.append(1 - self.score(X_val, y_val))
