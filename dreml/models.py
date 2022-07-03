@@ -81,6 +81,7 @@ class AutoMORF(RandomForestRegressor):
                     if n_ok > self.patience:
                         break
 
+        self.warm_start = False
         return self
 
 
