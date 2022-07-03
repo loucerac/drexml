@@ -237,7 +237,7 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
     )
 
     model_ = clone(model)
-    model_.fit(X_learn, Y_learn)
+    model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_val)
 
     shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
