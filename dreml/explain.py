@@ -86,7 +86,6 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
     ndarray [n_samples_new, n_features, n_tasks]
         The SHAP values.
     """
-
     if gpu:
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
@@ -94,23 +93,33 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
-    chunk_size = len(new) // n_devices + 1
-    new_gb = new.groupby(np.arange(len(new)) // chunk_size)
-    with joblib.parallel_backend("loky", n_jobs=n_devices):
-        shap_values = joblib.Parallel()(
-            joblib.delayed(compute_shap_values_)(
-                x=gb[1],
+    if (n_devices > 1) or (n_devices < -1):
+        chunk_size = len(new) // n_devices + 1
+        new_gb = new.groupby(np.arange(len(new)) // chunk_size)
+        with joblib.parallel_backend("loky", n_jobs=n_devices):
+            shap_values = joblib.Parallel()(
+                joblib.delayed(compute_shap_values_)(
+                    x=gb[1],
+                    explainer=explainer,
+                    check_add=check_add,
+                    gpu_id=i,
+                    gpu=gpu,
+                    n_devices=n_devices,
+                )
+                for i, gb in enumerate(new_gb)
+            )
+
+        # (n_tasks, n_samples, n_features)
+        shap_values = np.concatenate(shap_values, axis=1)
+    else:
+        shap_values = compute_shap_values_(
+                x=new,
                 explainer=explainer,
                 check_add=check_add,
-                gpu_id=i,
+                gpu_id=-1,
                 gpu=gpu,
                 n_devices=n_devices,
             )
-            for i, gb in enumerate(new_gb)
-        )
-
-    # (n_tasks, n_samples, n_features)
-    shap_values = np.concatenate(shap_values, axis=1)
 
     return shap_values
 
