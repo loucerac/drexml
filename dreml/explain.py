@@ -112,14 +112,10 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         # (n_tasks, n_samples, n_features)
         shap_values = np.concatenate(shap_values, axis=1)
     else:
-        shap_values = compute_shap_values_(
-                x=new,
-                explainer=explainer,
-                check_add=check_add,
-                gpu_id=-1,
-                gpu=gpu,
-                n_devices=n_devices,
-            )
+        shap_values = np.array(explainer.shap_values(new, check_additivity=check_add))
+
+        if shap_values.ndim < 3:
+            shap_values = np.expand_dims(shap_values, axis=0)
 
     return shap_values
 
