@@ -25,13 +25,7 @@ if __name__ == "__main__":
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
 
-    if n_gpus > 1:
-        cluster = LocalCUDACluster(n_workers=n_gpus)
-        client = Client(cluster)
-        parallel_backend = "dask"
-    else:
-        parallel_backend = "multiprocessing"
-
+ 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
     gpu = n_gpus > 0
     print(gpu, n_gpus, n_devices)
@@ -74,36 +68,13 @@ if __name__ == "__main__":
         #     n_devices=n_devices
         # )
 
-        if gpu:
-            check_add = True
-            explainer = shap.GPUTreeExplainer(this_model, features_learn)
-        else:
-            check_add = False
-            explainer = shap.TreeExplainer(this_model, features_learn)
-
-        chunk_size = len(features_val) // n_devices + 1
-        new_gb = features_val.groupby(np.arange(len(features_val)) // chunk_size)
-
-        if gpu:
-            backend = joblib.parallel_backend(parallel_backend)
-        else:
-            backend = joblib.parallel_backend(parallel_backend, n_jobs=n_devices)
-        with backend:
-            shap_values = joblib.Parallel()(
-                joblib.delayed(explainer.shap_values)(
-                    gb[1],
-                    check_additivity=check_add,
-                )
-                for i, gb in enumerate(new_gb)
-            )
-
-        # (n_tasks, n_samples, n_features)
-        shap_values = [np.array(x) for x in shap_values]
-        shap_values = [
-            np.expand_dims(shap_values, axis=0) if x.ndim < 3 else x
-            for x in shap_values
-        ]
-        shap_values = np.concatenate(shap_values, axis=1)
+        shap_values = compute_shap_values(
+            estimator=this_model,
+            background=features_learn,
+            new=features_val,
+            gpu=gpu,
+            n_devices=n_devices
+        )
 
         shap_relevances = compute_shap_relevance(shap_values, features_val, targets_val)
         filt_i = compute_shap_fs(

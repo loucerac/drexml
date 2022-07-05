@@ -59,12 +59,12 @@ def compute_shap_values_(x, explainer, check_add, gpu_id, gpu, n_devices):
     #     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     #     print(gpu_id)
 
-    # shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
+    shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
-    # if shap_values.ndim < 3:
-    #     shap_values = np.expand_dims(shap_values, axis=0)
+    if shap_values.ndim < 3:
+        shap_values = np.expand_dims(shap_values, axis=0)
 
-    return explainer.shap_values(x, check_additivity=check_add)
+    return shap_values
 
 
 def compute_shap_values(estimator, background, new, gpu, n_devices=1):
@@ -118,14 +118,7 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
             )
 
         # shape: (n_tasks, n_samples, n_features)
-        shap_values = [np.array(x) for x in shap_values]
-        shap_values = [np.expand_dims(shap_values, axis=0) if x.ndim < 3 else x for x in shap_values]
         shap_values = np.concatenate(shap_values, axis=1)
-    else:
-        shap_values = np.array(explainer.shap_values(new, check_additivity=check_add))
-
-        if shap_values.ndim < 3:
-            shap_values = np.expand_dims(shap_values, axis=0)
 
     return shap_values
 
