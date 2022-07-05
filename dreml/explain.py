@@ -89,6 +89,7 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         The SHAP values.
     """
     if gpu:
+        print(estimator.n_estimators, background.shape, new.shape, gpu, n_devices)
         cluster = LocalCUDACluster(n_workers=n_devices)
         client = Client(cluster)
         n_jobs = None
@@ -121,7 +122,8 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         shap_values = np.concatenate(shap_values, axis=1)
 
         if gpu:
-            client.shutdown()
+            cluster.close()
+            client.close()
 
     return shap_values
 
