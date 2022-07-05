@@ -3,20 +3,19 @@
 Explainability module for multi-task framework.
 """
 
-import os
 
 import joblib
 import numpy as np
 import pandas as pd
 import shap
+from dask.distributed import Client
+from dask_cuda import LocalCUDACluster
 from joblib import Parallel, delayed
 from sklearn.base import clone
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
 from dreml.pystab import nogueria_test
-from dask_cuda import LocalCUDACluster
-from dask.distributed import Client, LocalCluster
 
 
 def matcorr(O, P):

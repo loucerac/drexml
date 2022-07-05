@@ -4,28 +4,17 @@
 Entry CLI point for stab.
 """
 
-import os
 
 import joblib
-from sklearn.ensemble import RandomForestRegressor
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
 from dreml.utils import parse_stab
-
-import shap
-import numpy as np
-from dreml.models import get_model
-from dreml.explain import compute_shap_values_
-from dask_cuda import LocalCUDACluster
-from dask.distributed import Client, LocalCluster
-import multiprocessing
 
 if __name__ == "__main__":
     import sys
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
 
- 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
     gpu = n_gpus > 0
     print(gpu, n_gpus, n_devices)
@@ -73,7 +62,7 @@ if __name__ == "__main__":
             background=features_learn,
             new=features_val,
             gpu=gpu,
-            n_devices=n_devices
+            n_devices=n_devices,
         )
 
         shap_relevances = compute_shap_relevance(shap_values, features_val, targets_val)

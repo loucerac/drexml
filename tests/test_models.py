@@ -4,10 +4,10 @@ Unit testing for datasets module.
 """
 import numpy as np
 import pytest
-from sklearn.ensemble import RandomForestRegressor
+from shap.utils import safe_isinstance
 
 from dreml.models import get_model
-from shap.utils import safe_isinstance
+
 
 @pytest.mark.parametrize("debug", [True, False])
 def test_model_hp(debug):
