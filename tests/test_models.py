@@ -22,4 +22,4 @@ def test_model_hp(debug):
 
     model = get_model(n_features, n_targets, n_jobs, debug)
 
-    assert safe_isinstance(model,"sklearn.ensemble.RandomForestRegressor")
+    assert safe_isinstance(model, "sklearn.ensemble.RandomForestRegressor")
