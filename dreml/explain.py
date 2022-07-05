@@ -15,6 +15,8 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
 from dreml.pystab import nogueria_test
+from dask_cuda import LocalCUDACluster
+from dask.distributed import Client, LocalCluster
 
 
 def matcorr(O, P):
@@ -53,16 +55,16 @@ def matcorr(O, P):
 def compute_shap_values_(x, explainer, check_add, gpu_id, gpu, n_devices):
     """Partial function to compute the shap values."""
 
-    if gpu and n_devices > 1:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-        print(gpu_id)
+    # if gpu and n_devices > 1:
+    #     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    #     print(gpu_id)
 
-    shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
+    # shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
-    if shap_values.ndim < 3:
-        shap_values = np.expand_dims(shap_values, axis=0)
+    # if shap_values.ndim < 3:
+    #     shap_values = np.expand_dims(shap_values, axis=0)
 
-    return shap_values
+    return explainer.shap_values(x, check_additivity=check_add)
 
 
 def compute_shap_values(estimator, background, new, gpu, n_devices=1):
@@ -87,16 +89,22 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         The SHAP values.
     """
     if gpu:
+        cluster = LocalCUDACluster(n_workers=n_devices)
+        client = Client(cluster)
+        n_jobs = None
+        parallel_backend = "dask"
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
     else:
+        n_jobs = n_devices
+        parallel_backend = "multiprocessing"
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
     if (n_devices > 1) or (n_devices < -1):
         chunk_size = len(new) // n_devices + 1
         new_gb = new.groupby(np.arange(len(new)) // chunk_size)
-        with joblib.parallel_backend("loky", n_jobs=n_devices):
+        with joblib.parallel_backend(parallel_backend, n_jobs=n_jobs):
             shap_values = joblib.Parallel()(
                 joblib.delayed(compute_shap_values_)(
                     x=gb[1],
@@ -109,7 +117,9 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
                 for i, gb in enumerate(new_gb)
             )
 
-        # (n_tasks, n_samples, n_features)
+        # shape: (n_tasks, n_samples, n_features)
+        shap_values = [np.array(x) for x in shap_values]
+        shap_values = [np.expand_dims(shap_values, axis=0) if x.ndim < 3 else x for x in shap_values]
         shap_values = np.concatenate(shap_values, axis=1)
     else:
         shap_values = np.array(explainer.shap_values(new, check_additivity=check_add))
@@ -242,7 +252,7 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
     )
 
     model_ = clone(model)
-    model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_val)
+    model_.fit(X_learn, Y_learn)
 
     shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)

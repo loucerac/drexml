@@ -23,9 +23,7 @@ if __name__ == "__main__":
             model_.random_state = i
             model_.fit(
                 X.iloc[split[0], :],
-                Y.iloc[split[0], :],
-                X_val=X.iloc[split[1], :],
-                y_val=Y.iloc[split[1], :],
+                Y.iloc[split[0], :]
             )
             fname = f"model_{i}.jbl"
             fpath = data_path.joinpath(fname)

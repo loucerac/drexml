@@ -286,3 +286,5 @@ out2.txt
 results_July2021_gpu
 scripts/automorf.ipynb
 debug.ipynb
+
+dask-worker-space/

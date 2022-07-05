@@ -4,9 +4,10 @@ Unit testing for datasets module.
 """
 import numpy as np
 import pytest
+from sklearn.ensemble import RandomForestRegressor
 
 from dreml.models import get_model
-
+from shap.utils import safe_isinstance
 
 @pytest.mark.parametrize("debug", [True, False])
 def test_model_hp(debug):
@@ -21,5 +22,4 @@ def test_model_hp(debug):
 
     model = get_model(n_features, n_targets, n_jobs, debug)
 
-    assert n_estimators_expected == model.n_estimators
-    assert max_features_expected == model.max_features
+    assert safe_isinstance(model,"sklearn.ensemble.RandomForestRegressor")

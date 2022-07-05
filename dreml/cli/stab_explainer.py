@@ -4,88 +4,121 @@
 Entry CLI point for stab.
 """
 
-import multiprocessing
 import os
 
 import joblib
+from sklearn.ensemble import RandomForestRegressor
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
 from dreml.utils import parse_stab
 
+import shap
+import numpy as np
+from dreml.models import get_model
+from dreml.explain import compute_shap_values_
+from dask_cuda import LocalCUDACluster
+from dask.distributed import Client, LocalCluster
+import multiprocessing
+
 if __name__ == "__main__":
     import sys
 
-    # client = Client('127.0.0.1:8786')
-    # pylint: disable=unbalanced-tuple-unpacking
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
 
-    queue = multiprocessing.Queue()
+    if n_gpus > 1:
+        cluster = LocalCUDACluster(n_workers=n_gpus)
+        client = Client(cluster)
+        parallel_backend = "dask"
+    else:
+        parallel_backend = "multiprocessing"
 
-    def runner(data_path, gpu_flag, split_id):
-        """Run instance."""
-        gpu_id = queue.get()
-        filt_i = None
-        try:
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-            print("device", os.environ["CUDA_VISIBLE_DEVICES"])
-
-            cv_fname = "cv.jbl"
-            cv_fpath = data_path.joinpath(cv_fname)
-            cv_gen = joblib.load(cv_fpath)
-            sample_ids = cv_gen[split_id]
-
-            features_fpath = data_path.joinpath("features.jbl")
-            features = joblib.load(features_fpath)
-
-            targets_fpath = data_path.joinpath("target.jbl")
-            targets = joblib.load(targets_fpath)
-
-            features_learn = features.iloc[sample_ids[0], :]
-
-            features_val = features.iloc[sample_ids[1], :]
-            targets_val = targets.iloc[sample_ids[1], :]
-
-            model_fname = f"model_{split_id}.jbl"
-            model_fpath = data_path.joinpath(model_fname)
-            this_model = joblib.load(model_fpath)
-
-            shap_values = compute_shap_values(
-                this_model, features_learn, features_val, gpu_flag
-            )
-            shap_relevances = compute_shap_relevance(
-                shap_values, features_val, targets_val
-            )
-            filt_i = compute_shap_fs(
-                shap_relevances,
-                model=this_model,
-                X=features_val,
-                Y=targets_val,
-                q="r2",
-                by_circuit=True,
-            )
-
-            model_fname = f"filt_{split_id}.jbl"
-            model_fpath = data_path.joinpath(model_fname)
-            joblib.dump(filt_i, model_fpath)
-            print(gpu_id, filt_i.sum(axis=1).value_counts())
-
-        finally:
-            queue.put(gpu_id)
-
-        return filt_i
-
-    # Put indices in queue
     n_devices = n_gpus if n_gpus > 0 else n_cpus
-    for gpu_ids in range(n_devices):
-        queue.put(gpu_ids)
+    gpu = n_gpus > 0
+    print(gpu, n_gpus, n_devices)
+    fs_lst = []
+    data_path = data_folder
 
-    with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
-        fs_lst = joblib.Parallel()(
-            joblib.delayed(runner)(
-                data_path=data_folder,
-                gpu_flag=n_gpus > 0,
-                split_id=i_split,
+    cv_fname = "cv.jbl"
+    cv_fpath = data_path.joinpath(cv_fname)
+    cv_gen = joblib.load(cv_fpath)
+
+    features_fpath = data_path.joinpath("features.jbl")
+    features = joblib.load(features_fpath)
+
+    targets_fpath = data_path.joinpath("target.jbl")
+    targets = joblib.load(targets_fpath)
+
+    for i_split in range(n_splits):
+        print(n_splits, i_split)
+        sample_ids = cv_gen[i_split]
+
+        # gpu_id = queue.get()
+        filt_i = None
+        # os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+        # print("device", os.environ["CUDA_VISIBLE_DEVICES"])
+        features_learn = features.iloc[sample_ids[0], :].copy()
+        y_learn = targets.iloc[sample_ids[0], :].copy()
+
+        features_val = features.iloc[sample_ids[1], :].copy()
+        targets_val = targets.iloc[sample_ids[1], :].copy()
+
+        model_fname = f"model_{i_split}.jbl"
+        model_fpath = data_path.joinpath(model_fname)
+        this_model = joblib.load(model_fpath)
+
+        # shap_values = compute_shap_values(
+        #     estimator=this_model,
+        #     background=features_learn,
+        #     new=features_val,
+        #     gpu=n_devices>1,
+        #     n_devices=n_devices
+        # )
+
+        if gpu:
+            check_add = True
+            explainer = shap.GPUTreeExplainer(this_model, features_learn)
+        else:
+            check_add = False
+            explainer = shap.TreeExplainer(this_model, features_learn)
+
+        chunk_size = len(features_val) // n_devices + 1
+        new_gb = features_val.groupby(np.arange(len(features_val)) // chunk_size)
+
+        if gpu:
+            backend = joblib.parallel_backend(parallel_backend)
+        else:
+            backend = joblib.parallel_backend(parallel_backend, n_jobs=n_devices)
+        with backend:
+            shap_values = joblib.Parallel()(
+                joblib.delayed(explainer.shap_values)(
+                    gb[1],
+                    check_additivity=check_add,
+                )
+                for i, gb in enumerate(new_gb)
             )
-            for i_split in range(n_splits)
+
+        # (n_tasks, n_samples, n_features)
+        shap_values = [np.array(x) for x in shap_values]
+        shap_values = [
+            np.expand_dims(shap_values, axis=0) if x.ndim < 3 else x
+            for x in shap_values
+        ]
+        shap_values = np.concatenate(shap_values, axis=1)
+
+        shap_relevances = compute_shap_relevance(shap_values, features_val, targets_val)
+        filt_i = compute_shap_fs(
+            shap_relevances,
+            model=this_model,
+            X=features_val,
+            Y=targets_val,
+            q="r2",
+            by_circuit=True,
         )
+
+        fs_fname = f"filt_{i_split}.jbl"
+        fs_fpath = data_path.joinpath(fs_fname)
+
+        joblib.dump(filt_i, fs_fpath)
+        fs_lst.append(filt_i)
+
     joblib.dump(fs_lst, data_folder.joinpath("fs.jbl"))
