@@ -120,6 +120,9 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         # shape: (n_tasks, n_samples, n_features)
         shap_values = np.concatenate(shap_values, axis=1)
 
+        if gpu:
+            client.shutdown()
+
     return shap_values
 
 
