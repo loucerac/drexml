@@ -135,6 +135,6 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
         max_features=mtry,
     )
 
-    model = RandomForestRegressor(n_jobs=n_jobs, n_estimators=200, max_depth=8)
+    model = RandomForestRegressor(n_jobs=n_jobs, n_estimators=n_estimators, max_depth=8, max_features=mtry)
 
     return model
