@@ -4,6 +4,7 @@
 Entry CLI point for stab.
 """
 
+from attr import has
 import joblib
 from sklearn.base import clone
 
@@ -18,10 +19,17 @@ if __name__ == "__main__":
     model, stab_cv, X, Y = get_stab(data_path, n_splits, n_cpus, debug, n_iters)
 
     for i, split in enumerate(stab_cv):
+        X_learn = X.iloc[split[0], :]
+        X_val = X.iloc[split[1], :]
+        y_learn = Y.iloc[split[0], :]
+        y_val = Y.iloc[split[1], :]
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
             model_ = clone(model)
             model_.random_state = i
-            model_.fit(X.iloc[split[0], :], Y.iloc[split[0], :])
+            if hasattr(model_, "n_estimators_min"):
+                model_.fit(X_learn, y_learn, X_val=X_val, y_val=y_val)
+            else:
+                model_.fit(X_learn, y_learn)
             fname = f"model_{i}.jbl"
             fpath = data_path.joinpath(fname)
             joblib.dump(model_, fpath)
