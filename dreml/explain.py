@@ -243,11 +243,10 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
 
     model_ = clone(model)
     if hasattr(model_, "n_estimators_min"):
-        model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_Val)
+        model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_val)
     else:
         model_.fit(X_learn, Y_learn)
     
-
     shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
     fs = compute_shap_fs(

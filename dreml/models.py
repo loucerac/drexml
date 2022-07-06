@@ -121,9 +121,9 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
         patience = 5
     else:
         n_estimators = 201
-        n_estimators_min = 50
+        n_estimators_min = 100
         n_estimators_max = n_estimators
-        patience = 50
+        patience = 100
 
     model = AutoMORF(
         n_jobs=n_jobs,
