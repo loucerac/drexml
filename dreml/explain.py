@@ -4,12 +4,13 @@ Explainability module for multi-task framework.
 """
 
 
+import multiprocessing
+import os
+
 import joblib
 import numpy as np
 import pandas as pd
 import shap
-from dask.distributed import Client
-from dask_cuda import LocalCUDACluster
 from joblib import Parallel, delayed
 from sklearn.base import clone
 from sklearn.metrics import r2_score
@@ -51,12 +52,14 @@ def matcorr(O, P):
     return cov / np.sqrt(tmp)
 
 
-def compute_shap_values_(x, explainer, check_add, gpu_id, gpu, n_devices):
+def compute_shap_values_(x, explainer, check_add, gpu_id, gpu):
     """Partial function to compute the shap values."""
 
-    # if gpu and n_devices > 1:
-    #     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-    #     print(gpu_id)
+    print(gpu_id)
+
+    if gpu:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+        print(gpu_id)
 
     shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
@@ -87,42 +90,37 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
     ndarray [n_samples_new, n_features, n_tasks]
         The SHAP values.
     """
+    queue = multiprocessing.Queue()
     if gpu:
         print(estimator.n_estimators, background.shape, new.shape, gpu, n_devices)
-        cluster = LocalCUDACluster(n_workers=n_devices)
-        client = Client(cluster)
-        n_jobs = None
-        parallel_backend = "dask"
+        parallel_backend = "multiprocessing"
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
     else:
-        n_jobs = n_devices
         parallel_backend = "multiprocessing"
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
 
-    if (n_devices > 1) or (n_devices < -1):
-        chunk_size = len(new) // n_devices + 1
-        new_gb = new.groupby(np.arange(len(new)) // chunk_size)
-        with joblib.parallel_backend(parallel_backend, n_jobs=n_jobs):
-            shap_values = joblib.Parallel()(
-                joblib.delayed(compute_shap_values_)(
-                    x=gb[1],
-                    explainer=explainer,
-                    check_add=check_add,
-                    gpu_id=i,
-                    gpu=gpu,
-                    n_devices=n_devices,
-                )
-                for i, gb in enumerate(new_gb)
+    chunk_size = len(new) // n_devices + 1
+    new_gb = new.groupby(np.arange(len(new)) // chunk_size)
+
+    for gpu_ids in range(n_devices):
+        queue.put(gpu_ids)
+
+    with joblib.parallel_backend(parallel_backend, n_jobs=n_devices):
+        shap_values = joblib.Parallel()(
+            joblib.delayed(compute_shap_values_)(
+                x=gb[1],
+                explainer=explainer,
+                check_add=check_add,
+                gpu_id=queue.get(),
+                gpu=gpu,
             )
+            for i, gb in enumerate(new_gb)
+        )
 
-        # shape: (n_tasks, n_samples, n_features)
-        shap_values = np.concatenate(shap_values, axis=1)
-
-        if gpu:
-            cluster.close()
-            client.close()
+    # shape: (n_tasks, n_samples, n_features)
+    shap_values = np.concatenate(shap_values, axis=1)
 
     return shap_values
 
