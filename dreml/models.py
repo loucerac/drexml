@@ -5,7 +5,7 @@ Model definition.
 
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-
+import copy
 
 class AutoMORF(RandomForestRegressor):
     def __init__(
@@ -14,7 +14,24 @@ class AutoMORF(RandomForestRegressor):
         n_estimators_max=1000,
         tol=1e-3,
         patience=50,
-        **kwargs
+        n_estimators=100,
+        *,
+        criterion="squared_error",
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        min_weight_fraction_leaf=0.0,
+        max_features=1.0,
+        max_leaf_nodes=None,
+        min_impurity_decrease=0.0,
+        bootstrap=True,
+        oob_score=False,
+        n_jobs=None,
+        random_state=None,
+        verbose=0,
+        warm_start=False,
+        ccp_alpha=0.0,
+        max_samples=None,
     ):
         """Extension of RandomForestRegressor that automatically selects the number of
         trees using an early stopping criterion and warm starting. Note that we want to
@@ -31,7 +48,25 @@ class AutoMORF(RandomForestRegressor):
         patience : int, optional
             _description_, by default 50
         """
-        super().__init__(**kwargs)
+        super().__init__(       
+        n_estimators=100,
+        criterion="squared_error",
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        min_weight_fraction_leaf=0.0,
+        max_features=1.0,
+        max_leaf_nodes=None,
+        min_impurity_decrease=0.0,
+        bootstrap=True,
+        oob_score=False,
+        n_jobs=None,
+        random_state=None,
+        verbose=0,
+        warm_start=False,
+        ccp_alpha=0.0,
+        max_samples=None,)
+
         self.n_estimators_min = n_estimators_min
         self.n_estimators_max = n_estimators_max
         self.tol = tol
@@ -69,14 +104,14 @@ class AutoMORF(RandomForestRegressor):
         """
         super().fit(X, y, sample_weight)
 
-        if X_val is not None:
-            estimators = self.estimators_
+        if X_val.shape[1] > 1e6:
+            estimators = copy.deepcopy(self.estimators_)
             error_rate = [0]
             diffs = [0]
             n_ok = 0
             for i in range(self.n_estimators_min, self.n_estimators_max):
                 self.n_estimators = i
-                self.estimators_ = estimators[0:i]
+                self.estimators_ = copy.deepcopy(estimators[0:i])
 
                 # basic early stopping after `patience` iterations under tol
                 error_rate.append(1 - self.score(X_val, y_val))
@@ -87,8 +122,10 @@ class AutoMORF(RandomForestRegressor):
                     n_ok = 0
                 if n_ok > self.patience:
                     break
-
+        
+        # self.n_estimators = len(self.estimators_)
         self.warm_start = False
+        print(len(self.estimators_), self.n_estimators)
         return self
 
 
@@ -135,8 +172,8 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
         max_features=mtry,
     )
 
-    # model = RandomForestRegressor(
-    #     n_jobs=n_jobs, n_estimators=n_estimators, max_depth=8, max_features=mtry
-    # )
+    model = RandomForestRegressor(
+        n_jobs=n_jobs, n_estimators=n_estimators, max_depth=8, max_features=mtry
+    )
 
     return model

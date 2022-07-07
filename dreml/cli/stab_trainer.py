@@ -4,7 +4,6 @@
 Entry CLI point for stab.
 """
 
-from attr import has
 import joblib
 from sklearn.base import clone
 

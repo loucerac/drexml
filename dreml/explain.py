@@ -3,20 +3,18 @@
 Explainability module for multi-task framework.
 """
 
-from attr import has
 import joblib
 import numpy as np
 import pandas as pd
 import shap
+from dask.distributed import Client
+from dask_cuda import LocalCUDACluster
 from joblib import Parallel, delayed
 from sklearn.base import clone
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
 from dreml.pystab import nogueria_test
-
-from dask.distributed import Client
-from dask_cuda import LocalCUDACluster
 
 
 def matcorr(O, P):
@@ -89,11 +87,11 @@ def compute_shap_values(estimator, background, new, gpu, n_devices=1):
         cluster = LocalCUDACluster(n_workers=n_devices)
         client = Client(cluster)
         parallel_backend = "dask"
-        n_jobs=None
+        n_jobs = None
         check_add = True
         explainer = shap.GPUTreeExplainer(estimator, background)
     else:
-        n_jobs=n_devices
+        n_jobs = n_devices
         parallel_backend = "multiprocessing"
         check_add = False
         explainer = shap.TreeExplainer(estimator, background)
@@ -246,7 +244,7 @@ def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
         model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_val)
     else:
         model_.fit(X_learn, Y_learn)
-    
+
     shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
     shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
     fs = compute_shap_fs(

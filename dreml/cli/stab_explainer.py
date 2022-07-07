@@ -8,6 +8,7 @@ Entry CLI point for stab.
 import joblib
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
+from dreml.models import AutoMORF
 from dreml.utils import parse_stab
 
 if __name__ == "__main__":
@@ -48,6 +49,8 @@ if __name__ == "__main__":
         model_fname = f"model_{i_split}.jbl"
         model_fpath = data_path.joinpath(model_fname)
         this_model = joblib.load(model_fpath)
+        if isinstance(this_model, AutoMORF):
+            pass
 
         # shap_values = compute_shap_values(
         #     estimator=this_model,
