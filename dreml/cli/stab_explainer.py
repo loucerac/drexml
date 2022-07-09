@@ -13,9 +13,8 @@ import shap
 from sklearn.model_selection import train_test_split
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
-from dreml.utils import parse_stab
 from dreml.models import get_model
-
+from dreml.utils import parse_stab
 
 if __name__ == "__main__":
     import sys
@@ -68,17 +67,17 @@ if __name__ == "__main__":
         features_val = features.iloc[val_ids, :].copy()
         targets_val = targets.iloc[val_ids, :].copy()
 
-
         if n_splits == 1:
             print(f"fit final model {i_split=} {n_splits=}")
-            this_model = get_model(features.shape[1], targets.shape[1], n_cpus, debug, n_iters)
+            this_model = get_model(
+                features.shape[1], targets.shape[1], n_cpus, debug, n_iters
+            )
             this_model.set_params(n_jobs=n_cpus)
             this_model.fit(features_learn, targets_learn)
         else:
             model_fname = f"model_{i_split}.jbl"
             model_fpath = data_path.joinpath(model_fname)
             this_model = joblib.load(model_fpath)
-
 
         chunk_size = len(features_val) // (n_devices) + 1
 
@@ -96,7 +95,6 @@ if __name__ == "__main__":
 
             return values
 
-        
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
@@ -106,7 +104,7 @@ if __name__ == "__main__":
                     bkg=features_learn,
                     new=gb,
                     check_add=True,
-                    use_gpu=gpu
+                    use_gpu=gpu,
                 )
                 for _, gb in features_val.groupby(
                     np.arange(len(features_val)) // chunk_size
