@@ -39,14 +39,17 @@ def parse_stab(argv):
     bool
         Debug flag.
     """
-    _, data_folder, n_iters, n_gpus, n_cpus, debug = argv
+    _, data_folder, n_iters, n_gpus, n_cpus, debug, mode = argv
     n_iters = int(n_iters)
     data_folder = Path(data_folder)
     n_gpus = int(n_gpus)
     n_cpus = int(n_cpus)
     debug = bool(int(debug))
 
-    n_splits = 5 if debug else 100
+    if mode == "final":
+        n_splits = 1
+    else:
+        n_splits = 3 if debug else 100
 
     return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug
 

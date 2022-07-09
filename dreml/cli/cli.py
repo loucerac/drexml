@@ -18,14 +18,13 @@ import sys
 import click
 import joblib
 
-from dreml.explain import compute_shap
-from dreml.models import get_model
 from dreml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
     "score": "stab_scorer.py",
+    "final": "stab_explainer.py",
 }
 
 STEPS = {
@@ -90,43 +89,6 @@ def copy_files(ctx, fnames):
         )
 
 
-def run_explainer(ctx):
-    """Run explainer."""
-
-    use_gpu = ctx["n_gpus"] > 0
-
-    features_orig_fpath = ctx["data_folder"].joinpath("features.jbl")
-    features_orig = joblib.load(features_orig_fpath)
-
-    targets_orig_fpath = ctx["data_folder"].joinpath("target.jbl")
-    targets_orig = joblib.load(targets_orig_fpath)
-
-    n_features = features_orig.shape[1]
-    n_targets = targets_orig.shape[1]
-
-    estimator = get_model(
-        n_features, n_targets, ctx["n_cpus"], ctx["debug"], ctx["n_iters"]
-    )
-
-    # Compute shap relevances
-    n_devices = int(ctx["n_gpus"] if use_gpu else ctx["n_cpus"])
-    shap_summary, fs_df = compute_shap(
-        estimator, features_orig, targets_orig, use_gpu, n_devices=n_devices
-    )
-
-    # Save results
-    shap_summary_fname = "shap_summary.tsv"
-    shap_summary_fpath = ctx["data_folder"].joinpath(shap_summary_fname)
-    shap_summary.to_csv(shap_summary_fpath, sep="\t")
-    print(f"Shap summary results saved to: {shap_summary_fpath}")
-
-    # Save results
-    fs_fname = "shap_selection.tsv"
-    fs_fpath = ctx["data_folder"].joinpath(fs_fname)
-    fs_df.to_csv(fs_fpath, sep="\t")
-    print(f"Shap selection results saved to: {fs_fpath}")
-
-
 def add_options(options):
     """Add options to click command."""
 
@@ -153,6 +115,10 @@ def build_ctx(ctx, step=None):
     ctx_new["output_folder"] = output_folder
     ctx_new["data_folder"] = data_folder
     data_folder.mkdir(parents=True, exist_ok=True)
+
+    if step is not None:
+        if step == "explain":
+            ctx_new["mode"] = "final"
 
     if "n_gpus" in ctx_new.keys():
         if ctx_new["n_gpus"] < 0:
@@ -182,6 +148,7 @@ def build_cmd(ctx):
         str(int(ctx["n_gpus"])),
         str(ctx["n_cpus"]),
         str(int(ctx["debug"])),
+        ctx["mode"],
     ]
 
     return cmd
@@ -265,7 +232,8 @@ def explain(**kwargs):
     """Explain how KDTs modulate a given disease map."""
     ctx = build_ctx(kwargs, step="explain")
 
-    run_explainer(ctx)
+    run_cmd(ctx)
+
     fnames = ["shap_selection.tsv", "shap_summary.tsv"]
     copy_files(ctx, fnames)
 
