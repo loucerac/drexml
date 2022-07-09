@@ -14,6 +14,8 @@ from sklearn.model_selection import train_test_split
 
 from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
 from dreml.utils import parse_stab
+from dreml.models import get_model
+
 
 if __name__ == "__main__":
     import sys
@@ -38,6 +40,7 @@ if __name__ == "__main__":
     targets = joblib.load(targets_fpath)
 
     if n_splits > 1:
+        print(f"loading cv {n_splits=}")
         cv_fname = "cv.jbl"
         cv_fpath = data_path.joinpath(cv_fname)
         cv_gen = joblib.load(cv_fpath)
@@ -53,6 +56,8 @@ if __name__ == "__main__":
             learn_ids = sample_ids[0]
             val_ids = sample_ids[1]
 
+        print(f"dataset sizes {learn_ids.size=} {val_ids.size=}")
+
         # gpu_id = queue.get()
         filt_i = None
         # os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
@@ -63,36 +68,45 @@ if __name__ == "__main__":
         features_val = features.iloc[val_ids, :].copy()
         targets_val = targets.iloc[val_ids, :].copy()
 
-        model_fname = f"model_{i_split}.jbl"
-        model_fpath = data_path.joinpath(model_fname)
-        this_model = joblib.load(model_fpath)
+
         if n_splits == 1:
+            print(f"fit final model {i_split=} {n_splits=}")
+            this_model = get_model(features.shape[1], targets.shape[1], n_cpus, debug, n_iters)
+            this_model.set_params(n_jobs=n_cpus)
             this_model.fit(features_learn, targets_learn)
+        else:
+            model_fname = f"model_{i_split}.jbl"
+            model_fpath = data_path.joinpath(model_fname)
+            this_model = joblib.load(model_fpath)
+
 
         chunk_size = len(features_val) // (n_devices) + 1
 
-        def runner(explainer, new, check_add):
+        def runner(model, bkg, new, check_add, use_gpu):
 
             gpu_id = queue.get()
+            if use_gpu:
+                explainer = shap.GPUTreeExplainer(model, bkg)
+            else:
+                explainer = shap.TreeExplainer(model, bkg)
+
             # explainer = shap.GPUTreeExplainer(estimator, background)
             values = compute_shap_values_(new, explainer, check_add, gpu_id)
             queue.put(gpu_id)
 
             return values
 
-        if gpu:
-            this_explainer = shap.GPUTreeExplainer(this_model, features_learn)
-        else:
-            this_explainer = shap.TreeExplainer(this_model, features_learn)
-
+        
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
-                    explainer=this_explainer,
+                    model=this_model,
+                    bkg=features_learn,
                     new=gb,
                     check_add=True,
+                    use_gpu=gpu
                 )
                 for _, gb in features_val.groupby(
                     np.arange(len(features_val)) // chunk_size
@@ -114,11 +128,12 @@ if __name__ == "__main__":
             by_circuit=True,
         )
 
-        fs_fname = f"filt_{i_split}.jbl"
-        fs_fpath = data_path.joinpath(fs_fname)
+        if n_splits > 1:
+            fs_fname = f"filt_{i_split}.jbl"
+            fs_fpath = data_path.joinpath(fs_fname)
 
-        joblib.dump(filt_i, fs_fpath)
-        fs_lst.append(filt_i)
+            joblib.dump(filt_i, fs_fpath)
+            fs_lst.append(filt_i)
 
     if n_splits > 1:
         joblib.dump(fs_lst, data_folder.joinpath("fs.jbl"))
