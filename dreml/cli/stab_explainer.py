@@ -4,11 +4,15 @@
 Entry CLI point for stab.
 """
 
+import multiprocessing
+import time
 
 import joblib
+import numpy as np
+import shap
+from sklearn.model_selection import train_test_split
 
-from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
-from dreml.models import AutoMORF
+from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
 from dreml.utils import parse_stab
 
 if __name__ == "__main__":
@@ -16,15 +20,16 @@ if __name__ == "__main__":
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
 
+    queue = multiprocessing.Queue()
+
     n_devices = n_gpus if n_gpus > 0 else n_cpus
     gpu = n_gpus > 0
     print(gpu, n_gpus, n_devices)
     fs_lst = []
     data_path = data_folder
 
-    cv_fname = "cv.jbl"
-    cv_fpath = data_path.joinpath(cv_fname)
-    cv_gen = joblib.load(cv_fpath)
+    for gpu_ids in range(n_devices):
+        queue.put(gpu_ids)
 
     features_fpath = data_path.joinpath("features.jbl")
     features = joblib.load(features_fpath)
@@ -32,42 +37,73 @@ if __name__ == "__main__":
     targets_fpath = data_path.joinpath("target.jbl")
     targets = joblib.load(targets_fpath)
 
+    if n_splits > 1:
+        cv_fname = "cv.jbl"
+        cv_fpath = data_path.joinpath(cv_fname)
+        cv_gen = joblib.load(cv_fpath)
+    else:
+        ids = np.arange(features.shape[0])
+        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=0)
+
     for i_split in range(n_splits):
         print(n_splits, i_split)
-        sample_ids = cv_gen[i_split]
+
+        if n_splits > 1:
+            sample_ids = cv_gen[i_split]
+            learn_ids = sample_ids[0]
+            val_ids = sample_ids[1]
 
         # gpu_id = queue.get()
         filt_i = None
         # os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
         # print("device", os.environ["CUDA_VISIBLE_DEVICES"])
-        features_learn = features.iloc[sample_ids[0], :].copy()
-        y_learn = targets.iloc[sample_ids[0], :].copy()
+        features_learn = features.iloc[learn_ids, :].copy()
+        targets_learn = targets.iloc[learn_ids, :].copy()
 
-        features_val = features.iloc[sample_ids[1], :].copy()
-        targets_val = targets.iloc[sample_ids[1], :].copy()
+        features_val = features.iloc[val_ids, :].copy()
+        targets_val = targets.iloc[val_ids, :].copy()
 
         model_fname = f"model_{i_split}.jbl"
         model_fpath = data_path.joinpath(model_fname)
         this_model = joblib.load(model_fpath)
-        if isinstance(this_model, AutoMORF):
-            pass
+        if n_splits == 1:
+            this_model.fit(features_learn, targets_learn)
 
-        # shap_values = compute_shap_values(
-        #     estimator=this_model,
-        #     background=features_learn,
-        #     new=features_val,
-        #     gpu=n_devices>1,
-        #     n_devices=n_devices
-        # )
+        chunk_size = len(features_val) // (n_devices) + 1
 
-        shap_values = compute_shap_values(
-            estimator=this_model,
-            background=features_learn,
-            new=features_val,
-            gpu=gpu,
-            n_devices=n_devices,
-        )
+        def runner(explainer, new, check_add):
 
+            gpu_id = queue.get()
+            # explainer = shap.GPUTreeExplainer(estimator, background)
+            values = compute_shap_values_(new, explainer, check_add, gpu_id)
+            queue.put(gpu_id)
+
+            return values
+
+        if gpu:
+            this_explainer = shap.GPUTreeExplainer(this_model, features_learn)
+        else:
+            this_explainer = shap.TreeExplainer(this_model, features_learn)
+
+        # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
+        t = time.time()
+        with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
+            shap_values = joblib.Parallel()(
+                joblib.delayed(runner)(
+                    explainer=this_explainer,
+                    new=gb,
+                    check_add=True,
+                )
+                for _, gb in features_val.groupby(
+                    np.arange(len(features_val)) // chunk_size
+                )
+            )
+
+        # shape: (n_tasks, n_samples, n_features)
+        shap_values = np.concatenate(shap_values, axis=1)
+        elapsed = time.time() - t
+
+        print(i_split, elapsed)
         shap_relevances = compute_shap_relevance(shap_values, features_val, targets_val)
         filt_i = compute_shap_fs(
             shap_relevances,
@@ -84,4 +120,17 @@ if __name__ == "__main__":
         joblib.dump(filt_i, fs_fpath)
         fs_lst.append(filt_i)
 
-    joblib.dump(fs_lst, data_folder.joinpath("fs.jbl"))
+    if n_splits > 1:
+        joblib.dump(fs_lst, data_folder.joinpath("fs.jbl"))
+    else:
+        # Save results
+        shap_summary_fname = "shap_summary.tsv"
+        shap_summary_fpath = data_folder.joinpath(shap_summary_fname)
+        shap_relevances.to_csv(shap_summary_fpath, sep="\t")
+        print(f"Shap summary results saved to: {shap_summary_fpath}")
+
+        # Save results
+        fs_fname = "shap_selection.tsv"
+        fs_fpath = data_folder.joinpath(fs_fname)
+        (filt_i * 1).to_csv(fs_fpath, sep="\t")
+        print(f"Shap selection results saved to: {fs_fpath}")

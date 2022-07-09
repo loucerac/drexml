@@ -3,9 +3,11 @@
 Model definition.
 """
 
+import copy
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-import copy
+
 
 class AutoMORF(RandomForestRegressor):
     def __init__(
@@ -48,24 +50,25 @@ class AutoMORF(RandomForestRegressor):
         patience : int, optional
             _description_, by default 50
         """
-        super().__init__(       
-        n_estimators=100,
-        criterion="squared_error",
-        max_depth=None,
-        min_samples_split=2,
-        min_samples_leaf=1,
-        min_weight_fraction_leaf=0.0,
-        max_features=1.0,
-        max_leaf_nodes=None,
-        min_impurity_decrease=0.0,
-        bootstrap=True,
-        oob_score=False,
-        n_jobs=None,
-        random_state=None,
-        verbose=0,
-        warm_start=False,
-        ccp_alpha=0.0,
-        max_samples=None,)
+        super().__init__(
+            n_estimators=100,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0,
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+        )
 
         self.n_estimators_min = n_estimators_min
         self.n_estimators_max = n_estimators_max
@@ -122,7 +125,7 @@ class AutoMORF(RandomForestRegressor):
                     n_ok = 0
                 if n_ok > self.patience:
                     break
-        
+
         # self.n_estimators = len(self.estimators_)
         self.warm_start = False
         print(len(self.estimators_), self.n_estimators)
@@ -152,7 +155,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
     """
     mtry = int(np.sqrt(n_features) + 20)
     if debug:
-        n_estimators = 20
+        n_estimators = 2
         n_estimators_min = 10
         n_estimators_max = 20
         patience = 5

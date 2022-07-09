@@ -2,17 +2,12 @@
 """
 Explainability module for multi-task framework.
 """
+import os
 
-import joblib
 import numpy as np
 import pandas as pd
-import shap
-from dask.distributed import Client
-from dask_cuda import LocalCUDACluster
 from joblib import Parallel, delayed
-from sklearn.base import clone
 from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
 
 from dreml.pystab import nogueria_test
 
@@ -50,70 +45,13 @@ def matcorr(O, P):
     return cov / np.sqrt(tmp)
 
 
-def compute_shap_values_(x, explainer, check_add):
+def compute_shap_values_(x, explainer, check_add, gpu_id=None):
     """Partial function to compute the shap values."""
-
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
     if shap_values.ndim < 3:
         shap_values = np.expand_dims(shap_values, axis=0)
-
-    return shap_values
-
-
-def compute_shap_values(estimator, background, new, gpu, n_devices=1):
-    """SHAP values for a given dataset and model.
-
-    Parameters
-    ----------
-    estimator : sklearn.base.BaseEstimator
-        The model to explain the data.
-    background : pandas.DataFrame [n_samples_bg, n_features]
-        The background dataset.
-    new : pandas.DataFrame [n_samples_new, n_features]
-        The dataset to explain.
-    gpu : bool
-        Whether to use GPU or not.
-    split : bool, optional
-        Whether to split the dataset or not.
-
-    Returns
-    -------
-    ndarray [n_samples_new, n_features, n_tasks]
-        The SHAP values.
-    """
-    if gpu:
-        print(estimator.n_estimators, background.shape, new.shape, gpu, n_devices)
-        cluster = LocalCUDACluster(n_workers=n_devices)
-        client = Client(cluster)
-        parallel_backend = "dask"
-        n_jobs = None
-        check_add = True
-        explainer = shap.GPUTreeExplainer(estimator, background)
-    else:
-        n_jobs = n_devices
-        parallel_backend = "multiprocessing"
-        check_add = False
-        explainer = shap.TreeExplainer(estimator, background)
-
-    chunk_size = len(new) // n_devices + 1
-
-    with joblib.parallel_backend(parallel_backend, n_jobs=n_jobs):
-        shap_values = joblib.Parallel()(
-            joblib.delayed(compute_shap_values_)(
-                x=gb,
-                explainer=explainer,
-                check_add=check_add,
-            )
-            for _, gb in new.groupby(np.arange(len(new)) // chunk_size)
-        )
-
-    # shape: (n_tasks, n_samples, n_features)
-    shap_values = np.concatenate(shap_values, axis=1)
-
-    if gpu:
-        cluster.close()
-        client.close()
 
     return shap_values
 
@@ -208,51 +146,6 @@ def build_stability_dict(z_mat, scores, alpha=0.05):
     }
 
     return res
-
-
-def compute_shap(model, X, Y, gpu, test_size=0.3, q="r2", n_devices=1):
-    """Compute relevance KDT-signalization scores for a given model.
-
-    Parameters
-    ----------
-    model : sklearn.base.BaseEstimator
-        The model to explain the data.
-    X : pandas.DataFrame [n_samples, n_features]
-        The dataset to explain.
-    Y : pandas.DataFrame [n_samples, n_tasks]
-        The dataset to explain.
-    gpu : bool
-        Whether to use GPU or not.
-    test_size : float, optional
-        The proportion of the dataset to use for the test set.
-    q : str, optional
-        The quality measure to use. Either "r2" or "mse".
-
-    Returns
-    -------
-    pandas.DataFrame [n_features, n_tasks]
-        The relevance scores.
-    pandas.DataFrame [n_features, n_tasks]
-        The features selected for each task.
-    """
-    X_learn, X_val, Y_learn, Y_val = train_test_split(
-        X, Y, test_size=test_size, random_state=42
-    )
-
-    model_ = clone(model)
-    if hasattr(model_, "n_estimators_min"):
-        model_.fit(X_learn, Y_learn, X_val=X_val, y_val=Y_val)
-    else:
-        model_.fit(X_learn, Y_learn)
-
-    shap_values = compute_shap_values(model_, X_learn, X_val, gpu, n_devices=n_devices)
-    shap_relevances = compute_shap_relevance(shap_values, X_val, Y_val)
-    fs = compute_shap_fs(
-        shap_relevances, model=model_, X=X_val, Y=Y_val, q=q, by_circuit=True
-    )
-    fs = fs * 1
-
-    return shap_relevances, fs
 
 
 def get_quantile_by_circuit(model, X, Y, threshold=0.5):
