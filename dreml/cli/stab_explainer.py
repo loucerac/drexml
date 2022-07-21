@@ -79,7 +79,8 @@ if __name__ == "__main__":
             model_fpath = data_path.joinpath(model_fname)
             this_model = joblib.load(model_fpath)
 
-        chunk_size = len(features_val) // (n_devices) + 1
+        n_chunks = n_devices if n_devices >= 4 else 4
+        chunk_size = len(features_val) // (n_chunks) + 1
 
         def runner(model, bkg, new, check_add, use_gpu):
 
