@@ -79,7 +79,8 @@ if __name__ == "__main__":
             model_fpath = data_path.joinpath(model_fname)
             this_model = joblib.load(model_fpath)
 
-        chunk_size = len(features_val) // (n_devices) + 1
+        n_chunks = n_devices if n_devices >= 4 else 4
+        chunk_size = len(features_val) // (n_chunks) + 1
 
         def runner(model, bkg, new, check_add, use_gpu):
 
@@ -97,11 +98,15 @@ if __name__ == "__main__":
 
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
+        if features_learn.shape[0] > 1000:
+            features_bkg = features_learn.sample(n=1000, random_state=0)
+        else:
+            features_bkg = features_learn
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
                     model=this_model,
-                    bkg=features_learn,
+                    bkg=features_bkg,
                     new=gb,
                     check_add=True,
                     use_gpu=gpu,
