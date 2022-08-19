@@ -7,6 +7,7 @@ import pathlib
 import pandas as pd
 from dotenv.main import dotenv_values
 from pandas.errors import ParserError
+from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
 
 DEFAULT_STR = "$default$"
@@ -34,8 +35,14 @@ def fetch_file(disease, key, version="latest", debug=False):
     env = dotenv_values(experiment_env_path)
     if env[key].lower() == DEFAULT_STR:
         if version == "latest":
-            zenodo = Zenodo()
-            path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
+            try:
+                zenodo = Zenodo()
+                path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
+            except (ConnectTimeout) as err:
+                print(err)
+                path = pathlib.Path.home().joinpath(
+                    ".data", "zenodo", "6020480", "panrd_1.0.0"
+                )
     else:
         data_path = pathlib.Path(env["data_path"])
         if data_path.name.lower() == DEFAULT_STR:
@@ -121,9 +128,22 @@ def get_disease_data(disease, debug):
     circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
 
     genes = fetch_file(disease, key="genes", version="latest", debug=debug)
+    if "entrezs" in genes.columns:
+        genes = genes.set_index("entrezs")
+    elif "index" in genes.columns:
+        genes = genes.set_index("index")
     genes.index = genes.index.astype(str)
 
-    gene_exp = gene_exp[genes.index[genes[genes_column]]]
+    # gene_exp = gene_exp[genes.index[genes[genes_column]]]
+
+    getx_entrez = gene_exp.columns
+    this_genes = genes.index[genes[genes_column]]
+    if this_genes.difference(getx_entrez).size > 0:
+        print(f"# genes not present in GTEx: {this_genes.difference(getx_entrez).size}")
+
+    usable_genes = this_genes.intersection(getx_entrez)
+
+    gene_exp = gene_exp[usable_genes]
     pathvals = pathvals[circuits.index[circuits[circuits_column]]]
 
     return gene_exp, pathvals, circuits, genes
