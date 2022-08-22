@@ -252,9 +252,8 @@ def convert_names(dataset, keys, axis):
         else:
             raise NotImplementedError()
 
-        name_dict = (
-            pd.read_csv(get_resource_path(fname), sep="\t")
-            .set_index(index_name)
+        name_dict = pd.read_csv(get_resource_path(fname), sep="\t").set_index(
+            index_name
         )
         name_dict.index = name_dict.index.astype(str)
         if key == "circuits":
