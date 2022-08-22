@@ -79,7 +79,8 @@ if __name__ == "__main__":
             model_fpath = data_path.joinpath(model_fname)
             this_model = joblib.load(model_fpath)
 
-        if (this_model.n_features_ * this_model.n_outputs_)> (712 * 331):
+        n_chunks = 1
+        if (this_model.n_features_ * this_model.n_outputs_) > (712 * 331):
             n_chunks = 12
         n_chunks = max(n_chunks, n_devices)
         chunk_size = len(features_val) // (n_chunks) + 1
