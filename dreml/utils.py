@@ -4,6 +4,7 @@ Utilities module.
 """
 
 import ctypes
+import importlib.resources as pkg_resources
 from importlib.metadata import version
 from pathlib import Path
 
@@ -224,3 +225,44 @@ def check_gputree_availability():
     except ImportError as ierr:
         print(ierr)
         return False
+
+
+def get_resource_path(fname):
+    """Get path to example disease env path.
+    Returns
+    -------
+    pathlib.PosixPath
+        Path to file.
+    """
+    with pkg_resources.path("dreml.resources", fname) as f:
+        data_file_path = f
+    return Path(data_file_path)
+
+
+def convert_names(dataset, keys, axis):
+    for i, key in enumerate(keys):
+        if key == "circuits":
+            fname = "circuit_names.tsv"
+            index_name = "hipathia_id"
+            col_name = "name"
+        elif key == "genes":
+            fname = "entrez_sym-table.tsv"
+            index_name = "entrez"
+            col_name = "symbol"
+        else:
+            raise NotImplementedError()
+
+        name_dict = (
+            pd.read_csv(get_resource_path(fname), sep="\t")
+            .set_index(index_name)
+        )
+        name_dict.index = name_dict.index.astype(str)
+        if key == "circuits":
+            name_dict.index = name_dict.index.str.replace("-", ".").str.replace(
+                " ", "."
+            )
+        name_dict = name_dict[col_name].to_dict()
+
+        dataset = dataset.rename(name_dict, axis=axis[i])
+
+    return dataset
