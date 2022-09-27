@@ -1,12 +1,12 @@
-# Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning
+# Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning
 
-Repository for the dreml python package: (DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+Repository for the dreml python package: (DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and  eXplainable Machine Learning 
 
 ## Setup
 
-To install the `dreml` package use the following:
+To install the `drexml` package use the following:
 
 ```
 conda create -p ./.venv python=3.8
-conda run -p ./.venv pip install dreml
+conda run -p ./.venv git+ssh://git@github.com:loucerac/drexml.git
 ```
