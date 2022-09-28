@@ -9,8 +9,8 @@ import os
 
 import joblib
 
-from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
-from dreml.utils import parse_stab
+from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values
+from drexml.utils import parse_stab
 
 if __name__ == "__main__":
     import sys

@@ -11,9 +11,9 @@ import pandas as pd
 from sklearn.base import clone
 from sklearn.metrics import r2_score
 
-from dreml.explain import build_stability_dict
-from dreml.pystab import nogueria_test
-from dreml.utils import get_stab, parse_stab
+from drexml.explain import build_stability_dict
+from drexml.pystab import nogueria_test
+from drexml.utils import get_stab, parse_stab
 
 if __name__ == "__main__":
     import sys

@@ -4,7 +4,7 @@ Unit testing for utils module.
 """
 import pytest
 
-from dreml.utils import check_gputree_availability, get_number_cuda_devices
+from drexml.utils import check_gputree_availability, get_number_cuda_devices
 
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 

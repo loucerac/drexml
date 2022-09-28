@@ -5,6 +5,6 @@ CLI Reference
 
 cli
 ---------
-.. click:: dreml.cli.cli:main
+.. click:: drexml.cli.cli:main
    :prog: cli
    :nested: full

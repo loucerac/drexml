@@ -1,6 +1,6 @@
 # Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning
 
-Repository for the dreml python package: (DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and  eXplainable Machine Learning 
+Repository for the drexml python package: (DREXM³L) Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
 
 ## Setup
 

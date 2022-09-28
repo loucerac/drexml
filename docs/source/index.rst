@@ -1,16 +1,16 @@
-dreml -  Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+drexml -  Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
 ==============================================================================================
 
-(DREM³L) Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
+(DREXM³L) Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
 
 Installation
 =============
 
-You can install dreml from PyPI using pip:
+You can install drexml from PyPI using pip:
 
 .. code::
 
-   pip install dreml
+   pip install drexml
 
 
 

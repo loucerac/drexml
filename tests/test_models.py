@@ -5,7 +5,7 @@ Unit testing for datasets module.
 import numpy as np
 import pytest
 
-from dreml.models import get_model
+from drexml.models import get_model
 
 
 @pytest.mark.parametrize("debug", [True, False])

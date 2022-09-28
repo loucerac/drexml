@@ -18,9 +18,9 @@ import sys
 import click
 import joblib
 
-from dreml.explain import compute_shap
-from dreml.models import get_model
-from dreml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
+from drexml.explain import compute_shap
+from drexml.models import get_model
+from drexml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
@@ -137,7 +137,7 @@ def add_options(options):
 
 def get_cli_file(fname):
     """Get cli file path."""
-    with pkg_resources.path("dreml.cli", fname) as f:
+    with pkg_resources.path("drexml.cli", fname) as f:
         data_file_path = f
     return pathlib.Path(data_file_path)
 
@@ -197,8 +197,8 @@ def run_cmd(ctx):
 @click.group()
 @click.version_option(get_version())
 def main():
-    """DREML CLI entry point."""
-    print(f"running DREML orchestrate v {get_version()}")
+    """DREXML CLI entry point."""
+    print(f"running DREXML orchestrate v {get_version()}")
 
 
 @main.command()
@@ -206,9 +206,9 @@ def main():
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(**kwargs):
-    """Orchestrate the DREML procedure. Entry point for multi-disease workflows."""
+    """Orchestrate the DREXML procedure. Entry point for multi-disease workflows."""
 
-    print(f"running DREML explainer v {get_version()}")
+    print(f"running DREXML explainer v {get_version()}")
     ctx = build_ctx(kwargs)
 
     # Load data
@@ -240,7 +240,7 @@ def stability(**kwargs):
     else:
         sys.exit("Unknown stability analysis step.")
 
-    click.echo(f"Running DREML {current_step} v {get_version()}")
+    click.echo(f"Running DREXML {current_step} v {get_version()}")
 
     ctx = build_ctx(kwargs, step=current_step)
 

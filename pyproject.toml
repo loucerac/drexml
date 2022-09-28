@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "dreml"
+name = "drexml"
 version = "0.9.4"
-description = "Drug repurposing  using machine learning and mechanistic models of signal transduction\""
+description = "Repository for the drexml python package: (DREXM³L) Drug REpurposing using Mechanistic Models of signal transduction and  eXplainable Machine Learning\""
 authors = ["Carlos Loucera <carlos.loucera@juntadeandalucia.es>"]
 license = "MIT"
 
@@ -38,7 +38,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-dreml = 'dreml.cli.cli:main'
+drexml = 'drexml.cli.cli:main'
 
 [tool.pytest.ini_options]
 minversion = "6.0"
