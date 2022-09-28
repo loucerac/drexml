@@ -26,9 +26,9 @@ from sklearn.base import clone
 from sklearn.model_selection import RepeatedKFold
 
 from scripts import ml_plots
-from dreml.datasets import get_disease_data
-from dreml.explain import compute_shap, run_stability
-from dreml.models import get_model
+from drexml.datasets import get_disease_data
+from drexml.explain import compute_shap, run_stability
+from drexml.models import get_model
 
 
 def warn(*args, **kwargs):
@@ -132,7 +132,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
     # fs, cv = build_shap_fs(estimator, gene_xpr, pathvals, output_folder, gpu)
     cmd = [
         "python",
-        "dreml/explain.py",
+        "drexml/explain.py",
         data_folder.as_posix(),
         str(n_iters),
         str(int(gpu)),
@@ -140,7 +140,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
         str(int(debug)),
     ]
     subprocess.Popen(cmd).wait()
-    # from dreml.explain2 import run_gpu
+    # from drexml.explain2 import run_gpu
     # fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
     fs = joblib.load(data_folder.joinpath("fs.jbl"))
     cv = joblib.load(data_folder.joinpath("cv.jbl"))

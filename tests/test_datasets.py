@@ -11,9 +11,9 @@ import click
 import pytest
 from click.testing import CliRunner
 
-from dreml.cli.cli import main
-from dreml.datasets import get_disease_data, load_df
-from dreml.utils import check_gputree_availability
+from drexml.cli.cli import main
+from drexml.datasets import get_disease_data, load_df
+from drexml.utils import check_gputree_availability
 
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
@@ -33,7 +33,7 @@ def get_resource_path(fname):
     pathlib.PosixPath
         Path to file.
     """
-    with pkg_resources.path("dreml.resources", fname) as f:
+    with pkg_resources.path("drexml.resources", fname) as f:
         data_file_path = f
     return Path(data_file_path)
 
@@ -96,7 +96,7 @@ def get_disease_data_(default):
 def test_cli_run(n_gpus):
     """Unit tests for CLI app."""
 
-    click.echo("Running CLI tests fro DREML.")
+    click.echo("Running CLI tests fro DREXML.")
 
     disease_path = make_disease_path(use_default=False, one=True)
     ml_folder_expected = disease_path.parent.joinpath("ml")

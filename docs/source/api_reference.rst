@@ -5,25 +5,25 @@ API Reference
 
 datasets
 ---------
-.. automodule:: dreml.datasets
+.. automodule:: drexml.datasets
    :members:
 
 models
 ----------
-.. automodule:: dreml.models
+.. automodule:: drexml.models
    :members:
 
 pystab
 ----------
-.. automodule:: dreml.pystab
+.. automodule:: drexml.pystab
    :members:
 
 explain
 ----------
-.. automodule:: dreml.explain
+.. automodule:: drexml.explain
    :members:
 
 utils
 ----------
-.. automodule:: dreml.utils
+.. automodule:: drexml.utils
    :members:

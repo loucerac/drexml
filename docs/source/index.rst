@@ -1,7 +1,7 @@
-DREM³L Drug REpurposing using Mechanistic Models of signal transduction and Machine Learning 
-=============================================================================================
+DREXM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
+=========================================================================================================
 
-DREM³L or dreml is a Python package for finding links between Known Drug Targets (KDTs) 
+DREXM³L or drexml is a Python package for finding links between Known Drug Targets (KDTs) 
 and signaling circuits.
 
 .. figure:: ../fig/holird.png
@@ -12,11 +12,11 @@ and signaling circuits.
 Installation
 =============
 
-You can install dreml from PyPI using pip:
+You can install drexml from PyPI using pip:
 
 .. code::
 
-   pip install dreml
+   pip install drexml
 
 
 

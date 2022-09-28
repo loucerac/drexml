@@ -14,8 +14,8 @@ from shap.utils import assert_import
 from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from dreml.datasets import get_disease_data
-from dreml.models import get_model
+from drexml.datasets import get_disease_data
+from drexml.models import get_model
 
 
 def parse_stab(argv):
@@ -73,7 +73,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
 
     Returns
     -------
-    dreml.models.Model
+    drexml.models.Model
         Model.
     list
         List of splits.
@@ -107,8 +107,8 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
 
 
 def get_version():
-    """Get DREML version."""
-    return version("dreml")
+    """Get drexml version."""
+    return version("drexml")
 
 
 def get_out_path(disease):
@@ -234,7 +234,7 @@ def get_resource_path(fname):
     pathlib.PosixPath
         Path to file.
     """
-    with pkg_resources.path("dreml.resources", fname) as f:
+    with pkg_resources.path("drexml.resources", fname) as f:
         data_file_path = f
     return Path(data_file_path)
 

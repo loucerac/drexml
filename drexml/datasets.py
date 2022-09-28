@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-IO module for DREML.
+IO module for DREXML.
 """
 import pathlib
 

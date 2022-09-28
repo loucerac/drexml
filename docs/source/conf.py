@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 
-project = "dreml"
+project = "drexml"
 copyright = "2022, Carlos Loucera"
 author = "Carlos Loucera"
 

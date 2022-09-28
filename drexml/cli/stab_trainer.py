@@ -7,7 +7,7 @@ Entry CLI point for stab.
 import joblib
 from sklearn.base import clone
 
-from dreml.utils import get_stab, parse_stab
+from drexml.utils import get_stab, parse_stab
 
 if __name__ == "__main__":
     import sys

@@ -9,7 +9,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 from sklearn.metrics import r2_score
 
-from dreml.pystab import nogueria_test
+from drexml.pystab import nogueria_test
 
 
 def matcorr(O, P):
@@ -116,7 +116,7 @@ def compute_shap_relevance(shap_values, X, Y):
 
 
 def build_stability_dict(z_mat, scores, alpha=0.05):
-    """Adapt NogueiraTest to old version of dreml (use dicts).
+    """Adapt NogueiraTest to old version of drexml (use dicts).
 
     Parameters
     ----------

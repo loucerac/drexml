@@ -12,9 +12,9 @@ import numpy as np
 import shap
 from sklearn.model_selection import train_test_split
 
-from dreml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
-from dreml.models import get_model
-from dreml.utils import parse_stab
+from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
+from drexml.models import get_model
+from drexml.utils import parse_stab
 
 if __name__ == "__main__":
     import sys

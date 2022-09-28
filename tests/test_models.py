@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from shap.utils import safe_isinstance
 
-from dreml.models import get_model
+from drexml.models import get_model
 
 
 @pytest.mark.parametrize("debug", [True, False])

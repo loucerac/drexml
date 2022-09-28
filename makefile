@@ -5,8 +5,8 @@ install:
 	poetry install
 	poetry run pytest
 format:
-	poetry run isort dreml tests
-	poetry run black dreml tests
+	poetry run isort drexml tests
+	poetry run black drexml tests
 	(cd docs && poetry run make html)
 test:
 	poetry run tox

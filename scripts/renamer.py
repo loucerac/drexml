@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pathlib
-from dreml.utils import convert_names
+from drexml.utils import convert_names
 import sys
 import pandas as pd
 
