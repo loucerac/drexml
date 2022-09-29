@@ -140,7 +140,7 @@ def run_(disease, n_iters, gpu, n_jobs, debug):
         str(int(debug)),
     ]
     subprocess.Popen(cmd).wait()
-    # from dreml.explain2 import run_gpu
+    # from drexml.explain2 import run_gpu
     # fs, cv = run_gpu(data_folder, n_iters, gpu, n_jobs, debug)
     fs = joblib.load(data_folder.joinpath("fs.jbl"))
     cv = joblib.load(data_folder.joinpath("cv.jbl"))

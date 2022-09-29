@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "drexml"
 version = "0.9.4"
-description = "Repository for the drexml python package: (DREXM³L) Drug REpurposing using Mechanistic Models of signal transduction and  eXplainable Machine Learning\""
+description = "Drug repurposing   using machine learning and mechanistic models of signal transduction\""
 authors = ["Carlos Loucera <carlos.loucera@juntadeandalucia.es>"]
 license = "MIT"
 
@@ -13,7 +13,7 @@ scipy = "^1.8.1"
 pandas = "^1.4.2"
 seaborn = "^0.11.2"
 python-dotenv = "^0.20.0"
-click = "^8.1.3"
+click = "^8"
 zenodo-client = "^0.2.0"
 pyarrow = "^8.0.0"
 shap = {git = "https://github.com/slundberg/shap", rev = "v0.41.0"}

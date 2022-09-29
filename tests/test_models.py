@@ -4,6 +4,7 @@ Unit testing for datasets module.
 """
 import numpy as np
 import pytest
+from shap.utils import safe_isinstance
 
 from drexml.models import get_model
 
@@ -21,5 +22,4 @@ def test_model_hp(debug):
 
     model = get_model(n_features, n_targets, n_jobs, debug)
 
-    assert n_estimators_expected == model.n_estimators
-    assert max_features_expected == model.max_features
+    assert safe_isinstance(model, "sklearn.ensemble.RandomForestRegressor")

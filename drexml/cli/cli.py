@@ -18,14 +18,13 @@ import sys
 import click
 import joblib
 
-from drexml.explain import compute_shap
-from drexml.models import get_model
 from drexml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
     "explain": "stab_explainer.py",
     "score": "stab_scorer.py",
+    "final": "stab_explainer.py",
 }
 
 STEPS = {
@@ -90,40 +89,6 @@ def copy_files(ctx, fnames):
         )
 
 
-def run_explainer(ctx):
-    """Run explainer."""
-
-    use_gpu = ctx["n_gpus"] > 0
-
-    features_orig_fpath = ctx["data_folder"].joinpath("features.jbl")
-    features_orig = joblib.load(features_orig_fpath)
-
-    targets_orig_fpath = ctx["data_folder"].joinpath("target.jbl")
-    targets_orig = joblib.load(targets_orig_fpath)
-
-    n_features = features_orig.shape[1]
-    n_targets = targets_orig.shape[1]
-
-    estimator = get_model(
-        n_features, n_targets, ctx["n_cpus"], ctx["debug"], ctx["n_iters"]
-    )
-
-    # Compute shap relevances
-    shap_summary, fs_df = compute_shap(estimator, features_orig, targets_orig, use_gpu)
-
-    # Save results
-    shap_summary_fname = "shap_summary.tsv"
-    shap_summary_fpath = ctx["data_folder"].joinpath(shap_summary_fname)
-    shap_summary.to_csv(shap_summary_fpath, sep="\t")
-    print(f"Shap summary results saved to: {shap_summary_fpath}")
-
-    # Save results
-    fs_fname = "shap_selection.tsv"
-    fs_fpath = ctx["data_folder"].joinpath(fs_fname)
-    fs_df.to_csv(fs_fpath, sep="\t")
-    print(f"Shap selection results saved to: {fs_fpath}")
-
-
 def add_options(options):
     """Add options to click command."""
 
@@ -150,6 +115,10 @@ def build_ctx(ctx, step=None):
     ctx_new["output_folder"] = output_folder
     ctx_new["data_folder"] = data_folder
     data_folder.mkdir(parents=True, exist_ok=True)
+
+    if step is not None:
+        if step == "explain":
+            ctx_new["mode"] = "final"
 
     if "n_gpus" in ctx_new.keys():
         if ctx_new["n_gpus"] < 0:
@@ -179,6 +148,7 @@ def build_cmd(ctx):
         str(int(ctx["n_gpus"])),
         str(ctx["n_cpus"]),
         str(int(ctx["debug"])),
+        ctx["mode"],
     ]
 
     return cmd
@@ -197,8 +167,8 @@ def run_cmd(ctx):
 @click.group()
 @click.version_option(get_version())
 def main():
-    """DREXML CLI entry point."""
-    print(f"running DREXML orchestrate v {get_version()}")
+    """drexml CLI entry point."""
+    print(f"running drexml orchestrate v {get_version()}")
 
 
 @main.command()
@@ -206,9 +176,9 @@ def main():
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(**kwargs):
-    """Orchestrate the DREXML procedure. Entry point for multi-disease workflows."""
+    """Orchestrate the drexml procedure. Entry point for multi-disease workflows."""
 
-    print(f"running DREXML explainer v {get_version()}")
+    print(f"running drexml explainer v {get_version()}")
     ctx = build_ctx(kwargs)
 
     # Load data
@@ -240,7 +210,7 @@ def stability(**kwargs):
     else:
         sys.exit("Unknown stability analysis step.")
 
-    click.echo(f"Running DREXML {current_step} v {get_version()}")
+    click.echo(f"Running drexml {current_step} v {get_version()}")
 
     ctx = build_ctx(kwargs, step=current_step)
 
@@ -262,7 +232,8 @@ def explain(**kwargs):
     """Explain how KDTs modulate a given disease map."""
     ctx = build_ctx(kwargs, step="explain")
 
-    run_explainer(ctx)
+    run_cmd(ctx)
+
     fnames = ["shap_selection.tsv", "shap_summary.tsv"]
     copy_files(ctx, fnames)
 

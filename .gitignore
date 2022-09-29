@@ -65,6 +65,7 @@ packrat/src/
 *.svg
 *.png
 !img/*.png
+!docs/fig/*.png
 
 # project environment file
 .env
@@ -283,3 +284,7 @@ out2.txt
 *.err
 *.out
 results_July2021_gpu
+scripts/automorf.ipynb
+debug.ipynb
+
+dask-worker-space/
