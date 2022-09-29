@@ -26,7 +26,7 @@ jobs:
         cd docs/
         poetry run make html
         cp -r build/* ../gh-pages/        
-        cd ..
+        cd ../gh-pages/ 
         cp -r html/* .
         rm -rf html/
     - name: Deploy documentation
