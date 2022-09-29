@@ -26,7 +26,11 @@ jobs:
         cd docs/
         poetry run make html
         cp -r build/* ../gh-pages/        
+        cd ../gh-pages/ 
+        cp -r html/* .
+        rm -rf html/
     - name: Deploy documentation
+      if: ${{ github.event_name == 'push' }}
       uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
         branch: gh-pages
