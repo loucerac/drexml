@@ -1,12 +1,10 @@
 name: Docs2Pages
 on:
-  push:
-    tags: '*'
   pull_request:
     branches:
       - master
-      - develop
-
+permissions:
+  contents: write
 jobs:
   build-docs:
     runs-on: ubuntu-latest
@@ -29,9 +27,7 @@ jobs:
         poetry run make html
         cp -r build/* ../gh-pages/        
     - name: Deploy documentation
-      if: ${{ github.event_name == 'push' }}
       uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: gh-pages
         folder: gh-pages
