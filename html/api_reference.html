@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; drexml 0.9.5 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI Reference" href="cli-reference.html" />
+    <link rel="prev" title="DREXM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> drexml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.datasets">datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.models">models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.pystab">pystab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.explain">explain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.utils">utils</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="authors-reference.html">Authors and contributors</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">drexml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<span id="id1"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<section id="module-drexml.datasets">
+<span id="datasets"></span><h2>datasets<a class="headerlink" href="#module-drexml.datasets" title="Permalink to this heading"></a></h2>
+<p>IO module for DREXML.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.fetch_file">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.fetch_file" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.get_disease_data">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">get_disease_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.get_disease_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get data for a disease.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>disease</strong> (<em>pathlib.Path</em>) – Path to the disease configuration file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pandas.DataFrame</em> – Gene expression data.</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit activation data (hipathia).</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit definition binary matrix.</p></li>
+<li><p><em>pandas.DataFrame</em> – KDT definition binary matrix.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.load_df">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_df" title="Permalink to this definition"></a></dt>
+<dd><p>Load dataframe from file. At the moment: stv, tsv crompressed or feather.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em>) – Path to file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – Not implemented yet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-drexml.models">
+<span id="models"></span><h2>models<a class="headerlink" href="#module-drexml.models" title="Permalink to this heading"></a></h2>
+<p>Model definition.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="drexml.models.AutoMORF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">AutoMORF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_estimators_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'squared_error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_leaf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_weight_fraction_leaf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_leaf_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_decrease</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bootstrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oob_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warm_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccp_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.AutoMORF" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="drexml.models.AutoMORF.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.AutoMORF.fit" title="Permalink to this definition"></a></dt>
+<dd><p>_summary_</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input samples. Internally, it will be converted to
+<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
+to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p></li>
+<li><p><strong>y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – Target values (strings or integers in classification, real numbers
+in regression)
+For classification, labels must correspond to classes.</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em><em>, </em><em>default=None</em>) – Sample weights. If None, then samples are equally weighted. Splits
+that would create child nodes with net zero or negative weight are
+ignored while searching for a split in each node. In the case of
+classification, splits are also ignored if they would result in any
+single class carrying a negative weight in either child node.ptional
+_description_, by default None</p></li>
+<li><p><strong>X_val</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em><em>, </em><em>optional</em>) – feature validation matrix, by default None</p></li>
+<li><p><strong>y_val</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_targets</em><em>)</em><em>, </em><em>optional</em>) – Target validation matrix, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong> – Fitted estimator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.models.get_model">
+<span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.get_model" title="Permalink to this definition"></a></dt>
+<dd><p>Create a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_features</strong> (<em>int</em>) – Number of features (KDTs).</p></li>
+<li><p><strong>n_targets</strong> (<em>int</em>) – Number of targets (circuits).</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em>) – The number of jobs to run in parallel.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em>) – Debug flag.</p></li>
+<li><p><strong>n_iters</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of ietrations for hyperparatemer optimization, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The model to be fitted.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>sklearn.ensemble.RandomForestRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-drexml.pystab">
+<span id="pystab"></span><h2>pystab<a class="headerlink" href="#module-drexml.pystab" title="Permalink to this heading"></a></h2>
+<p>Implementation of Nogueira’s stability measure. See:
+[1] S. Nogueira, K. Sechidis, and G. Brown, “On the Stability of Feature Selection
+Algorithms,” Journal of Machine Learning Research, vol. 18, no. 174, pp. 1–54, 2018.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drexml.pystab.</span></span><span class="sig-name descname"><span class="pre">NogueiraTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.pystab.NogueiraTest" title="Permalink to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.error">
+<span class="sig-name descname"><span class="pre">error</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.error" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.estimator">
+<span class="sig-name descname"><span class="pre">estimator</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.estimator" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.lower">
+<span class="sig-name descname"><span class="pre">lower</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.lower" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.upper">
+<span class="sig-name descname"><span class="pre">upper</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.upper" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="drexml.pystab.NogueiraTest.var">
+<span class="sig-name descname"><span class="pre">var</span></span><a class="headerlink" href="#drexml.pystab.NogueiraTest.var" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.pystab.fdr">
+<span class="sig-prename descclassname"><span class="pre">drexml.pystab.</span></span><span class="sig-name descname"><span class="pre">fdr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_vals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.pystab.fdr" title="Permalink to this definition"></a></dt>
+<dd><p>False Discovery Rate p values adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p_vals</strong> (<em>array like</em><em> (</em><em>n_runs</em><em>, </em><em>)</em>) – The list of p values.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>FDR-adjusted p values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array (n_runs, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.pystab.nogueria_test">
+<span class="sig-prename descclassname"><span class="pre">drexml.pystab.</span></span><span class="sig-name descname"><span class="pre">nogueria_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.pystab.nogueria_test" title="Permalink to this definition"></a></dt>
+<dd><p>Let X be a feature space of dimension <cite>n_features</cite> and <cite>pop_mat</cite> a binary matrix
+of dimension <cite>(n_samples, n_festures)</cite> representing <cite>n_samples</cite> runs of a feature
+selection algorithm over X (with respect to a response). This function computes the
+Nogueira stability estimate, error, variance and confindece interval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_mat</strong> (<em>2d-array like</em>) – A (n_samples, n_features) binary matrix, each row is a sample of the FS
+algorithm applied on a n_features space, where a 1 in position (i,j) means that
+the feature j has been selected for the i-th run.</p></li>
+<li><p><strong>alpha</strong> (<em>scalar</em>) – Level of significance for the CI.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A named tuple with the results of the stability test.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#drexml.pystab.NogueiraTest" title="drexml.pystab.NogueiraTest">NogueiraTest</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-drexml.explain">
+<span id="explain"></span><h2>explain<a class="headerlink" href="#module-drexml.explain" title="Permalink to this heading"></a></h2>
+<p>Explainability module for multi-task framework.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.build_stability_dict">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">build_stability_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.build_stability_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Adapt NogueiraTest to old version of drexml (use dicts).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z_mat</strong> (<em>ndarray</em><em> [</em><em>n_model_samples</em><em>, </em><em>n_features</em><em>]</em>) – The stability matrix.</p></li>
+<li><p><strong>scores</strong> (<em>ndarray</em><em> [</em><em>n_model_samples</em><em>]</em>) – The metric scores over the test sets.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Signficance level for Nogueira’s test, by default 0.05</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with the Nogueira test results and test metric scores.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.compute_corr_sign">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">compute_corr_sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.compute_corr_sign" title="Permalink to this definition"></a></dt>
+<dd><p>Coompute the correlation sign.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em>) – The feature dataset.</p></li>
+<li><p><strong>y</strong> (<em>ndarray</em><em> [</em><em>n_samples</em><em>, </em><em>n_tasks</em><em>]</em>) – The task dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>SHAP feature-task (linear) interaction sign.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray [n_features, n_tasks]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.compute_shap_fs">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">compute_shap_fs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_circuit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.compute_shap_fs" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the feature selection scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relevances</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_features</em><em>, </em><em>n_tasks</em><em>]</em>) – The relevance scores.</p></li>
+<li><p><strong>model</strong> (<em>sklearn.base.BaseEstimator</em><em>, </em><em>optional</em>) – The model to explain the data.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em><em>, </em><em>optional</em>) – The feature dataset to explain, by default None.</p></li>
+<li><p><strong>Y</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_tasks</em><em>]</em><em>, </em><em>optional</em>) – The task dataset to explain, by default None</p></li>
+<li><p><strong>q</strong> (<em>float</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – Either a metric string to discriminate fs tasks or predefined quantile, by
+default “r2”</p></li>
+<li><p><strong>by_circuit</strong> (<em>bool</em><em>, </em><em>optional</em>) – Feature selection by circuit or globally, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[description]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[type]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.compute_shap_relevance">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">compute_shap_relevance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shap_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.compute_shap_relevance" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the SHAP values to relevance scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shap_values</strong> (<em>ndarray</em><em> [</em><em>n_samples_new</em><em>, </em><em>n_features</em><em>, </em><em>n_tasks</em><em>]</em>) – The SHAP values.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em>) – The feature dataset to explain.</p></li>
+<li><p><strong>Y</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_tasks</em><em>]</em>) – The task dataset to explain.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The task-wise feature relevance scores.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame [n_features, n_tasks]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.compute_shap_values_">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">compute_shap_values_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.compute_shap_values_" title="Permalink to this definition"></a></dt>
+<dd><p>Partial function to compute the shap values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.get_quantile_by_circuit">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">get_quantile_by_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.get_quantile_by_circuit" title="Permalink to this definition"></a></dt>
+<dd><p>Get the selection quantile of the model by circuit (or globally). Select features
+whose relevance score is above said quantile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>sklearn.base.BaseEstimator</em>) – Fited model.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em>) – The feature dataset to explain.</p></li>
+<li><p><strong>Y</strong> (<em>pandas.DataFrame</em><em> [</em><em>n_samples</em><em>, </em><em>n_tasks</em><em>]</em>) – The task dataset to explain.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Theshold to use to dicriminate ill-conditioned circuits when performing feature
+selection, by default 0.5</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Qauntile to use.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.explain.matcorr">
+<span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">matcorr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">O</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.matcorr" title="Permalink to this definition"></a></dt>
+<dd><p>Fast correlation matrix computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>O</strong> (<em>ndarray</em>) – A matrix of observations.</p></li>
+<li><p><strong>P</strong> (<em>ndarray</em>) – A matrix of predictions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The cross-correlation matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-drexml.utils">
+<span id="utils"></span><h2>utils<a class="headerlink" href="#module-drexml.utils" title="Permalink to this heading"></a></h2>
+<p>Utilities module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.check_gputree_availability">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">check_gputree_availability</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.check_gputree_availability" title="Permalink to this definition"></a></dt>
+<dd><p>Check if GPUTree has been corectly compiled.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_cuda_lib">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_cuda_lib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_cuda_lib" title="Permalink to this definition"></a></dt>
+<dd><p>Get CUDA library name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_data">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load disease data and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disease</strong> (<em>path-like</em>) – Path to disease config file.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em>) – _description_, by default False.</p></li>
+<li><p><strong>scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pandas.DataFrame</em> – Gene expression data.</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit activation data (hipathia).</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit definition binary matrix.</p></li>
+<li><p><em>pandas.DataFrame</em> – KDT definition binary matrix.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_number_cuda_devices">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_number_cuda_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_number_cuda_devices" title="Permalink to this definition"></a></dt>
+<dd><p>Get number of CUDA devices.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_number_cuda_devices_">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_number_cuda_devices_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_number_cuda_devices_" title="Permalink to this definition"></a></dt>
+<dd><p>Get number of CUDA devices.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_out_path">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_out_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_out_path" title="Permalink to this definition"></a></dt>
+<dd><p>Construct the path where the model must be saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The desired path.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pathlib.Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_resource_path">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_resource_path" title="Permalink to this definition"></a></dt>
+<dd><p>Get path to example disease env path.
+:returns: Path to file.
+:rtype: pathlib.PosixPath</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_stab">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_splits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cpus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_stab" title="Permalink to this definition"></a></dt>
+<dd><p>Get stab data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_folder</strong> (<em>path-like</em>) – Path to data folder.</p></li>
+<li><p><strong>n_splits</strong> (<em>int</em>) – Number of splits.</p></li>
+<li><p><strong>n_cpus</strong> (<em>int</em>) – Number of CPUs.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em>) – Debug flag, by default False.</p></li>
+<li><p><strong>n_iters</strong> (<em>int</em>) – Number of hyperparemeter optimization iterations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>drexml.models.Model</em> – Model.</p></li>
+<li><p><em>list</em> – List of splits.</p></li>
+<li><p><em>panda.DataFrame</em> – Gene expression data.</p></li>
+<li><p><em>panda.DataFrame</em> – Circuit activation data (hipathia).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_version">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_version" title="Permalink to this definition"></a></dt>
+<dd><p>Get drexml version.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.parse_stab">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">parse_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.parse_stab" title="Permalink to this definition"></a></dt>
+<dd><p>Parse stab arguments.
+:param argv: List of arguments.
+:type argv: list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>path-like</em> – Path to data folder.</p></li>
+<li><p><em>int</em> – Number of hyperparameter optimizations.</p></li>
+<li><p><em>int</em> – Number of GPUs.</p></li>
+<li><p><em>int</em> – Number of CPUs.</p></li>
+<li><p><em>int</em> – Number of splits.</p></li>
+<li><p><em>bool</em> – Debug flag.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="DREXM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli-reference.html" class="btn btn-neutral float-right" title="CLI Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Carlos Loucera.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
