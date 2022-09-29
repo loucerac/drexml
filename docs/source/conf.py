@@ -15,6 +15,7 @@ import sys
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath("../.."))
+from drexml import __version__
 
 
 # -- Project information -----------------------------------------------------
@@ -24,7 +25,7 @@ copyright = "2022, Carlos Loucera"
 author = "Carlos Loucera"
 
 # The full version, including alpha/beta/rc tags
-release = "0.9.4"
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
