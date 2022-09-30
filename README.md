@@ -7,8 +7,8 @@ Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using Me
 To install the `drexml` package use the following:
 
 ```
-conda create -p ./.venv python=3.8
-conda run -p ./.venv pip install git+ssh://git@github.com:loucerac/drexml.git
+conda create -n drexml python=3.8
+conda run -n drexml pip install git+ssh://git@github.com:loucerac/drexml.git
 ```
 
 ## Run
@@ -57,6 +57,12 @@ conda run -p ./.venv drexml run --n-gpus 0 --n-cpus 10 disease.env
 where:
 * `--n-gpus` indicates the number of gpu devices to use in parallel (-1 -> all) (0 -> None)
 * `--n-cpus` indicates the number of cpu devices to use in parallel (-1 -> all) 8
+
+Use the `--debug` option for testing that everything works using a few iterations.
+
+Note that the first time that the full program is run, it will take longer as it downloads the latest versions of each background dataset from Zenodo:
+
+https://doi.org/10.5281/zenodo.6020480
 
 ## Documentation
 The documentation can be found here:
