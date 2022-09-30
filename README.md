@@ -8,7 +8,7 @@ To install the `drexml` package use the following:
 
 ```
 conda create -p ./.venv python=3.8
-conda run -p ./.venv git+ssh://git@github.com:loucerac/drexml.git
+conda run -p ./.venv pip install git+ssh://git@github.com:loucerac/drexml.git
 ```
 
 ## Run
