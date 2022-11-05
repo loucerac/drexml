@@ -51,12 +51,13 @@ where:
 * `in_disease`: boolean if a given circuit is part of the disease
 
 ```
-conda run -p ./.venv drexml run --n-gpus 0 --n-cpus 10 disease.env
+conda run -n drexml drexml run --n-gpus 0 --n-cpus 10 $DISEASE_PATH
 ```
 
 where:
 * `--n-gpus` indicates the number of gpu devices to use in parallel (-1 -> all) (0 -> None)
 * `--n-cpus` indicates the number of cpu devices to use in parallel (-1 -> all) 8
+* `DISEASE_PATH` indicates the path to the disease env file (e.g. `/path/to/disease/folder/disease.env`)
 
 Use the `--debug` option for testing that everything works using a few iterations.
 
