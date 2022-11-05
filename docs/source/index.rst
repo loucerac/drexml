@@ -1,7 +1,7 @@
-DREXM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
+DRExM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
 =========================================================================================================
 
-DREXM³L or drexml is a Python package for finding links between Known Drug Targets (KDTs) 
+DRExM³L or drexml is a Python package for finding links between Known Drug Targets (KDTs) 
 and signaling circuits.
 
 .. figure:: ../fig/holird.png
@@ -16,7 +16,7 @@ You can install drexml from PyPI using pip:
 
 .. code::
 
-   pip install drexml
+   pip install git+ssh://git@github.com:loucerac/drexml.git
 
 
 
