@@ -88,5 +88,5 @@ def plot_stability(input_path, output_path):
 
     # plt.tight_layout()
     fig.set_size_inches(8.27/2, 11.69)
-    plt.savefig(output_path.joinpath("stability.png"), dpi=300,  bbox_inches="tight")
-    plt.savefig(output_path.joinpath("stability.pdf"),  bbox_inches="tight")
+    plt.savefig(output_path.joinpath(f"{input_path.stem}.png"), dpi=300,  bbox_inches="tight")
+    plt.savefig(output_path.joinpath(f"{input_path.stem}.pdf"),  bbox_inches="tight")
