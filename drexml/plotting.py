@@ -26,9 +26,9 @@ def plot_stability(input_path, output_path=None):
     query = data["circuit_name"] == "Disease Map"
     iquery = data.index[query]
     ilow = data.index[iquery - 1]
-    low = data.loc[ilow, "circuit_name"]
+    data.loc[ilow, "circuit_name"]
     iup = data.index[iquery + 1]
-    up = data.loc[iup, "circuit_name"]
+    data.loc[iup, "circuit_name"]
 
     data["r2_error"] = 1.96 * data.r2_std / 2
 
@@ -84,7 +84,6 @@ def plot_stability(input_path, output_path=None):
     axis_font = {"size": f"{label_font_size}"}
     ax.set_xlabel("Nogueria Stability Stimate with 95% CI", **axis_font)
     ax.set_ylabel("Circuit Name", **axis_font)
-    lh1, l1 = ax.get_legend_handles_labels()
 
     x = data["r2_mean"]
     xerr = data["r2_error"]
