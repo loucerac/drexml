@@ -175,7 +175,7 @@ def run_cmd(ctx):
 @click.version_option(get_version())
 def main():
     """drexml CLI entry point."""
-    print(f"running drexml orchestrate v {get_version()}")
+    print(f"running drexml v{get_version()}")
 
 
 @main.command()
