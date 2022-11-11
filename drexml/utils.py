@@ -18,6 +18,29 @@ from drexml.datasets import get_disease_data
 from drexml.models import get_model
 
 
+def rename_results(folder):
+    """Translate entrez to symbols, and KEGG circuit IDs to names."""
+    folder = Path(folder)
+
+    for path in folder.rglob("shap_selection.tsv"):
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+
+    for path in folder.rglob("shap_summary.tsv"):
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+
+    for path in folder.rglob("stability_results.tsv"):
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits"], axis=[0])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+
+
 def parse_stab(argv):
     """Parse stab arguments.
     Parameters

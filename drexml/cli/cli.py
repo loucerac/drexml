@@ -18,8 +18,14 @@ import sys
 import click
 import joblib
 
-from drexml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
 from drexml.plotting import plot_stability
+from drexml.utils import (
+    get_data,
+    get_number_cuda_devices,
+    get_out_path,
+    get_version,
+    rename_results,
+)
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
@@ -260,13 +266,22 @@ def run(ctx, **kwargs):
 
 @main.command()
 @click.argument("stab-path", type=click.Path(exists=True))
-@click.argument("output", type=click.Path(exists=False))
 @click.version_option(get_version())
 @click.pass_context
-def plot(ctx, stab_path, output):
+def plot(ctx, stab_path):
     """Plot the stability results"""
 
-    plot_stability(stab_path, output)
+    plot_stability(stab_path)
+
+
+@main.command()
+@click.argument("results-folder", type=click.Path(exists=True))
+@click.version_option(get_version())
+@click.pass_context
+def rename(ctx, results_folder):
+    """Plot the stability results"""
+
+    rename_results(results_folder)
 
 
 if __name__ == "__main__":
