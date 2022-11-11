@@ -10,13 +10,11 @@ import seaborn as sns
 
 
 def preprocess_data(input_path):
-    input_path = pathlib.Path(input_path)
-    if output_path is None:
-        output_path = input_path.parent
-    else:
-        output_path = pathlib.Path(output_path)
+    """Read and preprocess results."""
 
     data = pd.read_csv(input_path, sep="\t")
+    if "stability_upper_95ci" not in data.columns:
+        data["stability_upper_95ci"] = data["upper"]
     data["stability_error"] = data["stability_upper_95ci"] - data["stability"]
 
     data = data.sort_values(by="stability", ascending=False)
@@ -25,17 +23,15 @@ def preprocess_data(input_path):
     query = data["circuit_name"] == "Disease Map"
     iquery = data.index[query]
     ilow = data.index[iquery - 1]
-    data.loc[ilow, "circuit_name"]
     iup = data.index[iquery + 1]
-    data.loc[iup, "circuit_name"]
 
     data["r2_error"] = 1.96 * data.r2_std / 2
 
     return data, ilow, iup
 
+
 def plot_stability_ax(ax, data, ilow, iup):
-
-
+    """Plot stability axis."""
     label_font_size = 10
     axis_font = {"size": f"{label_font_size}"}
     scatter_size = 10
@@ -46,6 +42,7 @@ def plot_stability_ax(ax, data, ilow, iup):
     xerr = data.stability_error
     yerr = None
 
+    # pylint: disable=E1121
     sns.scatterplot(
         x,
         y,
@@ -57,6 +54,7 @@ def plot_stability_ax(ax, data, ilow, iup):
         legend=False,
         alpha=0.5,
     )
+    # pylint: enable=E1121
     ax.grid(axis="x")
     ax.errorbar(
         x, y, yerr=yerr, xerr=xerr, ls="", color="k", lw=lw, label="CI", alpha=0.5
@@ -85,9 +83,10 @@ def plot_stability_ax(ax, data, ilow, iup):
 
     return ax
 
-def plot_r2_ax(ax_right, data):
 
-    
+def plot_r2_ax(ax_right, data):
+    """Plot R2 axis."""
+
     label_font_size = 10
     axis_font = {"size": f"{label_font_size}"}
     lw = 1
@@ -98,6 +97,7 @@ def plot_r2_ax(ax_right, data):
     y = data.circuit_name
     yerr = None
 
+    # pylint: disable=E1121
     sns.scatterplot(
         x,
         y,
@@ -109,6 +109,7 @@ def plot_r2_ax(ax_right, data):
         legend=False,
         alpha=0.5,
     )
+    # pylint: enable=E1121
     ax_right.errorbar(
         x, y, yerr=yerr, xerr=xerr, ls="", color="b", lw=lw, label="CI", alpha=0.5
     )
@@ -120,6 +121,15 @@ def plot_r2_ax(ax_right, data):
 
 def plot_stability(input_path, output_path=None):
     """Plot the stability results."""
+    print(input_path)
+    print(output_path)
+    input_path = pathlib.Path(input_path)
+    if output_path is None:
+        output_path = input_path.parent
+    else:
+        output_path = pathlib.Path(output_path)
+    print(output_path)
+
     data, ilow, iup = preprocess_data(input_path)
 
     font_scale = 0.4
@@ -127,11 +137,11 @@ def plot_stability(input_path, output_path=None):
 
     sns.set_style("whitegrid")
     sns.set_context("paper", font_scale=font_scale)
-    fig, ax = plt.subplots(1, 1, figsize=this_figsize)  
+    fig, ax = plt.subplots(1, 1, figsize=this_figsize)
     ax = plot_stability_ax(ax, data, ilow, iup)
 
     ax_right = ax.twiny()
-    plot_r2_ax(ax_right, data)
+    ax_right = plot_r2_ax(ax_right, data)
 
     # added these three lines
     # ask matplotlib for the plotted objects and their labels
