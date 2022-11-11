@@ -9,8 +9,7 @@ import pandas as pd
 import seaborn as sns
 
 
-def plot_stability(input_path, output_path=None):
-    """Plot the stability results."""
+def preprocess_data(input_path):
     input_path = pathlib.Path(input_path)
     if output_path is None:
         output_path = input_path.parent
@@ -32,10 +31,13 @@ def plot_stability(input_path, output_path=None):
 
     data["r2_error"] = 1.96 * data.r2_std / 2
 
-    font_scale = 0.4
-    scale = 2
-    this_figsize = (5 / scale, 30 / scale)
+    return data, ilow, iup
+
+def plot_stability_ax(ax, data, ilow, iup):
+
+
     label_font_size = 10
+    axis_font = {"size": f"{label_font_size}"}
     scatter_size = 10
     lw = 1
 
@@ -43,10 +45,7 @@ def plot_stability(input_path, output_path=None):
     y = data.circuit_name
     xerr = data.stability_error
     yerr = None
-    sns.set_style("whitegrid")
-    sns.set_context("paper", font_scale=font_scale)
-    fig, ax = plt.subplots(1, 1, figsize=this_figsize)
-    ax_right = ax.twiny()
+
     sns.scatterplot(
         x,
         y,
@@ -81,12 +80,24 @@ def plot_stability(input_path, output_path=None):
     ax.set_xticks([0, 0.4, 0.75, 1])
 
     sns.despine(left=True, right=True, top=True, bottom=True)
-    axis_font = {"size": f"{label_font_size}"}
     ax.set_xlabel("Nogueria Stability Stimate with 95% CI", **axis_font)
     ax.set_ylabel("Circuit Name", **axis_font)
 
+    return ax
+
+def plot_r2_ax(ax_right, data):
+
+    
+    label_font_size = 10
+    axis_font = {"size": f"{label_font_size}"}
+    lw = 1
+    scatter_size = 10
+
     x = data["r2_mean"]
     xerr = data["r2_error"]
+    y = data.circuit_name
+    yerr = None
+
     sns.scatterplot(
         x,
         y,
@@ -104,7 +115,23 @@ def plot_stability(input_path, output_path=None):
     ax_right.set_xlabel(r"$R^2$ score mean and 95% CI", **axis_font)
     ax_right.grid(axis="x")
 
-    lh2, l2 = ax_right.get_legend_handles_labels()
+    return ax_right
+
+
+def plot_stability(input_path, output_path=None):
+    """Plot the stability results."""
+    data, ilow, iup = preprocess_data(input_path)
+
+    font_scale = 0.4
+    this_figsize = (5 / 2.0, 30 / 2.0)
+
+    sns.set_style("whitegrid")
+    sns.set_context("paper", font_scale=font_scale)
+    fig, ax = plt.subplots(1, 1, figsize=this_figsize)  
+    ax = plot_stability_ax(ax, data, ilow, iup)
+
+    ax_right = ax.twiny()
+    plot_r2_ax(ax_right, data)
 
     # added these three lines
     # ask matplotlib for the plotted objects and their labels
