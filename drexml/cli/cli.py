@@ -19,6 +19,7 @@ import click
 import joblib
 
 from drexml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
+from drexml.plotting import plot_stability
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
@@ -255,6 +256,17 @@ def run(ctx, **kwargs):
     ctx.forward(stability, mode="explain")
     ctx.forward(stability, mode="score")
     ctx.forward(explain)
+
+
+@main.command()
+@click.argument("stab-path", type=click.Path(exists=True))
+@click.argument("output", type=click.Path(exists=False))
+@click.version_option(get_version())
+@click.pass_context
+def plot(ctx, stab_path, output):
+    """Plot the stability results"""
+
+    plot_stability(stab_path, output)
 
 
 if __name__ == "__main__":
