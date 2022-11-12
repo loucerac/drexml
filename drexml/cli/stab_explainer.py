@@ -83,6 +83,8 @@ if __name__ == "__main__":
         if (this_model.n_features_ * this_model.n_outputs_) > (712 * 331):
             n_chunks = 12
         n_chunks = max(n_chunks, n_devices)
+        if gpu and n_splits == 1:
+            n_chunks *= 2
         chunk_size = len(features_val) // (n_chunks) + 1
 
         def runner(model, bkg, new, check_add, use_gpu):
