@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "drexml"
 version = "0.9.5"
-description = "Drug repurposing   using machine learning and mechanistic models of signal transduction\""
-authors = ["Carlos Loucera <carlos.loucera@juntadeandalucia.es>"]
+description = "(DRExM³L) Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning\""
+authors = [
+    "Carlos Loucera <carlos.loucera@juntadeandalucia.es>",
+    "Marina Esteban-Medina <marina.esteban@juntadeandalucia.es>",
+    "María Peña-Chilet <maria.pena.chilet.ext@juntadeandalucia.es.com>"
+    ]
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -17,7 +21,6 @@ click = "^8"
 zenodo-client = "^0.2.0"
 pyarrow = "^8.0.0"
 shap = {git = "https://github.com/slundberg/shap", rev = "v0.41.0"}
-
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
