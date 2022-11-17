@@ -1,7 +1,7 @@
 .PHONY: install test format
 all: install format test
 install:
-	poetry env use 3.8.13
+	poetry env use 3.10.7
 	poetry install
 	poetry run pytest
 format:
