@@ -60,17 +60,23 @@ def plot_stability_ax(ax, data, ilow, iup):
         x, y, yerr=yerr, xerr=xerr, ls="", color="k", lw=lw, label="CI", alpha=0.5
     )
     # Get the first two and last y-tick positions.
-    miny, nexty, *_, maxy = ax.get_yticks()
+    if ilow == iup:
+        miny, nexty = ax.get_yticks()
+        maxy = nexty
+    else:
+        miny, nexty, *_, maxy = ax.get_yticks()
 
     # Compute half the y-tick interval (for example).
     eps = (nexty - miny) / 2  # <-- Your choice.
 
     # Adjust the limits.
     ax.set_ylim(maxy + eps, miny - eps)
+    ax.set_xlim(-0.05, 1.05)
     # ax.axvline(0.4, color="r", linestyle="--")
     # ax.axvline(0.75, color="b", linestyle="--")
     # ax.axhspan("Disease Map", color="k", linestyle="--")
-    ax.axhspan(ilow + 0.5, iup - 0.5, color="gray", alpha=0.2)
+    if ilow != iup:
+        ax.axhspan(ilow + 0.5, iup - 0.5, color="gray", alpha=0.2)
 
     ax.axvspan(0, 0.4, color="red", alpha=0.2)
     ax.axvspan(0.4, 0.75, color="y", alpha=0.2)
@@ -115,6 +121,7 @@ def plot_r2_ax(ax_right, data):
     )
     ax_right.set_xlabel(r"$R^2$ score mean and 95% CI", **axis_font)
     ax_right.grid(axis="x")
+    ax_right.set_xlim(-0.05, 1.05)
 
     return ax_right
 
@@ -131,6 +138,9 @@ def plot_stability(input_path, output_path=None):
     print(output_path)
 
     data, ilow, iup = preprocess_data(input_path)
+    print(data)
+    print(f"{ilow=}")
+    print(f"{iup=}")
 
     font_scale = 0.4
     this_figsize = (5 / 2.0, 30 / 2.0)
