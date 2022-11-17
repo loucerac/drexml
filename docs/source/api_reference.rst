@@ -27,3 +27,8 @@ utils
 ----------
 .. automodule:: drexml.utils
    :members:
+
+plotting
+----------
+.. automodule:: drexml.plotting
+   :members:
