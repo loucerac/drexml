@@ -85,6 +85,8 @@ if __name__ == "__main__":
         n_chunks = max(n_chunks, n_devices)
         if gpu and n_splits == 1:
             n_chunks *= 2
+
+        n_chunks = max(n_chunks, n_devices)
         chunk_size = len(features_val) // (n_chunks) + 1
 
         def runner(model, bkg, new, check_add, use_gpu):
