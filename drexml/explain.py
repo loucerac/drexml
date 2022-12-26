@@ -169,7 +169,7 @@ def get_quantile_by_circuit(model, X, Y, threshold=0.5):
     float
         Qauntile to use.
     """
-    cut = 0.95
+    cut = 0.9
     r = r2_score(Y, model.predict(X), multioutput="raw_values")
     r[r < threshold] = threshold
     q = cut + ((1 - r) / (1 - threshold)) * (1 - cut)

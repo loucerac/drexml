@@ -45,7 +45,7 @@ if __name__ == "__main__":
         cv_gen = joblib.load(cv_fpath)
     else:
         ids = np.arange(features.shape[0])
-        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=0)
+        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=42)
 
     for i_split in range(n_splits):
         print(n_splits, i_split)
@@ -87,6 +87,7 @@ if __name__ == "__main__":
             n_chunks *= 2
 
         n_chunks = max(n_chunks, n_devices)
+        n_chunks = max(1, n_devices)
         chunk_size = len(features_val) // (n_chunks) + 1
 
         def runner(model, bkg, new, check_add, use_gpu):
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
         if features_learn.shape[0] > 1000:
-            features_bkg = features_learn.sample(n=1000, random_state=0)
+            features_bkg = features_learn.sample(n=1000, random_state=42)
         else:
             features_bkg = features_learn
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):

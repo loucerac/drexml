@@ -160,7 +160,9 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
         n_estimators_max = 20
         patience = 5
     else:
-        n_estimators = max(201, int(n_features * 201 / 700))
+        n_estimators = max(201, int((n_features + n_targets) * 201 / 700))
+        #n_estimators = int(1.5 * (n_features + n_targets))
+        #n_estimators = np.log2()
         n_estimators_min = 100
         n_estimators_max = n_estimators
         patience = 100
@@ -178,9 +180,11 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
     model = RandomForestRegressor(
         n_jobs=n_jobs,
         n_estimators=200,
-        max_depth=12,
+        max_depth=8,
         max_features=mtry,
-        random_state=0,
+        random_state=42,
     )
+
+    print(n_estimators)
 
     return model
