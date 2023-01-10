@@ -107,7 +107,7 @@ P-hsa04014-41	Ras signaling pathway: RAC1*
 P-hsa04014-100	Ras signaling pathway: REL
 P-hsa04014-24	Ras signaling pathway: PLD1
 P-hsa04014-26	Ras signaling pathway: PRKCA
-P-hsa04014-30	Ras signaling pathway: C01245
+P-hsa04014-30	Ras signaling pathway: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04014-27	Ras signaling pathway: ABL1
 P-hsa04014-45	Ras signaling pathway: RAB5A
 P-hsa04014-61	Ras signaling pathway: RAP1A
@@ -139,14 +139,14 @@ P-hsa04015-95	Rap1 signaling pathway: THBS1
 P-hsa04015-100 101 48	Rap1 signaling pathway: PRKCI PARD6A PARD3
 P-hsa04015-96	Rap1 signaling pathway: PLCE1
 P-hsa04015-63	Rap1 signaling pathway: GNAI1
-P-hsa04015-92	Rap1 signaling pathway: C00076*
-P-hsa04020-64	Calcium signaling pathway: C01330*
-P-hsa04020-12	Calcium signaling pathway: C01330
-P-hsa04020-18	Calcium signaling pathway: C00002
-P-hsa04020-17	Calcium signaling pathway: C00004
-P-hsa04020-15	Calcium signaling pathway: C13051
-P-hsa04020-22	Calcium signaling pathway: C00575
-P-hsa04020-16	Calcium signaling pathway: C06124
+P-hsa04015-92	Rap1 signaling pathway: Calcium cation*
+P-hsa04020-64	Calcium signaling pathway: Sodium cation*
+P-hsa04020-12	Calcium signaling pathway: Sodium cation
+P-hsa04020-18	Calcium signaling pathway: ATP
+P-hsa04020-17	Calcium signaling pathway: NADH
+P-hsa04020-15	Calcium signaling pathway: Nicotinic acid adenine dinucleotide phosphate
+P-hsa04020-22	Calcium signaling pathway: 3,5-Cyclic AMP
+P-hsa04020-16	Calcium signaling pathway: Sphingosine 1-phosphate
 P-hsa04020-42	Calcium signaling pathway: MYLK4
 P-hsa04020-8	Calcium signaling pathway: PDE1A
 P-hsa04020-7	Calcium signaling pathway: ADCY1
@@ -168,9 +168,9 @@ P-hsa04022-60	cGMP-PKG signaling pathway: TRPC6*
 P-hsa04022-37 38	cGMP-PKG signaling pathway: ATP2A1 PLN
 P-hsa04022-19	cGMP-PKG signaling pathway: CNGB1
 P-hsa04022-65	cGMP-PKG signaling pathway: PDE2A
-P-hsa04022-57	cGMP-PKG signaling pathway: C00144
+P-hsa04022-57	cGMP-PKG signaling pathway: GMP
 P-hsa04022-66	cGMP-PKG signaling pathway: PDE3A
-P-hsa04022-63	cGMP-PKG signaling pathway: C00575
+P-hsa04022-63	cGMP-PKG signaling pathway: 3,5-Cyclic AMP
 P-hsa04022-71	cGMP-PKG signaling pathway: PPIF
 P-hsa04024-109	cAMP signaling pathway: BDNF
 P-hsa04024-110	cAMP signaling pathway: FOS
@@ -200,11 +200,11 @@ P-hsa04024-7	cAMP signaling pathway: TNNI3
 P-hsa04024-9 95	cAMP signaling pathway: ATP1B4 FXYD1
 P-hsa04024-21	cAMP signaling pathway: AKT3
 P-hsa04024-77	cAMP signaling pathway: RHOA*
-P-hsa04024-31	cAMP signaling pathway: C00165
-P-hsa04024-32	cAMP signaling pathway: C01245
+P-hsa04024-31	cAMP signaling pathway: Diacylglycerol
+P-hsa04024-32	cAMP signaling pathway: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04024-123	cAMP signaling pathway: PAK1
 P-hsa04024-59	cAMP signaling pathway: AFDN
-P-hsa04024-76	cAMP signaling pathway: C00416
+P-hsa04024-76	cAMP signaling pathway: Phosphatidate
 P-hsa04024-43	cAMP signaling pathway: MAPK8
 P-hsa04024-101	cAMP signaling pathway: HCN4
 P-hsa04062-43	Chemokine signaling pathway: STAT1
@@ -280,7 +280,7 @@ P-hsa04066-29	HIF-1 signaling pathway: LDHA
 P-hsa04066-88	HIF-1 signaling pathway: BCL2
 P-hsa04066-89	HIF-1 signaling pathway: CDKN1A
 P-hsa04066-46	HIF-1 signaling pathway: ENO1
-P-hsa04066-26	HIF-1 signaling pathway: C01245
+P-hsa04066-26	HIF-1 signaling pathway: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04066-37	HIF-1 signaling pathway: PDHA1
 P-hsa04068-39	FoxO signaling pathway: CCNB3
 P-hsa04068-40	FoxO signaling pathway: CCND1
@@ -312,11 +312,11 @@ P-hsa04068-59	FoxO signaling pathway: S1PR1
 P-hsa04068-60	FoxO signaling pathway: RAG1
 P-hsa04068-88	FoxO signaling pathway: FBXO32
 P-hsa04068-72	FoxO signaling pathway: SMAD2
-P-hsa04071-89	Sphingolipid signaling pathway: C00533
+P-hsa04071-89	Sphingolipid signaling pathway: Nitric oxide
 P-hsa04071-69	Sphingolipid signaling pathway: RAC1
 P-hsa04071-1	Sphingolipid signaling pathway: MAPK1
 P-hsa04071-11	Sphingolipid signaling pathway: PRKCA
-P-hsa04071-66	Sphingolipid signaling pathway: C01245
+P-hsa04071-66	Sphingolipid signaling pathway: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04071-24	Sphingolipid signaling pathway: PTEN
 P-hsa04071-68	Sphingolipid signaling pathway: NFKB1
 P-hsa04071-65	Sphingolipid signaling pathway: BAX*
@@ -324,9 +324,9 @@ P-hsa04071-57	Sphingolipid signaling pathway: BAX
 P-hsa04071-59 60	Sphingolipid signaling pathway: TP53 BCL2
 P-hsa04071-48	Sphingolipid signaling pathway: SMPD1
 P-hsa04072-3	Phospholipase D signaling pathway: MAPK1
-P-hsa04072-57	Phospholipase D signaling pathway: C06124
+P-hsa04072-57	Phospholipase D signaling pathway: Sphingosine 1-phosphate
 P-hsa04072-36	Phospholipase D signaling pathway: MTOR
-P-hsa04072-27	Phospholipase D signaling pathway: C01245
+P-hsa04072-27	Phospholipase D signaling pathway: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04110-46	Cell cycle: RB1
 P-hsa04110-96 97	Cell cycle: TFDP1 E2F4
 P-hsa04110-60 10 11 12 13 14 9	Cell cycle: CDC6 ORC3 ORC5 ORC4 ORC2 ORC1 ORC6
@@ -504,7 +504,7 @@ P-hsa04261-52	Adrenergic signaling in cardiomyocytes: MAPK14
 P-hsa04261-34	Adrenergic signaling in cardiomyocytes: AKT3
 P-hsa04261-36	Adrenergic signaling in cardiomyocytes: MAPK1
 P-hsa04261-62	Adrenergic signaling in cardiomyocytes: BCL2
-P-hsa04261-66	Adrenergic signaling in cardiomyocytes: C01245
+P-hsa04261-66	Adrenergic signaling in cardiomyocytes: D-myo-Inositol 1,4,5-trisphosphate
 P-hsa04270-10 3 71	Vascular smooth muscle contraction: ACTA2 MYL9 MYH11
 P-hsa04270-24	Vascular smooth muscle contraction: ACTA2
 P-hsa04270-46	Vascular smooth muscle contraction: ITPR1*
@@ -693,7 +693,7 @@ P-hsa04550-36	Signaling pathways regulating pluripotency of stem cells: AKT3*
 P-hsa04550-62 63	Signaling pathways regulating pluripotency of stem cells: SMAD2 SMAD4
 P-hsa04550-47	Signaling pathways regulating pluripotency of stem cells: CTNNB1*
 P-hsa04550-67	Signaling pathways regulating pluripotency of stem cells: MYC*
-P-hsa04610-7	Complement and coagulation cascades: C00290
+P-hsa04610-7	Complement and coagulation cascades: Fibrin
 P-hsa04610-17	Complement and coagulation cascades: PLG
 P-hsa04610-57	Complement and coagulation cascades: PLAUR
 P-hsa04610-11	Complement and coagulation cascades: F2R
@@ -705,7 +705,7 @@ P-hsa04610-23	Complement and coagulation cascades: BDKRB1
 P-hsa04610-44	Complement and coagulation cascades: C3
 P-hsa04611-7	Platelet activation: ITPR1
 P-hsa04611-92	Platelet activation: RHOA*
-P-hsa04611-34	Platelet activation: C02198*
+P-hsa04611-34	Platelet activation: Thromboxane A2*
 P-hsa04611-43	Platelet activation: MYL12B
 P-hsa04611-25	Platelet activation: ORAI1
 P-hsa04612-17 28	Antigen processing and presentation: CD4 HLA-DMA
@@ -803,7 +803,7 @@ P-hsa04664-46	Fc epsilon RI signaling pathway: PLA2G4B
 P-hsa04666-27	Fc gamma R-mediated phagocytosis: ARPC5
 P-hsa04666-38	Fc gamma R-mediated phagocytosis: CFL1
 P-hsa04666-29	Fc gamma R-mediated phagocytosis: WAS
-P-hsa04666-30 44	Fc gamma R-mediated phagocytosis: C04637 GSN
+P-hsa04666-30 44	Fc gamma R-mediated phagocytosis: 1-Phosphatidyl-D-myo-inositol 4,5-bisphosphate GSN
 P-hsa04666-49	Fc gamma R-mediated phagocytosis: ARF6*
 P-hsa04666-20	Fc gamma R-mediated phagocytosis: PLA2G4B
 P-hsa04666-41	Fc gamma R-mediated phagocytosis: MARCKS
@@ -926,10 +926,10 @@ P-hsa04728-60	Dopaminergic synapse: CACNA1A
 P-hsa04728-71 72	Dopaminergic synapse: CLOCK ARNTL
 P-hsa04728-36	Dopaminergic synapse: TH
 P-hsa04728-24	Dopaminergic synapse: SLC6A3
-P-hsa04730-20	Long-term depression: C00025
+P-hsa04730-20	Long-term depression: L-Glutamate
 P-hsa04730-8	Long-term depression: GNA13*
 P-hsa04730-7	Long-term depression: GNA13
-P-hsa04730-30	Long-term depression: C00025*
+P-hsa04730-30	Long-term depression: L-Glutamate*
 P-hsa04740-10	Olfactory transduction: ANO2
 P-hsa04740-37	Olfactory transduction: CNGB1*
 P-hsa04740-39	Olfactory transduction: PRKG1*
@@ -945,7 +945,7 @@ P-hsa04742-18	Taste transduction: PDE1A
 P-hsa04742-34	Taste transduction: GRM1
 P-hsa04742-27	Taste transduction: CALHM1
 P-hsa04742-23 45	Taste transduction: PKD1L3 PKD2L1
-P-hsa04742-31	Taste transduction: C00076*
+P-hsa04742-31	Taste transduction: Calcium cation*
 P-hsa04742-48	Taste transduction: GABBR1
 P-hsa04742-47	Taste transduction: GABRA1
 P-hsa04742-57	Taste transduction: HTR3C
@@ -956,8 +956,8 @@ P-hsa04742-40	Taste transduction: P2RX2
 P-hsa04742-46	Taste transduction: P2RY1
 P-hsa04742-37	Taste transduction: P2RY4
 P-hsa04750-7	Inflammatory mediator regulation of TRP channels: TRPV1
-P-hsa04750-39	Inflammatory mediator regulation of TRP channels: C01245*
-P-hsa04750-40	Inflammatory mediator regulation of TRP channels: C00219
+P-hsa04750-39	Inflammatory mediator regulation of TRP channels: D-myo-Inositol 1,4,5-trisphosphate*
+P-hsa04750-40	Inflammatory mediator regulation of TRP channels: Arachidonate
 P-hsa04750-53	Inflammatory mediator regulation of TRP channels: TRPM8
 P-hsa04750-44	Inflammatory mediator regulation of TRP channels: TRPA1
 P-hsa04750-51	Inflammatory mediator regulation of TRP channels: TRPV4
@@ -968,7 +968,7 @@ P-hsa04750-62	Inflammatory mediator regulation of TRP channels: TRPM8*
 P-hsa04750-63	Inflammatory mediator regulation of TRP channels: TRPA1*
 P-hsa04750-59	Inflammatory mediator regulation of TRP channels: TRPV2
 P-hsa04750-60	Inflammatory mediator regulation of TRP channels: TRPV3
-P-hsa04750-90	Inflammatory mediator regulation of TRP channels: C01245**
+P-hsa04750-90	Inflammatory mediator regulation of TRP channels: D-myo-Inositol 1,4,5-trisphosphate**
 P-hsa04810-82 83	Regulation of actin cytoskeleton: ACTB ARPC5
 P-hsa04810-21 82	Regulation of actin cytoskeleton: CFL1 ACTB
 P-hsa04810-35 81 80	Regulation of actin cytoskeleton: MYL12B MYH9 ACTB
@@ -987,8 +987,8 @@ P-hsa04910-24	Insulin signaling pathway: ACACA
 P-hsa04910-12	Insulin signaling pathway: FASN
 P-hsa04910-20	Insulin signaling pathway: PKLR
 P-hsa04910-57	Insulin signaling pathway: GCK
-P-hsa04910-17	Insulin signaling pathway: C00031
-P-hsa04910-14	Insulin signaling pathway: C00369
+P-hsa04910-17	Insulin signaling pathway: D-Glucose
+P-hsa04910-14	Insulin signaling pathway: Starch
 P-hsa04910-48	Insulin signaling pathway: PPARGC1A
 P-hsa04910-43	Insulin signaling pathway: G6PC
 P-hsa04910-46	Insulin signaling pathway: FBP1
@@ -1036,9 +1036,9 @@ P-hsa04914-34	Progesterone-mediated oocyte maturation: MAPK14
 P-hsa04915-40	Estrogen signaling pathway: CREB3**
 P-hsa04915-58	Estrogen signaling pathway: CREB3***
 P-hsa04915-21	Estrogen signaling pathway: CREB3
-P-hsa04915-3 11	Estrogen signaling pathway: ESR1 C00951
+P-hsa04915-3 11	Estrogen signaling pathway: ESR1 Estradiol-17beta
 P-hsa04915-12 14	Estrogen signaling pathway: ESR1 FOS
-P-hsa04915-12 13	Estrogen signaling pathway: ESR1 C00951*
+P-hsa04915-12 13	Estrogen signaling pathway: ESR1 Estradiol-17beta*
 P-hsa04915-66	Estrogen signaling pathway: AKT3*
 P-hsa04915-28	Estrogen signaling pathway: KCNJ3
 P-hsa04915-30	Estrogen signaling pathway: CREB3*
@@ -1095,12 +1095,12 @@ P-hsa04919-100	Thyroid hormone signaling pathway: CTNNB1*
 P-hsa04919-42	Thyroid hormone signaling pathway: SLC2A1
 P-hsa04919-91	Thyroid hormone signaling pathway: PFKP
 P-hsa04919-40	Thyroid hormone signaling pathway: RCAN2
-P-hsa04919-21 53	Thyroid hormone signaling pathway: THRA C02465
+P-hsa04919-21 53	Thyroid hormone signaling pathway: THRA Triiodothyronine
 P-hsa04919-101	Thyroid hormone signaling pathway: NOTCH1
 P-hsa04919-102	Thyroid hormone signaling pathway: BMP4
 P-hsa04919-49	Thyroid hormone signaling pathway: ACTB
-P-hsa04920-43	Adipocytokine signaling pathway: C00162
-P-hsa04920-2	Adipocytokine signaling pathway: C00638
+P-hsa04920-43	Adipocytokine signaling pathway: Fatty acid
+P-hsa04920-2	Adipocytokine signaling pathway: Long-chain fatty acid
 P-hsa04920-28	Adipocytokine signaling pathway: SLC2A1
 P-hsa04920-10	Adipocytokine signaling pathway: PCK1
 P-hsa04920-9	Adipocytokine signaling pathway: G6PC
@@ -1111,10 +1111,10 @@ P-hsa04920-26	Adipocytokine signaling pathway: NPY
 P-hsa04920-16	Adipocytokine signaling pathway: POMC
 P-hsa04920-40	Adipocytokine signaling pathway: PPARGC1A
 P-hsa04920-5	Adipocytokine signaling pathway: NFKBIA
-P-hsa04920-12	Adipocytokine signaling pathway: C00165
-P-hsa04920-3	Adipocytokine signaling pathway: C15493
-P-hsa04920-1	Adipocytokine signaling pathway: C00195
-P-hsa04921-23	Oxytocin signaling pathway: C00219
+P-hsa04920-12	Adipocytokine signaling pathway: Diacylglycerol
+P-hsa04920-3	Adipocytokine signaling pathway: 9-cis-Retinoic acid
+P-hsa04920-1	Adipocytokine signaling pathway: N-Acylsphingosine
+P-hsa04921-23	Oxytocin signaling pathway: Arachidonate
 P-hsa04921-41	Oxytocin signaling pathway: PTGS2
 P-hsa04921-58	Oxytocin signaling pathway: MEF2C
 P-hsa04921-56	Oxytocin signaling pathway: JUN
@@ -1125,7 +1125,7 @@ P-hsa04921-28	Oxytocin signaling pathway: EEF2
 P-hsa04921-65	Oxytocin signaling pathway: TRPM2
 P-hsa04921-67	Oxytocin signaling pathway: RYR1
 P-hsa04921-34 35	Oxytocin signaling pathway: MYL9 ACTB
-P-hsa04921-33	Oxytocin signaling pathway: C00942
+P-hsa04921-33	Oxytocin signaling pathway: 3,5-Cyclic GMP
 P-hsa04921-48	Oxytocin signaling pathway: PRKAG2
 P-hsa04921-55	Oxytocin signaling pathway: PTGS2*
 P-hsa04921-53	Oxytocin signaling pathway: RGS2
@@ -1135,7 +1135,7 @@ P-hsa04921-11	Oxytocin signaling pathway: PRKACA
 P-hsa04921-76	Oxytocin signaling pathway: CDKN1A
 P-hsa04921-77	Oxytocin signaling pathway: KCNJ3
 P-hsa04921-43	Oxytocin signaling pathway: CACNG3
-P-hsa04921-46	Oxytocin signaling pathway: C00942*
+P-hsa04921-46	Oxytocin signaling pathway: 3,5-Cyclic GMP*
 P-hsa04922-51	Glucagon signaling pathway: G6PC
 P-hsa04922-50	Glucagon signaling pathway: PCK1
 P-hsa04922-59	Glucagon signaling pathway: CPT1C
@@ -1151,14 +1151,14 @@ P-hsa04923-16	Regulation of lipolysis in adipocytes: PLIN1
 P-hsa04923-66	Regulation of lipolysis in adipocytes: LIPE
 P-hsa04923-31	Regulation of lipolysis in adipocytes: PRKACA*
 P-hsa04923-38	Regulation of lipolysis in adipocytes: PDE3B
-P-hsa04923-43	Regulation of lipolysis in adipocytes: C00219
+P-hsa04923-43	Regulation of lipolysis in adipocytes: Arachidonate
 P-hsa04923-52 53	Regulation of lipolysis in adipocytes: PNPLA2 ABHD5*
 P-hsa04923-26 27	Regulation of lipolysis in adipocytes: PNPLA2 ABHD5
 P-hsa04924-34	Renin secretion: REN
 P-hsa04924-47	Renin secretion: KCNMA1
 P-hsa04924-30	Renin secretion: PDE3A
 P-hsa04924-23	Renin secretion: ITPR1
-P-hsa04924-31	Renin secretion: C02135
+P-hsa04924-31	Renin secretion: Angiotensin II
 P-hsa04924-58	Renin secretion: PPP3CA
 P-hsa04924-49	Renin secretion: PDE1A
 P-hsa04924-52	Renin secretion: KCNJ2
@@ -1168,26 +1168,26 @@ P-hsa04925-3	Aldosterone synthesis and secretion: ITPR1
 P-hsa04925-5	Aldosterone synthesis and secretion: KCNK3
 P-hsa04925-18	Aldosterone synthesis and secretion: PDE2A
 P-hsa04930-3	Type II diabetes mellitus: SLC2A4
-P-hsa04930-15	Type II diabetes mellitus: C00031*
+P-hsa04930-15	Type II diabetes mellitus: D-Glucose*
 P-hsa04930-26	Type II diabetes mellitus: INS*
-P-hsa04930-13	Type II diabetes mellitus: C00162
-P-hsa04930-8	Type II diabetes mellitus: C00022
-P-hsa04930-10	Type II diabetes mellitus: C00031
-P-hsa04930-7	Type II diabetes mellitus: C00002
-P-hsa04930-9	Type II diabetes mellitus: C00238
+P-hsa04930-13	Type II diabetes mellitus: Fatty acid
+P-hsa04930-8	Type II diabetes mellitus: Pyruvate
+P-hsa04930-10	Type II diabetes mellitus: D-Glucose
+P-hsa04930-7	Type II diabetes mellitus: ATP
+P-hsa04930-9	Type II diabetes mellitus: Potassium cation
 P-hsa04931-40	Insulin resistance: PRKCZ
-P-hsa04931-35	Insulin resistance: C00369
+P-hsa04931-35	Insulin resistance: Starch
 P-hsa04931-13	Insulin resistance: AKT2
-P-hsa04931-104	Insulin resistance: C00369*
+P-hsa04931-104	Insulin resistance: Starch*
 P-hsa04931-46	Insulin resistance: PIK3R5*
 P-hsa04931-61	Insulin resistance: ACACB
 P-hsa04931-151	Insulin resistance: CPT1A
 P-hsa04931-67	Insulin resistance: IKBKB**
 P-hsa04931-47	Insulin resistance: AKT2*
 P-hsa04931-77	Insulin resistance: PPP2R4**
-P-hsa04931-87	Insulin resistance: C00031*
+P-hsa04931-87	Insulin resistance: D-Glucose*
 P-hsa04931-29	Insulin resistance: CPT1B
-P-hsa04931-144	Insulin resistance: C00533*
+P-hsa04931-144	Insulin resistance: Nitric oxide*
 P-hsa04931-124	Insulin resistance: FOXO1*
 P-hsa04931-135	Insulin resistance: SREBF1**
 P-hsa04931-137	Insulin resistance: MLXIP*
@@ -1247,7 +1247,7 @@ P-hsa04960-3	Aldosterone-regulated sodium reabsorption: SCNN1A
 P-hsa04960-27	Aldosterone-regulated sodium reabsorption: KCNJ1
 P-hsa04960-13	Aldosterone-regulated sodium reabsorption: FXYD4
 P-hsa04960-4	Aldosterone-regulated sodium reabsorption: ATP1B4
-P-hsa04960-15	Aldosterone-regulated sodium reabsorption: C00762
+P-hsa04960-15	Aldosterone-regulated sodium reabsorption: Cortisone
 P-hsa04961-5	Endocrine and other factor-regulated calcium reabsorption: TRPV5
 P-hsa04961-20	Endocrine and other factor-regulated calcium reabsorption: CALB1*
 P-hsa04961-12	Endocrine and other factor-regulated calcium reabsorption: SLC8A1
@@ -1291,7 +1291,7 @@ P-hsa05010-49	Alzheimer's disease: EIF2AK3
 P-hsa05010-50	Alzheimer's disease: ERN1
 P-hsa05010-51	Alzheimer's disease: ATF6
 P-hsa05010-37	Alzheimer's disease: MAPT
-P-hsa05010-47	Alzheimer's disease: C00533
+P-hsa05010-47	Alzheimer's disease: Nitric oxide
 P-hsa05010-59	Alzheimer's disease: LRP1
 P-hsa05010-61	Alzheimer's disease: GAPDH
 P-hsa05012-57	Parkinson's disease: CASP3
@@ -1305,7 +1305,7 @@ P-hsa05014-51	Amyotrophic lateral sclerosis (ALS): DERL1
 P-hsa05014-31 34	Amyotrophic lateral sclerosis (ALS): NEFL PRPH
 P-hsa05014-32 34	Amyotrophic lateral sclerosis (ALS): NEFM PRPH
 P-hsa05014-33 34	Amyotrophic lateral sclerosis (ALS): NEFH PRPH
-P-hsa05014-49	Amyotrophic lateral sclerosis (ALS): C00001
+P-hsa05014-49	Amyotrophic lateral sclerosis (ALS): H2O
 P-hsa05014-53	Amyotrophic lateral sclerosis (ALS): RAB5A
 P-hsa05016-12	Huntington's disease: REST
 P-hsa05016-55	Huntington's disease: TGM2
@@ -1357,7 +1357,7 @@ P-hsa05032-38	Morphine addiction: CACNA1A
 P-hsa05032-30	Morphine addiction: ADORA1
 P-hsa05032-85	Morphine addiction: KCNJ6*
 P-hsa05032-55	Morphine addiction: GABRR3**
-P-hsa05032-25	Morphine addiction: C00575*
+P-hsa05032-25	Morphine addiction: 3,5-Cyclic AMP*
 P-hsa05034-99	Alcoholism: PDYN
 P-hsa05034-61	Alcoholism: CRH
 P-hsa05034-62	Alcoholism: NPY
@@ -1368,19 +1368,19 @@ P-hsa05100-24	Bacterial invasion of epithelial cells: ACTB
 P-hsa05100-15	Bacterial invasion of epithelial cells: CTNNA1
 P-hsa05100-33	Bacterial invasion of epithelial cells: DNM1
 P-hsa05100-55	Bacterial invasion of epithelial cells: ACTB*
-P-hsa05110-12	Vibrio cholerae infection: C00080
+P-hsa05110-12	Vibrio cholerae infection: H+
 P-hsa05110-51	Vibrio cholerae infection: PDIA4
 P-hsa05110-52	Vibrio cholerae infection: ADCY3
-P-hsa05110-17	Vibrio cholerae infection: C00698*
-P-hsa05110-14	Vibrio cholerae infection: C00238*
-P-hsa05110-15	Vibrio cholerae infection: C01330
-P-hsa05110-16	Vibrio cholerae infection: C00698
-P-hsa05110-13	Vibrio cholerae infection: C00238
+P-hsa05110-17	Vibrio cholerae infection: Cl-*
+P-hsa05110-14	Vibrio cholerae infection: Potassium cation*
+P-hsa05110-15	Vibrio cholerae infection: Sodium cation
+P-hsa05110-16	Vibrio cholerae infection: Cl-
+P-hsa05110-13	Vibrio cholerae infection: Potassium cation
 P-hsa05110-46	Vibrio cholerae infection: PLCG1
 P-hsa05110-50	Vibrio cholerae infection: ACTB
 P-hsa05120-20	Epithelial cell signaling in Helicobacter pylori infection: CXCL8
 P-hsa05120-19	Epithelial cell signaling in Helicobacter pylori infection: CXCL1
-P-hsa05120-35	Epithelial cell signaling in Helicobacter pylori infection: C00080
+P-hsa05120-35	Epithelial cell signaling in Helicobacter pylori infection: H+
 P-hsa05120-18	Epithelial cell signaling in Helicobacter pylori infection: CCL5
 P-hsa05120-50	Epithelial cell signaling in Helicobacter pylori infection: EGFR
 P-hsa05120-52	Epithelial cell signaling in Helicobacter pylori infection: LYN
@@ -1423,12 +1423,12 @@ P-hsa05134-72	Legionellosis: IL12A
 P-hsa05134-71	Legionellosis: CXCL8
 P-hsa05134-73	Legionellosis: CXCL1
 P-hsa05140-21	Leishmaniasis: NFKB1
-P-hsa05140-26	Leishmaniasis: C00533
+P-hsa05140-26	Leishmaniasis: Nitric oxide
 P-hsa05140-37	Leishmaniasis: ELK1
 P-hsa05140-55	Leishmaniasis: JUN
 P-hsa05140-16	Leishmaniasis: STAT1
 P-hsa05140-41 57	Leishmaniasis: NOS2 CYBA
-P-hsa05140-62	Leishmaniasis: C00584
+P-hsa05140-62	Leishmaniasis: Prostaglandin E2
 P-hsa05140-43	Leishmaniasis: MAPK14
 P-hsa05142-21	Chagas disease (American trypanosomiasis): TICAM1
 P-hsa05142-29	Chagas disease (American trypanosomiasis): NOS2
@@ -1445,7 +1445,7 @@ P-hsa05145-8	Toxoplasmosis: NFKB1
 P-hsa05145-11	Toxoplasmosis: MAPK14
 P-hsa05145-10	Toxoplasmosis: MAPK8
 P-hsa05145-9	Toxoplasmosis: MAPK1
-P-hsa05145-29	Toxoplasmosis: C06314
+P-hsa05145-29	Toxoplasmosis: Lipoxin A4
 P-hsa05145-23	Toxoplasmosis: CIITA
 P-hsa05145-35	Toxoplasmosis: CASP3
 P-hsa05145-67	Toxoplasmosis: BAD
@@ -1635,7 +1635,7 @@ P-hsa05200-210	Pathways in cancer: MMP1
 P-hsa05200-212	Pathways in cancer: CCND1***
 P-hsa05200-207	Pathways in cancer: CDK4
 P-hsa05200-76	Pathways in cancer: RAC1
-P-hsa05200-96	Pathways in cancer: C00416
+P-hsa05200-96	Pathways in cancer: Phosphatidate
 P-hsa05200-75	Pathways in cancer: MAPK8
 P-hsa05200-65	Pathways in cancer: STK4
 P-hsa05200-66	Pathways in cancer: CCND1
@@ -1674,7 +1674,7 @@ P-hsa05205-220	Proteoglycans in cancer: FAS
 P-hsa05205-109	Proteoglycans in cancer: SMAD2
 P-hsa05205-120	Proteoglycans in cancer: PLAU
 P-hsa05205-121	Proteoglycans in cancer: PLAUR
-P-hsa05205-233 234	Proteoglycans in cancer: ITGA2 C00925
+P-hsa05205-233 234	Proteoglycans in cancer: ITGA2 Heparan sulfate
 P-hsa05205-318	Proteoglycans in cancer: HSPB2
 P-hsa05205-324	Proteoglycans in cancer: KDR*
 P-hsa05205-319	Proteoglycans in cancer: KDR
@@ -1745,7 +1745,7 @@ P-hsa05211-22	Renal cell carcinoma: TGFA
 P-hsa05212-14	Pancreatic cancer: MAPK1
 P-hsa05212-19	Pancreatic cancer: MAPK8
 P-hsa05212-31	Pancreatic cancer: RAC1*
-P-hsa05212-54	Pancreatic cancer: C00416
+P-hsa05212-54	Pancreatic cancer: Phosphatidate
 P-hsa05212-8	Pancreatic cancer: NFKB1
 P-hsa05212-10	Pancreatic cancer: BCL2L1
 P-hsa05212-12	Pancreatic cancer: CASP9
@@ -1767,7 +1767,7 @@ P-hsa05214-35	Glioma: E2F1
 P-hsa05214-52	Glioma: E2F1*
 P-hsa05215-8	Prostate cancer: NFKBIA
 P-hsa05215-13	Prostate cancer: BCL2
-P-hsa05215-43	Prostate cancer: C05981
+P-hsa05215-43	Prostate cancer: Phosphatidylinositol-3,4,5-trisphosphate
 P-hsa05215-30	Prostate cancer: TP53
 P-hsa05215-14	Prostate cancer: CCND1
 P-hsa05215-46	Prostate cancer: MTOR
@@ -1778,7 +1778,7 @@ P-hsa05215-24	Prostate cancer: CDKN1A
 P-hsa05215-9	Prostate cancer: CDKN1B
 P-hsa05215-12	Prostate cancer: KLK3
 P-hsa05215-39	Prostate cancer: RB1
-P-hsa05215-22	Prostate cancer: C16038
+P-hsa05215-22	Prostate cancer: 2-Amino-1-methyl-6-phenylimidazo[4,5-b]pyridine
 P-hsa05216-5	Thyroid cancer: MAPK1
 P-hsa05216-14	Thyroid cancer: MAPK1*
 P-hsa05216-11	Thyroid cancer: MYC
