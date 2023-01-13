@@ -22,13 +22,17 @@ def rename_results(folder):
     """Translate entrez to symbols, and KEGG circuit IDs to names."""
     folder = Path(folder)
 
-    for path in folder.rglob("shap_selection.tsv"):
+    for path in folder.rglob("shap_selection*.tsv"):
+        if 'symbol' in path.stem: 
+            continue
         dataset = pd.read_csv(path, sep="\t", index_col=0)
         path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
         dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
         dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
 
-    for path in folder.rglob("shap_summary.tsv"):
+    for path in folder.rglob("shap_summary*.tsv"):
+        if 'symbol' in path.stem: 
+            continue
         dataset = pd.read_csv(path, sep="\t", index_col=0)
         path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
         dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
@@ -114,7 +118,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     stab_cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
     stab_cv = list(stab_cv.split(features_orig, targets_orig))
     stab_cv = [
-        (*train_test_split(stab_cv[i][0], test_size=0.3), stab_cv[i][1])
+        (*train_test_split(stab_cv[i][0], test_size=0.3, random_state=i), stab_cv[i][1])
         for i in range(n_splits)
     ]
 

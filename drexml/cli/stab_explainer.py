@@ -20,7 +20,7 @@ if __name__ == "__main__":
     import sys
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
-
+    this_seed = 141
     queue = multiprocessing.Queue()
 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         cv_gen = joblib.load(cv_fpath)
     else:
         ids = np.arange(features.shape[0])
-        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=42)
+        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=this_seed)
 
     for i_split in range(n_splits):
         print(n_splits, i_split)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             this_model = get_model(
                 features.shape[1], targets.shape[1], n_cpus, debug, n_iters
             )
-            this_model.set_params(n_jobs=n_cpus)
+            this_model.set_params(n_jobs=n_cpus, random_state=this_seed)
             this_model.fit(features_learn, targets_learn)
         else:
             model_fname = f"model_{i_split}.jbl"
@@ -106,10 +106,12 @@ if __name__ == "__main__":
 
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
-        if features_learn.shape[0] > 1000:
-            features_bkg = features_learn.sample(n=1000, random_state=42)
-        else:
-            features_bkg = features_learn
+        features_bkg = features_learn.copy()
+        # if features_learn.shape[0] > 1000:
+        #     features_bkg = features_learn.sample(n=1000, random_state=42)
+        # else:
+        #     features_bkg = features_learn
+        
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
