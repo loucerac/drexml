@@ -20,7 +20,7 @@ if __name__ == "__main__":
     import sys
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
-    this_seed = 141
+    this_seed = 275
     queue = multiprocessing.Queue()
 
     n_devices = n_gpus if n_gpus > 0 else n_cpus

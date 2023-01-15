@@ -153,7 +153,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
     sklearn.ensemble.RandomForestRegressor
         The model to be fitted.
     """
-    this_seed = 101010
+    this_seed = 275
     mtry = int(np.sqrt(n_features) + 20)
     if debug:
         n_estimators = 2
