@@ -31,6 +31,7 @@ RECORD_ID = "6020481"
 
 def fetch_file(disease, key, version="latest", debug=False):
     """Retrieve data."""
+    print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = dotenv_values(experiment_env_path)
     if env[key].lower() == DEFAULT_STR:
@@ -44,7 +45,8 @@ def fetch_file(disease, key, version="latest", debug=False):
                     ".data", "zenodo", "6020480", "panrd_1.0.0"
                 )
     else:
-        data_path = pathlib.Path(env["data_path"])
+        data_path = pathlib.Path(env["data_path"]).absolute()
+        print(data_path)
         if data_path.name.lower() == DEFAULT_STR:
             print(disease, env[key], data_path)
             data_path = experiment_env_path.parent
@@ -130,6 +132,10 @@ def get_disease_data(disease, debug):
     genes = fetch_file(disease, key="genes", version="latest", debug=debug)
     if "entrezs" in genes.columns:
         genes = genes.set_index("entrezs")
+    elif "entrez" in genes.columns:
+        genes = genes.set_index("entrez")
+    elif "entrez_id" in genes.columns:
+        genes = genes.set_index("entrez_id")
     elif "index" in genes.columns:
         genes = genes.set_index("index")
     genes.index = genes.index.astype(str)
