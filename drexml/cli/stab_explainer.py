@@ -45,7 +45,9 @@ if __name__ == "__main__":
         cv_gen = joblib.load(cv_fpath)
     else:
         ids = np.arange(features.shape[0])
-        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=this_seed)
+        learn_ids, val_ids = train_test_split(
+            ids, test_size=0.3, random_state=this_seed
+        )
 
     for i_split in range(n_splits):
         print(n_splits, i_split)
@@ -111,7 +113,7 @@ if __name__ == "__main__":
         #     features_bkg = features_learn.sample(n=1000, random_state=42)
         # else:
         #     features_bkg = features_learn
-        
+
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
