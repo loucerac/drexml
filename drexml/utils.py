@@ -18,7 +18,6 @@ from drexml.datasets import get_disease_data
 from drexml.models import get_model
 
 
-
 def rename_results(folder):
     """Translate entrez to symbols, and KEGG circuit IDs to names."""
     folder = Path(folder)
