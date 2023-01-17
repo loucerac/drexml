@@ -18,6 +18,7 @@ from drexml.datasets import get_disease_data
 from drexml.models import get_model
 
 
+
 def rename_results(folder):
     """Translate entrez to symbols, and KEGG circuit IDs to names."""
     folder = Path(folder)
@@ -151,7 +152,7 @@ def get_out_path(disease):
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print(f"Working with experiment {env_possible.parent.name}")
-        out_path = env_possible.parent.joinpath("ml")
+        out_path = env_possible.parent.joinpath("results")
     else:
         raise NotImplementedError("Use experiment")
 
