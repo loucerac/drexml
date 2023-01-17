@@ -161,7 +161,7 @@ def plot_stability(input_path, output_path=None):
     fig.legend(
         ncol=2,
         loc="upper left",
-        bbox_to_anchor=(-0.2, 1.035),
+        bbox_to_anchor=(-0.3, 1.035),
         bbox_transform=ax.transAxes,
         fontsize="large",
     )
