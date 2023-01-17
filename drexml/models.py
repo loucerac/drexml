@@ -162,8 +162,8 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
         patience = 5
     else:
         n_estimators = max(201, int((n_features + n_targets) * 201 / 700))
-        #n_estimators = int(1.5 * (n_features + n_targets))
-        #n_estimators = np.log2()
+        # n_estimators = int(1.5 * (n_features + n_targets))
+        # n_estimators = np.log2()
         n_estimators_min = 100
         n_estimators_max = n_estimators
         patience = 100
