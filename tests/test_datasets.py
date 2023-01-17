@@ -99,7 +99,7 @@ def test_cli_run(n_gpus):
     click.echo("Running CLI tests fro DREXML.")
 
     disease_path = make_disease_path(use_default=False, one=True)
-    ml_folder_expected = disease_path.parent.joinpath("ml")
+    ml_folder_expected = disease_path.parent.joinpath("results")
 
     opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]
     click.echo(" ".join(opts))
