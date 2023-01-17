@@ -23,7 +23,7 @@ def rename_results(folder):
     folder = Path(folder)
 
     for path in folder.rglob("shap_selection*.tsv"):
-        if 'symbol' in path.stem: 
+        if "symbol" in path.stem:
             continue
         dataset = pd.read_csv(path, sep="\t", index_col=0)
         path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
@@ -31,7 +31,7 @@ def rename_results(folder):
         dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
 
     for path in folder.rglob("shap_summary*.tsv"):
-        if 'symbol' in path.stem: 
+        if "symbol" in path.stem:
             continue
         dataset = pd.read_csv(path, sep="\t", index_col=0)
         path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
