@@ -75,7 +75,9 @@ def load_df(path):
     """
     try:
         # tsv, and compressed tsv
-        res = pd.read_csv(path, sep="\t").set_index("index", drop=True)
+        res = pd.read_csv(path, sep="\t")
+        if "index" in res.columns:
+            res = res.set_index("index", drop=True)
     except (ParserError, KeyError, UnicodeDecodeError) as err:
         print("Error found while trying to load a TSV or compressed TSV.")
         print(err)
