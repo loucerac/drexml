@@ -20,7 +20,7 @@ if __name__ == "__main__":
     import sys
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
-    this_seed = 275
+    this_seed = 82
     queue = multiprocessing.Queue()
 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
@@ -101,10 +101,10 @@ if __name__ == "__main__":
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
         features_bkg = features_learn.copy()
-        # if features_learn.shape[0] > 1000:
-        #     features_bkg = features_learn.sample(n=1000, random_state=42)
-        # else:
-        #     features_bkg = features_learn
+        if features_learn.shape[0] > 1000:
+            features_bkg = features_learn.sample(n=1000, random_state=42)
+        else:
+            features_bkg = features_learn
 
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
