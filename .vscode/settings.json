@@ -9,16 +9,19 @@
     "files.watcherExclude": {
         "**/venvs": true,
         "**/.venv": true,
+        "**/__pycache__": true,
         "**/data": true
     },
     "files.exclude": {
         "**/venvs": true,
         "**/.venv": true,
+        "**/__pycache__": true,
         "**/data": true
     },
     "search.exclude": {
         "**/venvs": true,
         "**/.venv": true,
+        "**/__pycache__": true,
         "**/data": true
     },
     "python.testing.pytestArgs": [
