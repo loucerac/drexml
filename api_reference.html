@@ -44,7 +44,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.models">models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.pystab">pystab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.explain">explain</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-drexml.utils">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utils">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-drexml.plotting">plotting</a></li>
 </ul>
 </li>
 </ul>
@@ -425,130 +426,34 @@ selection, by default 0.5</p></li>
 </dd></dl>
 
 </section>
-<section id="module-drexml.utils">
-<span id="utils"></span><h2>utils<a class="headerlink" href="#module-drexml.utils" title="Permalink to this heading"></a></h2>
-<p>Utilities module.</p>
+<section id="utils">
+<h2>utils<a class="headerlink" href="#utils" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-drexml.plotting">
+<span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-drexml.plotting" title="Permalink to this heading"></a></h2>
+<p>Plotting module for DREXML.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.check_gputree_availability">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">check_gputree_availability</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.check_gputree_availability" title="Permalink to this definition"></a></dt>
-<dd><p>Check if GPUTree has been corectly compiled.</p>
+<dt class="sig sig-object py" id="drexml.plotting.plot_r2_ax">
+<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_r2_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_r2_ax" title="Permalink to this definition"></a></dt>
+<dd><p>Plot R2 axis.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_cuda_lib">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_cuda_lib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_cuda_lib" title="Permalink to this definition"></a></dt>
-<dd><p>Get CUDA library name.</p>
+<dt class="sig sig-object py" id="drexml.plotting.plot_stability">
+<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_stability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_stability" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the stability results.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_data">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_data" title="Permalink to this definition"></a></dt>
-<dd><p>Load disease data and metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>disease</strong> (<em>path-like</em>) – Path to disease config file.</p></li>
-<li><p><strong>debug</strong> (<em>bool</em>) – _description_, by default False.</p></li>
-<li><p><strong>scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>pandas.DataFrame</em> – Gene expression data.</p></li>
-<li><p><em>pandas.DataFrame</em> – Circuit activation data (hipathia).</p></li>
-<li><p><em>pandas.DataFrame</em> – Circuit definition binary matrix.</p></li>
-<li><p><em>pandas.DataFrame</em> – KDT definition binary matrix.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="drexml.plotting.plot_stability_ax">
+<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_stability_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ilow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_stability_ax" title="Permalink to this definition"></a></dt>
+<dd><p>Plot stability axis.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_number_cuda_devices">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_number_cuda_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_number_cuda_devices" title="Permalink to this definition"></a></dt>
-<dd><p>Get number of CUDA devices.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_number_cuda_devices_">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_number_cuda_devices_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_number_cuda_devices_" title="Permalink to this definition"></a></dt>
-<dd><p>Get number of CUDA devices.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_out_path">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_out_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_out_path" title="Permalink to this definition"></a></dt>
-<dd><p>Construct the path where the model must be saved.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The desired path.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>pathlib.Path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_resource_path">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_resource_path" title="Permalink to this definition"></a></dt>
-<dd><p>Get path to example disease env path.
-:returns: Path to file.
-:rtype: pathlib.PosixPath</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_stab">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_splits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cpus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_stab" title="Permalink to this definition"></a></dt>
-<dd><p>Get stab data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_folder</strong> (<em>path-like</em>) – Path to data folder.</p></li>
-<li><p><strong>n_splits</strong> (<em>int</em>) – Number of splits.</p></li>
-<li><p><strong>n_cpus</strong> (<em>int</em>) – Number of CPUs.</p></li>
-<li><p><strong>debug</strong> (<em>bool</em>) – Debug flag, by default False.</p></li>
-<li><p><strong>n_iters</strong> (<em>int</em>) – Number of hyperparemeter optimization iterations.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>drexml.models.Model</em> – Model.</p></li>
-<li><p><em>list</em> – List of splits.</p></li>
-<li><p><em>panda.DataFrame</em> – Gene expression data.</p></li>
-<li><p><em>panda.DataFrame</em> – Circuit activation data (hipathia).</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_version">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_version" title="Permalink to this definition"></a></dt>
-<dd><p>Get drexml version.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.parse_stab">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">parse_stab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.parse_stab" title="Permalink to this definition"></a></dt>
-<dd><p>Parse stab arguments.
-:param argv: List of arguments.
-:type argv: list</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>path-like</em> – Path to data folder.</p></li>
-<li><p><em>int</em> – Number of hyperparameter optimizations.</p></li>
-<li><p><em>int</em> – Number of GPUs.</p></li>
-<li><p><em>int</em> – Number of CPUs.</p></li>
-<li><p><em>int</em> – Number of splits.</p></li>
-<li><p><em>bool</em> – Debug flag.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="drexml.plotting.preprocess_data">
+<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.preprocess_data" title="Permalink to this definition"></a></dt>
+<dd><p>Read and preprocess results.</p>
 </dd></dl>
 
 </section>
