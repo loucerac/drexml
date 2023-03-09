@@ -21,7 +21,7 @@ DEBUG_NAMES = {
 PRODUCTION_NAMES = {
     "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
     "pathvals": "expreset_pathvals_gtexV8.rds.feather",
-    "genes": "genes01072021.rds.feather",
+    "genes": "genes-drugbank-v050110_gtex-V8_mygene-20230220.tsv.gz",
 }
 
 NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
