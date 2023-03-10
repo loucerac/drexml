@@ -23,6 +23,8 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
         installer-parallel: true
+    - name: Install package
+      run: poetry install
     - name: Build documentation
       run: |
         mkdir gh-pages
