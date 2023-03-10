@@ -67,6 +67,14 @@ Note that the first time that the full program is run, it will take longer as it
 
 https://doi.org/10.5281/zenodo.6020480
 
+## Contribute to development
+
+The recommended setup is:
+- setup `pipx`
+- setup `pyenv`
+- use `pipx` to install `poetry`
+- use `pipx` to install `tox < 4` and inject `tox-pyenv` into `tox`
+
 ## Documentation
 The documentation can be found here:
 
