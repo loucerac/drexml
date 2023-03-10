@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CLI Reference &mdash; drexml 0.9.5 documentation</title>
@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> drexml
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            drexml
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -43,7 +48,18 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#cli">cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli">cli</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli">cli</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cli-explain">explain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-orchestrate">orchestrate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-plot">plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-rename">rename</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-run">run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cli-stability">stability</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -64,8 +80,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>CLI Reference</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CLI Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/cli-reference.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,6 +95,234 @@
 <span id="id1"></span><h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading"></a></h1>
 <section id="cli">
 <h2>cli<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h2>
+<section id="cli">
+<h3>cli<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
+<p>drexml CLI entry point.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<section id="cli-explain">
+<h4>explain<a class="headerlink" href="#cli-explain" title="Permalink to this heading"></a></h4>
+<p>Explain how KDTs modulate a given disease map.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>explain<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DISEASE_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-debug">
+<span id="cmdoption-cli-explain-no-debug"></span><span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-explain-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Flag to run in debug mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-n-iters">
+<span class="sig-name descname"><span class="pre">--n-iters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_iters&gt;</span></span><a class="headerlink" href="#cmdoption-cli-explain-n-iters" title="Permalink to this definition"></a></dt>
+<dd><p>Number of Optimization iterations. 0 means use sensible hyperparameters.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-n-gpus">
+<span class="sig-name descname"><span class="pre">--n-gpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_gpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-explain-n-gpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CUDA devices, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-n-cpus">
+<span class="sig-name descname"><span class="pre">--n-cpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_cpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-explain-n-cpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CPUs, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-explain-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-explain-arg-DISEASE_PATH">
+<span id="cmdoption-cli-explain-arg-disease-path"></span><span class="sig-name descname"><span class="pre">DISEASE_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-explain-arg-DISEASE_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="cli-orchestrate">
+<h4>orchestrate<a class="headerlink" href="#cli-orchestrate" title="Permalink to this heading"></a></h4>
+<p>Orchestrate the drexml procedure. Entry point for multi-disease workflows.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>orchestrate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DISEASE_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-orchestrate-debug">
+<span id="cmdoption-cli-orchestrate-no-debug"></span><span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-orchestrate-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Flag to run in debug mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-orchestrate-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-orchestrate-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-orchestrate-arg-DISEASE_PATH">
+<span id="cmdoption-cli-orchestrate-arg-disease-path"></span><span class="sig-name descname"><span class="pre">DISEASE_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-orchestrate-arg-DISEASE_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="cli-plot">
+<h4>plot<a class="headerlink" href="#cli-plot" title="Permalink to this heading"></a></h4>
+<p>Plot the stability results</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>STAB_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-STAB_PATH">
+<span id="cmdoption-cli-plot-arg-stab-path"></span><span class="sig-name descname"><span class="pre">STAB_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-STAB_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="cli-rename">
+<h4>rename<a class="headerlink" href="#cli-rename" title="Permalink to this heading"></a></h4>
+<p>Plot the stability results</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>rename<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>RESULTS_FOLDER
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-rename-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-rename-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-rename-arg-RESULTS_FOLDER">
+<span id="cmdoption-cli-rename-arg-results-folder"></span><span class="sig-name descname"><span class="pre">RESULTS_FOLDER</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-rename-arg-RESULTS_FOLDER" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="cli-run">
+<h4>run<a class="headerlink" href="#cli-run" title="Permalink to this heading"></a></h4>
+<p>Run the full procedure.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DISEASE_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-debug">
+<span id="cmdoption-cli-run-no-debug"></span><span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-run-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Flag to run in debug mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-n-iters">
+<span class="sig-name descname"><span class="pre">--n-iters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_iters&gt;</span></span><a class="headerlink" href="#cmdoption-cli-run-n-iters" title="Permalink to this definition"></a></dt>
+<dd><p>Number of Optimization iterations. 0 means use sensible hyperparameters.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-n-gpus">
+<span class="sig-name descname"><span class="pre">--n-gpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_gpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-run-n-gpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CUDA devices, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-n-cpus">
+<span class="sig-name descname"><span class="pre">--n-cpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_cpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-run-n-cpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CPUs, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-run-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-run-arg-DISEASE_PATH">
+<span id="cmdoption-cli-run-arg-disease-path"></span><span class="sig-name descname"><span class="pre">DISEASE_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-run-arg-DISEASE_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="cli-stability">
+<h4>stability<a class="headerlink" href="#cli-stability" title="Permalink to this heading"></a></h4>
+<p>Run the stability analyses.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>stability<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>DISEASE_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-mode">
+<span class="sig-name descname"><span class="pre">--mode</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mode&gt;</span></span><a class="headerlink" href="#cmdoption-cli-stability-mode" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>train | explain | score</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-debug">
+<span id="cmdoption-cli-stability-no-debug"></span><span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-stability-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Flag to run in debug mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-n-iters">
+<span class="sig-name descname"><span class="pre">--n-iters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_iters&gt;</span></span><a class="headerlink" href="#cmdoption-cli-stability-n-iters" title="Permalink to this definition"></a></dt>
+<dd><p>Number of Optimization iterations. 0 means use sensible hyperparameters.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-n-gpus">
+<span class="sig-name descname"><span class="pre">--n-gpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_gpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-stability-n-gpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CUDA devices, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-n-cpus">
+<span class="sig-name descname"><span class="pre">--n-cpus</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;n_cpus&gt;</span></span><a class="headerlink" href="#cmdoption-cli-stability-n-cpus" title="Permalink to this definition"></a></dt>
+<dd><p>Number of CPUs, -1 use all decices.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-stability-version" title="Permalink to this definition"></a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-stability-arg-DISEASE_PATH">
+<span id="cmdoption-cli-stability-arg-disease-path"></span><span class="sig-name descname"><span class="pre">DISEASE_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-stability-arg-DISEASE_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+</section>
 </section>
 </section>
 
