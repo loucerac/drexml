@@ -9,4 +9,4 @@ format:
 	poetry run black drexml tests
 	(cd docs && poetry run make html)
 test:
-	poetry run tox
+	tox
