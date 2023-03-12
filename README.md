@@ -10,7 +10,7 @@ To install the `drexml` package use the following:
 
 ```
 conda create -n drexml python=3.8
-conda run -n drexml pip install git+ssh://git@github.com:loucerac/drexml.git
+conda run -n drexml pip install git+https://github.com/loucerac/drexml.git@master
 ```
 
 ## Run
