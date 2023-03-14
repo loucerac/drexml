@@ -42,5 +42,8 @@ jobs:
         version: latest
         installer-parallel: true
     
-    - uses: wntrblm/nox@2022.8.7
+    - name: Install dependencies
+      run: |
+        python -m pip3 install --upgrade pip
+        python -m pip3 install nox nox-poetry
     - run: nox
