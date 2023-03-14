@@ -42,6 +42,5 @@ jobs:
         version: latest
         installer-parallel: true
     
-    - name: Test with nox
-      uses: wntrblm/nox@2022.8.7
-      run: nox
+    - uses: wntrblm/nox@2022.8.7
+    - run: nox
