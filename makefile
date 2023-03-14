@@ -1,7 +1,7 @@
 .PHONY: install test format
 all: install format test
 install:
-	poetry env use 3.10
+	conda create -p ./.venv --override-channels -c "nvidia/label/cuda-11.8.0" -c conda-forge cuda cuda-nvcc cuda-toolkit gxx=11.2 python=3.10
 	poetry install
 	poetry run pytest
 format:
