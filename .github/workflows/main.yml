@@ -44,6 +44,6 @@ jobs:
     
     - name: Install dependencies
       run: |
-        python -m pip3 install --upgrade pip
-        python -m pip3 install nox nox-poetry
+        python -m pip install --upgrade pip
+        python -m pip install nox nox-poetry
     - run: nox
