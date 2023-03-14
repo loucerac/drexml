@@ -71,9 +71,10 @@ https://doi.org/10.5281/zenodo.6020480
 
 The recommended setup is:
 - setup `pipx`
-- setup `pyenv`
+- setup `miniconda`
 - use `pipx` to install `poetry`
-- use `pipx` to install `tox < 4` and inject `tox-pyenv` into `tox`
+- use `pipx` to install `nox` and inject `nox-poetry` into `nox`
+- run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
 
 ## Documentation
 The documentation can be found here:
