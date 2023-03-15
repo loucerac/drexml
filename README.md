@@ -1,8 +1,8 @@
 [![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439)
 
-# Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction
+# Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction
 
-Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction 
+Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction 
 
 ## Setup
 
