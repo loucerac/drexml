@@ -21,12 +21,12 @@ DEBUG_NAMES = {
 PRODUCTION_NAMES = {
     "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
     "pathvals": "expreset_pathvals_gtexV8.rds.feather",
-    "genes": "genes01072021.rds.feather",
+    "genes": "genes.tsv.gz",
 }
 
 NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
 
-RECORD_ID = "6020481"
+RECORD_ID = "7737166"
 
 
 def fetch_file(disease, key, version="latest", debug=False):
@@ -42,7 +42,7 @@ def fetch_file(disease, key, version="latest", debug=False):
             except (ConnectTimeout) as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(
-                    ".data", "zenodo", "6020480", "panrd_1.0.0"
+                    ".data", "zenodo", RECORD_ID, "20230315"
                 )
     else:
         data_path = pathlib.Path(env["data_path"]).absolute()

@@ -143,6 +143,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.nox/
 
 # Translations
 *.mo

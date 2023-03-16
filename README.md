@@ -1,17 +1,34 @@
 [![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439)
 
-# Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning
+# Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction
 
-Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning 
+Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction 
 
 ## Setup
 
 To install the `drexml` package use the following:
 
 ```
-conda create -n drexml python=3.8
-conda run -n drexml pip install git+ssh://git@github.com:loucerac/drexml.git
+conda create -n drexml python=3.10
+conda run -n drexml pip install git+https://github.com/loucerac/drexml.git@master
 ```
+
+If a CUDA~11 compatible device is available use:
+
+```
+conda create -n drexml --override-channels -c "nvidia/label/cuda-11.8.0" -c conda-forge cuda cuda-nvcc cuda-toolkit gxx=11.2 python=3.10
+conda run -n drexml pip install git+https://github.com/loucerac/drexml.git@master
+```
+
+To install `drexml` in an existing environment, activate it and use:
+
+```
+pip install git+https://github.com/loucerac/drexml.git@master
+```
+
+Note that by default the `setup` will try to compile the `CUDA` modules, if not possible it will use the `CPU` modules.
+
+To install the development version use `@develop` instead of `@master`.
 
 ## Run
 
@@ -66,6 +83,15 @@ Use the `--debug` option for testing that everything works using a few iteration
 Note that the first time that the full program is run, it will take longer as it downloads the latest versions of each background dataset from Zenodo:
 
 https://doi.org/10.5281/zenodo.6020480
+
+## Contribute to development
+
+The recommended setup is:
+- setup `pipx`
+- setup `miniconda`
+- use `pipx` to install `poetry`
+- use `pipx` to install `nox` and inject `nox-poetry` into `nox`
+- run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
 
 ## Documentation
 The documentation can be found here:
