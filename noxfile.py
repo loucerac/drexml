@@ -13,7 +13,7 @@ def tests(session):
     """ Test with conda.
     """
     if session.posargs:
-        if any(["gpu" in arg for arg in session.posargs]):
+        if any(("gpu" in arg for arg in session.posargs)):
             session.conda_install(
                 "cuda",
                 "cuda-nvcc",
