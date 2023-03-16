@@ -17,8 +17,8 @@ endif
 	poetry run pytest
 format:
 	$(CONDA_ACTIVATE) ./.venv
-	poetry run isort drexml tests
-	poetry run black drexml tests
+	poetry run isort drexml tests noxfile.py
+	poetry run black drexml tests noxfile.py
 	(cd docs && poetry run make html)
 test:
 ifeq ($(use_gpu),1)
