@@ -230,6 +230,6 @@ def plot_metrics(input_path, output_folder=None, width=2.735):
     fig.tight_layout()
     fig.set_size_inches(width, (width * 3) / 4)
 
-    fname = "stability-vs-r2_by-circuit"
+    fname = "stability_results_symbol"
     plt.savefig(output_folder.joinpath(f"{fname}.png"), dpi=300, bbox_inches="tight")
     plt.savefig(output_folder.joinpath(f"{fname}.pdf"), bbox_inches="tight")
