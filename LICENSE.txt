@@ -1,4 +1,4 @@
-LICENSE.txtMIT License
+MIT License
 
 Copyright (c) [year] [fullname]
 
