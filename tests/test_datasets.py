@@ -15,6 +15,7 @@ from drexml.cli.cli import main
 from drexml.datasets import get_disease_data, load_df
 from drexml.utils import check_gputree_availability
 
+PLOTTING_EXTENSIONS = ["pdf", "png"]
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 DATA_NAMES = [
@@ -126,6 +127,7 @@ def test_cli_run(n_gpus):
 
     plot_files = [
         ml_folder_expected.joinpath(f"{x.stem}_symbol.png")
+        for ext in PLOTTING_EXTENSIONS
         for x in exist_files
         if "stability" in x.stem
     ]

@@ -18,7 +18,7 @@ import sys
 import click
 import joblib
 
-from drexml.plotting import plot_stability
+from drexml.plotting import plot_metrics
 from drexml.utils import (
     get_data,
     get_number_cuda_devices,
@@ -271,7 +271,7 @@ def run(ctx, **kwargs):
 def plot(ctx, stab_path):
     """Plot the stability results"""
 
-    plot_stability(stab_path)
+    plot_metrics(stab_path)
 
 
 @main.command()

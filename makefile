@@ -8,7 +8,8 @@ all: install format test
 
 install:
 ifeq ($(use_gpu),1)
-	conda create -y -p ./.venv --override-channels -c "nvidia/label/cuda-11.8.0" -c conda-forge cuda cuda-nvcc cuda-toolkit gxx=11.2 python=3.10
+	conda create -y -p ./.venv --override-channels -c "nvidia/label/cuda-11.8.0" \
+	-c conda-forge cuda cuda-nvcc cuda-toolkit gxx=11.2 python=3.10
 else
 	conda create -y -p ./.venv --override-channels -c conda-forge python=3.10
 endif
