@@ -52,10 +52,10 @@ def fetch_file(disease, key, version="latest", debug=False):
             data_path = experiment_env_path.parent
         path = data_path.joinpath(env[key])
 
-    return load_df(path)
+    return load_df(path, key)
 
 
-def load_df(path):
+def load_df(path, key=None):
     """Load dataframe from file. At the moment: stv, tsv crompressed or feather.
 
     Parameters
@@ -94,7 +94,25 @@ def load_df(path):
     if res.shape[0] == 0:
         raise NotImplementedError("Format not implemented yet.")
 
+    if key is not None:
+        index_name_options = get_index_name_options(key)
+
+        for name in index_name_options:
+            if name in res.columns:
+                res = res.set_index(name, drop=True)
+        res.index = res.index.astype(str)
+
     return res
+
+
+def get_index_name_options(key):
+
+    if key == "circuits":
+        return ["hipathia_id", "hipathia", "cicuits_id", "index"]
+    elif key == "genes":
+        return ["entrezs", "entrez", "entrez_id", "index"]
+    else:
+        return ["index"]
 
 
 def get_disease_data(disease, debug):
@@ -130,17 +148,7 @@ def get_disease_data(disease, debug):
     pathvals.columns = pathvals.columns.str.replace("-", ".").str.replace(" ", ".")
     circuits = fetch_file(disease, key="circuits", version="latest", debug=debug)
     circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
-
     genes = fetch_file(disease, key="genes", version="latest", debug=debug)
-    if "entrezs" in genes.columns:
-        genes = genes.set_index("entrezs")
-    elif "entrez" in genes.columns:
-        genes = genes.set_index("entrez")
-    elif "entrez_id" in genes.columns:
-        genes = genes.set_index("entrez_id")
-    elif "index" in genes.columns:
-        genes = genes.set_index("index")
-    genes.index = genes.index.astype(str)
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
 
