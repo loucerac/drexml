@@ -19,7 +19,7 @@ from drexml.utils import parse_stab
 if __name__ == "__main__":
     import sys
 
-    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
+    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add = parse_stab(sys.argv)
     this_seed = 82
     queue = multiprocessing.Queue()
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                     model=this_model,
                     bkg=features_bkg,
                     new=gb,
-                    check_add=True,
+                    check_add=add,
                     use_gpu=gpu,
                 )
                 for _, gb in features_val.groupby(
