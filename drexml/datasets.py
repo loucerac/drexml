@@ -108,7 +108,7 @@ def load_df(path, key=None):
 def get_index_name_options(key):
 
     if key == "circuits":
-        return ["hipathia_id", "hipathia", "cicuits_id", "index"]
+        return ["hipathia_id", "hipathia", "circuits_id", "index"]
     elif key == "genes":
         return ["entrezs", "entrez", "entrez_id", "index"]
     else:
