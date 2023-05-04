@@ -43,26 +43,26 @@ genes=$default$
 genes_column=approved_targets
 ```
 
-Where `circuits.tsv` has the following format (tab delimited):
+The `TSV` file `circuits.tsv` has the following format (tab delimited):
 ```
 index	in_disease
-P-hsa03320-37	False
-P-hsa03320-61	False
-P-hsa03320-46	False
-P-hsa03320-57	False
-P-hsa03320-64	False
-P-hsa03320-47	False
-P-hsa03320-65	False
-P-hsa03320-55	False
-P-hsa03320-56	False
-P-hsa03320-33	False
-P-hsa03320-58	False
-P-hsa03320-59	False
-P-hsa03320-63	False
-P-hsa03320-44	False
-P-hsa03320-36	False
-P-hsa03320-30	False
-P-hsa03320-28	True
+P-hsa03320-37	0
+P-hsa03320-61	0
+P-hsa03320-46	0
+P-hsa03320-57	0
+P-hsa03320-64	0
+P-hsa03320-47	0
+P-hsa03320-65	0
+P-hsa03320-55	0
+P-hsa03320-56	0
+P-hsa03320-33	0
+P-hsa03320-58	0
+P-hsa03320-59	0
+P-hsa03320-63	0
+P-hsa03320-44	0
+P-hsa03320-36	0
+P-hsa03320-30	0
+P-hsa03320-28	1
 ```
 
 where:
