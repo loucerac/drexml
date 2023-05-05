@@ -67,7 +67,7 @@ def parse_stab(argv):
     bool
         Debug flag.
     """
-    _, data_folder, n_iters, n_gpus, n_cpus, debug, mode = argv
+    _, data_folder, n_iters, n_gpus, n_cpus, debug, add, mode = argv
     n_iters = int(n_iters)
     data_folder = Path(data_folder)
     n_gpus = int(n_gpus)
@@ -79,7 +79,7 @@ def parse_stab(argv):
     else:
         n_splits = 3 if debug else 100
 
-    return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug
+    return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add
 
 
 def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
@@ -147,7 +147,7 @@ def get_out_path(disease):
         The desired path.
     """
 
-    env_possible = Path(disease)
+    env_possible = Path(disease).absolute()
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print(f"Working with experiment {env_possible.parent.name}")

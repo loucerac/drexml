@@ -87,6 +87,16 @@ _debug_option = [
 ]
 
 
+_check_add_option = [
+    click.option(
+        "--add/--no-add",
+        is_flag=True,
+        default=True,
+        help="Check the additivity when computing the SHAP values.",
+    )
+]
+
+
 def copy_files(ctx, fnames):
     """Copy files from tmp to ml folder."""
     for fname in fnames:
@@ -155,6 +165,7 @@ def build_cmd(ctx):
         str(int(ctx["n_gpus"])),
         str(ctx["n_cpus"]),
         str(int(ctx["debug"])),
+        str(int(ctx["add"])),
         ctx["mode"],
     ]
 
@@ -230,6 +241,7 @@ def stability(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
@@ -247,6 +259,7 @@ def explain(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
