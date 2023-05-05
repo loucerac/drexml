@@ -73,6 +73,7 @@ def parse_stab(argv):
     n_gpus = int(n_gpus)
     n_cpus = int(n_cpus)
     debug = bool(int(debug))
+    add = bool(int(add))
 
     if mode == "final":
         n_splits = 1

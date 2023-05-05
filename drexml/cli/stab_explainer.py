@@ -84,6 +84,8 @@ if __name__ == "__main__":
         n_chunks = max(1, n_devices)
         chunk_size = len(features_val) // (n_chunks) + 1
 
+        print(f"{add=}")
+
         def runner(model, bkg, new, check_add, use_gpu):
 
             gpu_id = queue.get()
