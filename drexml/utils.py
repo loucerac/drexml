@@ -147,7 +147,7 @@ def get_out_path(disease):
         The desired path.
     """
 
-    env_possible = Path(disease)
+    env_possible = Path(disease).absolute()
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print(f"Working with experiment {env_possible.parent.name}")
