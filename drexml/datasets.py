@@ -148,6 +148,7 @@ def get_disease_data(disease, debug):
     pathvals.columns = pathvals.columns.str.replace("-", ".").str.replace(" ", ".")
     circuits = fetch_file(disease, key="circuits", version="latest", debug=debug)
     circuits.index = circuits.index.str.replace("-", ".").str.replace(" ", ".")
+    circuits[circuits_column] = circuits[circuits_column].astype(bool)
     genes = fetch_file(disease, key="genes", version="latest", debug=debug)
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
