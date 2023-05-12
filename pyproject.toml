@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drexml"
-version = "0.9.8"
+version = "0.9.9"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 authors = [
     "Carlos Loucera <carlos.loucera@juntadeandalucia.es>",
