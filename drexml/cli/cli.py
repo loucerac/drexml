@@ -96,6 +96,15 @@ _check_add_option = [
     )
 ]
 
+_verb_option = [
+    click.option(
+        "--verbosity/--no-verbosity",
+        is_flag=True,
+        default=False,
+        help="Verbosity level.",
+    )
+]
+
 
 def copy_files(ctx, fnames):
     """Copy files from tmp to ml folder."""
@@ -178,8 +187,9 @@ def run_cmd(ctx):
     # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
     print(" ".join(cmd))
     output = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    click.echo(output.stderr)
-    click.echo(output.stdout)
+    if ctx["verbosity"]:
+        click.echo(output.stderr)
+        click.echo(output.stdout)
 
 
 @click.group()
@@ -191,6 +201,7 @@ def main():
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(**kwargs):
@@ -211,6 +222,7 @@ def orchestrate(**kwargs):
     type=click.Choice(["train", "explain", "score"], case_sensitive=False),
 )
 @add_options(_debug_option)
+@add_options(_verb_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
@@ -241,6 +253,7 @@ def stability(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
 @add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
@@ -259,6 +272,7 @@ def explain(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
 @add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
