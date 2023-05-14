@@ -16,6 +16,10 @@ with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", module="shap", message="IPython could not be loaded!"
     )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
+    )
     import shap
 
 from sklearn.model_selection import train_test_split
@@ -23,9 +27,6 @@ from sklearn.model_selection import train_test_split
 from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
 from drexml.models import get_model
 from drexml.utils import parse_stab
-
-warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
-warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 
 if __name__ == "__main__":
     import sys
