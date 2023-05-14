@@ -5,12 +5,19 @@ Utilities module.
 
 import ctypes
 import importlib.resources as pkg_resources
+import warnings
 from importlib.metadata import version
 from pathlib import Path
 
 import joblib
 import pandas as pd
-from shap.utils import assert_import
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    import shap
+
 from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
@@ -248,7 +255,7 @@ def get_number_cuda_devices_():
 def check_gputree_availability():
     """Check if GPUTree has been corectly compiled."""
     try:
-        assert_import("cext_gpu")
+        shap.utils.assert_import("cext_gpu")
         return True
     except ImportError as ierr:
         print(ierr)

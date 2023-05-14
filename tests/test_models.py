@@ -2,9 +2,16 @@
 """
 Unit testing for datasets module.
 """
+import warnings
+
 import numpy as np
 import pytest
-from shap.utils import safe_isinstance
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    import shap
 
 from drexml.models import get_model
 
@@ -22,4 +29,4 @@ def test_model_hp(debug):
 
     model = get_model(n_features, n_targets, n_jobs, debug)
 
-    assert safe_isinstance(model, "sklearn.ensemble.RandomForestRegressor")
+    assert shap.utils.safe_isinstance(model, "sklearn.ensemble.RandomForestRegressor")

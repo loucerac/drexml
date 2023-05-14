@@ -6,18 +6,31 @@ Entry CLI point for stab.
 
 import multiprocessing
 import time
+import warnings
 
 import joblib
 import numpy as np
-import shap
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    import shap
+
 from sklearn.model_selection import train_test_split
 
 from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
 from drexml.models import get_model
 from drexml.utils import parse_stab
 
+warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
+warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
+
 if __name__ == "__main__":
     import sys
+
+    print("hola")
 
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add = parse_stab(sys.argv)
     this_seed = 82
