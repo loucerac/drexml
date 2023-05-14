@@ -31,8 +31,6 @@ from drexml.utils import parse_stab
 if __name__ == "__main__":
     import sys
 
-    print("hola")
-
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add = parse_stab(sys.argv)
     this_seed = 82
     queue = multiprocessing.Queue()
