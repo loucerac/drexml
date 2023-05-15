@@ -14,9 +14,20 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import warnings
 
 import click
 import joblib
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
+    )
 
 from drexml.plotting import plot_metrics
 from drexml.utils import (

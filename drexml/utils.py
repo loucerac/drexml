@@ -11,10 +11,15 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
     )
     import shap
 
