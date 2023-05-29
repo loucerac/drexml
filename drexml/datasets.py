@@ -99,6 +99,31 @@ def load_df(path, key=None):
 
 
 def get_index_name_options(key):
+    """
+    Returns a list of possible index names based on the input key.
+
+    Parameters
+    ----------
+    key : str
+        The key for the data frame.
+
+    Returns
+    -------
+    list of str
+        A list of possible index names based on the input key.
+
+    Examples
+    --------
+    >>> get_index_name_options("circuits")
+    ["hipathia_id", "hipathia", "circuits_id", "index"]
+
+    Notes
+    -----
+    This function returns a list of possible index names based on the input key. If the
+    key is "circuits", it returns a list of four possible index names. If the key is
+    "genes", it returns a list of three possible index names. Otherwise, it returns a
+    list with only one element, "index".
+    """
 
     if key == "circuits":
         return ["hipathia_id", "hipathia", "circuits_id", "index"]
@@ -109,6 +134,23 @@ def get_index_name_options(key):
 
 
 def preprocess_frame(res, env, key):
+    """
+    Preprocesses the input data frame.
+
+    Parameters
+    ----------
+    res : pandas.DataFrame
+        The input data frame.
+    env : dict
+        The environment variables.
+    key : str
+        The key for the data frame.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The preprocessed data frame.
+    """
 
     if key is not None:
         index_name_options = get_index_name_options(key)
@@ -129,25 +171,140 @@ def preprocess_frame(res, env, key):
 
 
 def preprocess_gexp(frame):
+    """
+    Preprocesses a gene expression data frame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        The gene expression data frame to preprocess.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The preprocessed gene expression data frame.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({"X1": [1, 2], "X2": [3, 4]})
+    >>> preprocess_gexp(df)
+       1  2
+    0  1  3
+    1  2  4
+
+    Notes
+    -----
+    This function removes the "X" prefix from the column names of the input data frame
+    and returns the resulting data frame.
+    """
+
     frame.columns = frame.columns.str.replace("X", "")
     return frame
 
 
 def preprocess_activities(frame):
+    """
+    Preprocesses an activities data frame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        The activities data frame to preprocess.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The preprocessed activities data frame.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({"-": [1, 2], "Activity 1": [3, 4]})
+    >>> preprocess_activities(df)
+       .  Activity.1
+    0  1          3
+    1  2          4
+
+    Notes
+    -----
+    This function replaces hyphens and spaces in the column names of the input data frame with periods and returns the resulting data frame.
+
+    """
     frame.columns = frame.columns.str.replace("-", ".").str.replace(" ", ".")
     return frame
 
 
 def preprocess_map(frame, circuits_column):
+    """
+    Preprocesses a map data frame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        The map data frame to preprocess.
+    circuits_column : str
+        The name of the column containing circuit information.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The preprocessed map data frame.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({"-": [1, 2], "Activity 1": [3, 4]}, index=["A-B", "C-D"])
+    >>> preprocess_map(df, "Activity 1")
+       .  Activity.1
+    A.B          3
+    C.D          4
+
+    Notes
+    -----
+    This function replaces hyphens and spaces in the index labels of the input data
+    frame with periods and converts the values in the specified circuits column to
+    boolean values. It then returns the resulting data frame.
+
+    """
+
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     frame[circuits_column] = frame[circuits_column].astype(bool)
-
     return frame
 
 
 def preprocess_genes(frame, genes_column):
-    frame = frame.loc[frame[genes_column]]
+    """
+    Preprocesses a gene expression data frame.
 
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        The gene expression data frame to preprocess.
+    genes_column : str
+        The name of the column containing gene information.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The preprocessed gene expression data frame.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({"Gene": ["A", "B", "C"], "Value": [1, 2, 3]})
+    >>> preprocess_genes(df, "Gene")
+      Gene  Value
+    0    A      1
+    1    B      2
+    2    C      3
+
+    Notes
+    -----
+    This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.
+
+    """
+    frame = frame.loc[frame[genes_column]]
     return frame
 
 
