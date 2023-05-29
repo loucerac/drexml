@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; drexml 0.9.6 documentation</title>
+  <title>API Reference &mdash; drexml 0.9.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -48,7 +48,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.datasets">datasets</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_disease_data"><code class="docutils literal notranslate"><span class="pre">get_disease_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_index_name_options"><code class="docutils literal notranslate"><span class="pre">get_index_name_options()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_df"><code class="docutils literal notranslate"><span class="pre">load_df()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_activities"><code class="docutils literal notranslate"><span class="pre">preprocess_activities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_frame"><code class="docutils literal notranslate"><span class="pre">preprocess_frame()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_genes"><code class="docutils literal notranslate"><span class="pre">preprocess_genes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_gexp"><code class="docutils literal notranslate"><span class="pre">preprocess_gexp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_map"><code class="docutils literal notranslate"><span class="pre">preprocess_map()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.models">models</a><ul>
@@ -98,6 +104,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.plotting">plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_metrics"><code class="docutils literal notranslate"><span class="pre">plot_metrics()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_r2_ax"><code class="docutils literal notranslate"><span class="pre">plot_r2_ax()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_stability"><code class="docutils literal notranslate"><span class="pre">plot_stability()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_stability_ax"><code class="docutils literal notranslate"><span class="pre">plot_stability_ax()</span></code></a></li>
@@ -145,7 +152,7 @@
 <p>IO module for DREXML.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.fetch_file">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.fetch_file" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.fetch_file" title="Permalink to this definition"></a></dt>
 <dd><p>Retrieve data.</p>
 </dd></dl>
 
@@ -170,8 +177,35 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.get_index_name_options">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">get_index_name_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.get_index_name_options" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of possible index names based on the input key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – The key for the data frame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of possible index names based on the input key.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_index_name_options</span><span class="p">(</span><span class="s2">&quot;circuits&quot;</span><span class="p">)</span>
+<span class="go">[&quot;hipathia_id&quot;, &quot;hipathia&quot;, &quot;circuits_id&quot;, &quot;index&quot;]</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>This function returns a list of possible index names based on the input key. If the
+key is “circuits”, it returns a list of four possible index names. If the key is
+“genes”, it returns a list of three possible index names. Otherwise, it returns a
+list with only one element, “index”.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.load_df">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_df" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_df" title="Permalink to this definition"></a></dt>
 <dd><p>Load dataframe from file. At the moment: stv, tsv crompressed or feather.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -187,6 +221,149 @@
 <dd class="field-even"><p><strong>NotImplementedError</strong> – Not implemented yet.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.preprocess_activities">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_activities" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocesses an activities data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame</strong> (<em>pandas.DataFrame</em>) – The activities data frame to preprocess.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocessed activities data frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Activity 1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_activities</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="go">   .  Activity.1</span>
+<span class="go">0  1          3</span>
+<span class="go">1  2          4</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>This function replaces hyphens and spaces in the column names of the input data frame with periods and returns the resulting data frame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.preprocess_frame">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_frame" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocesses the input data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>res</strong> (<em>pandas.DataFrame</em>) – The input data frame.</p></li>
+<li><p><strong>env</strong> (<em>dict</em>) – The environment variables.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – The key for the data frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocessed data frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.preprocess_genes">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_genes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes_column</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_genes" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocesses a gene expression data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>pandas.DataFrame</em>) – The gene expression data frame to preprocess.</p></li>
+<li><p><strong>genes_column</strong> (<em>str</em>) – The name of the column containing gene information.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocessed gene expression data frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Gene&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">],</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_genes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;Gene&quot;</span><span class="p">)</span>
+<span class="go">  Gene  Value</span>
+<span class="go">0    A      1</span>
+<span class="go">1    B      2</span>
+<span class="go">2    C      3</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.preprocess_gexp">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_gexp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_gexp" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocesses a gene expression data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame</strong> (<em>pandas.DataFrame</em>) – The gene expression data frame to preprocess.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocessed gene expression data frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;X1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;X2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_gexp</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="go">   1  2</span>
+<span class="go">0  1  3</span>
+<span class="go">1  2  4</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>This function removes the “X” prefix from the column names of the input data frame
+and returns the resulting data frame.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.preprocess_map">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_column</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_map" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocesses a map data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>pandas.DataFrame</em>) – The map data frame to preprocess.</p></li>
+<li><p><strong>circuits_column</strong> (<em>str</em>) – The name of the column containing circuit information.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocessed map data frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Activity 1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A-B&quot;</span><span class="p">,</span> <span class="s2">&quot;C-D&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_map</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;Activity 1&quot;</span><span class="p">)</span>
+<span class="go">   .  Activity.1</span>
+<span class="go">A.B          3</span>
+<span class="go">C.D          4</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>This function replaces hyphens and spaces in the index labels of the input data
+frame with periods and converts the values in the specified circuits column to
+boolean values. It then returns the resulting data frame.</p>
 </dd></dl>
 
 </section>
@@ -620,6 +797,12 @@ selection, by default 0.5</p></li>
 <section id="module-drexml.plotting">
 <span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-drexml.plotting" title="Permalink to this heading"></a></h2>
 <p>Plotting module for DREXML.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.plotting.plot_metrics">
+<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.735</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_metrics" title="Permalink to this definition"></a></dt>
+<dd><p>Plot stability versus R^2 with 95% CI</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.plotting.plot_r2_ax">
 <span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_r2_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_r2_ax" title="Permalink to this definition"></a></dt>
