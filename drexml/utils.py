@@ -5,17 +5,56 @@ Utilities module.
 
 import ctypes
 import importlib.resources as pkg_resources
+import warnings
 from importlib.metadata import version
 from pathlib import Path
 
 import joblib
 import pandas as pd
-from shap.utils import assert_import
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
+    )
+    import shap
+
 from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 from drexml.datasets import get_disease_data
 from drexml.models import get_model
+
+
+def rename_results(folder):
+    """Translate entrez to symbols, and KEGG circuit IDs to names."""
+    folder = Path(folder)
+
+    for path in folder.rglob("shap_selection*.tsv"):
+        if "symbol" in path.stem:
+            continue
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+
+    for path in folder.rglob("shap_summary*.tsv"):
+        if "symbol" in path.stem:
+            continue
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+
+    for path in folder.rglob("stability_results.tsv"):
+        dataset = pd.read_csv(path, sep="\t", index_col=0)
+        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
+        dataset_out = convert_names(dataset, ["circuits"], axis=[0])
+        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
 
 
 def parse_stab(argv):
@@ -40,19 +79,20 @@ def parse_stab(argv):
     bool
         Debug flag.
     """
-    _, data_folder, n_iters, n_gpus, n_cpus, debug, mode = argv
+    _, data_folder, n_iters, n_gpus, n_cpus, debug, add, mode = argv
     n_iters = int(n_iters)
     data_folder = Path(data_folder)
     n_gpus = int(n_gpus)
     n_cpus = int(n_cpus)
     debug = bool(int(debug))
+    add = bool(int(add))
 
     if mode == "final":
         n_splits = 1
     else:
         n_splits = 3 if debug else 100
 
-    return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug
+    return data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add
 
 
 def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
@@ -91,7 +131,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     stab_cv = ShuffleSplit(n_splits=n_splits, train_size=0.5, random_state=0)
     stab_cv = list(stab_cv.split(features_orig, targets_orig))
     stab_cv = [
-        (*train_test_split(stab_cv[i][0], test_size=0.3), stab_cv[i][1])
+        (*train_test_split(stab_cv[i][0], test_size=0.3, random_state=i), stab_cv[i][1])
         for i in range(n_splits)
     ]
 
@@ -120,11 +160,11 @@ def get_out_path(disease):
         The desired path.
     """
 
-    env_possible = Path(disease)
+    env_possible = Path(disease).absolute()
 
     if env_possible.exists() and (env_possible.suffix == ".env"):
         print(f"Working with experiment {env_possible.parent.name}")
-        out_path = env_possible.parent.joinpath("ml")
+        out_path = env_possible.parent.joinpath("results")
     else:
         raise NotImplementedError("Use experiment")
 
@@ -220,7 +260,7 @@ def get_number_cuda_devices_():
 def check_gputree_availability():
     """Check if GPUTree has been corectly compiled."""
     try:
-        assert_import("cext_gpu")
+        shap.utils.assert_import("cext_gpu")
         return True
     except ImportError as ierr:
         print(ierr)

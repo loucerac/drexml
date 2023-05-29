@@ -15,6 +15,7 @@ from drexml.cli.cli import main
 from drexml.datasets import get_disease_data, load_df
 from drexml.utils import check_gputree_availability
 
+PLOTTING_EXTENSIONS = ["pdf", "png"]
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 DATA_NAMES = [
@@ -99,7 +100,7 @@ def test_cli_run(n_gpus):
     click.echo("Running CLI tests fro DREXML.")
 
     disease_path = make_disease_path(use_default=False, one=True)
-    ml_folder_expected = disease_path.parent.joinpath("ml")
+    ml_folder_expected = disease_path.parent.joinpath("results")
 
     opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]
     click.echo(" ".join(opts))
@@ -107,8 +108,36 @@ def test_cli_run(n_gpus):
     runner.invoke(main, " ".join(opts))
 
     exist_files = [
-        ml_folder_expected.joinpath(fname).exists()
+        ml_folder_expected.joinpath(fname)
         for fname in ["stability_results.tsv", "shap_selection.tsv", "shap_summary.tsv"]
     ]
 
-    assert all(exist_files)
+    assert all([x.exists() for x in exist_files])
+
+    renamed_files = [
+        ml_folder_expected.joinpath(f"{x.stem}_symbol.tsv") for x in exist_files
+    ]
+
+    opts = ["rename", f"{ml_folder_expected.as_posix()}"]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(main, " ".join(opts))
+
+    assert all([x.exists() for x in renamed_files])
+
+    plot_files = [
+        ml_folder_expected.joinpath(f"{x.stem}_symbol.png")
+        for ext in PLOTTING_EXTENSIONS
+        for x in exist_files
+        if "stability" in x.stem
+    ]
+
+    opts = [
+        "plot",
+        ml_folder_expected.joinpath("stability_results_symbol.tsv").as_posix(),
+    ]
+    click.echo(" ".join(opts))
+    runner = CliRunner()
+    runner.invoke(main, " ".join(opts))
+
+    assert all([x.exists() for x in plot_files])

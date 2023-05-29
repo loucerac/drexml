@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     # client = Client('127.0.0.1:8786')
     # pylint: disable=unbalanced-tuple-unpacking
-    data_path, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
+    data_path, n_iters, n_gpus, n_cpus, n_splits, debug, add = parse_stab(sys.argv)
     model, stab_cv, X, Y = get_stab(data_path, n_splits, n_cpus, debug, n_iters)
 
     for i, split in enumerate(stab_cv):

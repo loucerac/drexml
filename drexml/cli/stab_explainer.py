@@ -6,10 +6,22 @@ Entry CLI point for stab.
 
 import multiprocessing
 import time
+import warnings
 
 import joblib
 import numpy as np
-import shap
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
+    )
+    import shap
+
 from sklearn.model_selection import train_test_split
 
 from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
@@ -19,8 +31,8 @@ from drexml.utils import parse_stab
 if __name__ == "__main__":
     import sys
 
-    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug = parse_stab(sys.argv)
-
+    data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add = parse_stab(sys.argv)
+    this_seed = 82
     queue = multiprocessing.Queue()
 
     n_devices = n_gpus if n_gpus > 0 else n_cpus
@@ -45,7 +57,9 @@ if __name__ == "__main__":
         cv_gen = joblib.load(cv_fpath)
     else:
         ids = np.arange(features.shape[0])
-        learn_ids, val_ids = train_test_split(ids, test_size=0.3, random_state=0)
+        learn_ids, val_ids = train_test_split(
+            ids, test_size=0.3, random_state=this_seed
+        )
 
     for i_split in range(n_splits):
         print(n_splits, i_split)
@@ -72,18 +86,17 @@ if __name__ == "__main__":
             this_model = get_model(
                 features.shape[1], targets.shape[1], n_cpus, debug, n_iters
             )
-            this_model.set_params(n_jobs=n_cpus)
+            this_model.set_params(n_jobs=n_cpus, random_state=this_seed)
             this_model.fit(features_learn, targets_learn)
         else:
             model_fname = f"model_{i_split}.jbl"
             model_fpath = data_path.joinpath(model_fname)
             this_model = joblib.load(model_fpath)
 
-        n_chunks = 1
-        if (this_model.n_features_ * this_model.n_outputs_) > (712 * 331):
-            n_chunks = 12
-        n_chunks = max(n_chunks, n_devices)
+        n_chunks = max(1, n_devices)
         chunk_size = len(features_val) // (n_chunks) + 1
+
+        print(f"{add=}")
 
         def runner(model, bkg, new, check_add, use_gpu):
 
@@ -101,17 +114,19 @@ if __name__ == "__main__":
 
         # bkg = shap.sample(features_learn, nsamples=1000, random_state=42)
         t = time.time()
+        features_bkg = features_learn.copy()
         if features_learn.shape[0] > 1000:
-            features_bkg = features_learn.sample(n=1000, random_state=0)
+            features_bkg = features_learn.sample(n=1000, random_state=42)
         else:
             features_bkg = features_learn
+
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
                     model=this_model,
                     bkg=features_bkg,
                     new=gb,
-                    check_add=True,
+                    check_add=add,
                     use_gpu=gpu,
                 )
                 for _, gb in features_val.groupby(

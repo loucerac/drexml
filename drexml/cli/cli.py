@@ -14,11 +14,29 @@ import pathlib
 import shutil
 import subprocess
 import sys
+import warnings
 
 import click
 import joblib
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 
-from drexml.utils import get_data, get_number_cuda_devices, get_out_path, get_version
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", module="shap", message="IPython could not be loaded!"
+    )
+    warnings.filterwarnings("ignore", module="shap", category=NumbaDeprecationWarning)
+    warnings.filterwarnings(
+        "ignore", module="shap", category=NumbaPendingDeprecationWarning
+    )
+
+from drexml.plotting import plot_metrics
+from drexml.utils import (
+    get_data,
+    get_number_cuda_devices,
+    get_out_path,
+    get_version,
+    rename_results,
+)
 
 FNAME_DICT = {
     "train": "stab_trainer.py",
@@ -76,6 +94,25 @@ _debug_option = [
         is_flag=True,
         default=False,
         help="Flag to run in debug mode.",
+    )
+]
+
+
+_check_add_option = [
+    click.option(
+        "--add/--no-add",
+        is_flag=True,
+        default=True,
+        help="Check the additivity when computing the SHAP values.",
+    )
+]
+
+_verb_option = [
+    click.option(
+        "--verbosity/--no-verbosity",
+        is_flag=True,
+        default=False,
+        help="Verbosity level.",
     )
 ]
 
@@ -148,6 +185,7 @@ def build_cmd(ctx):
         str(int(ctx["n_gpus"])),
         str(ctx["n_cpus"]),
         str(int(ctx["debug"])),
+        str(int(ctx["add"])),
         ctx["mode"],
     ]
 
@@ -160,19 +198,21 @@ def run_cmd(ctx):
     # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
     print(" ".join(cmd))
     output = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    click.echo(output.stderr)
-    click.echo(output.stdout)
+    if ctx["verbosity"]:
+        click.echo(output.stderr)
+        click.echo(output.stdout)
 
 
 @click.group()
 @click.version_option(get_version())
 def main():
     """drexml CLI entry point."""
-    print(f"running drexml orchestrate v {get_version()}")
+    print(f"running drexml v{get_version()}")
 
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
 @click.argument("disease-path", type=click.Path(exists=True))
 @click.version_option(get_version())
 def orchestrate(**kwargs):
@@ -193,6 +233,7 @@ def orchestrate(**kwargs):
     type=click.Choice(["train", "explain", "score"], case_sensitive=False),
 )
 @add_options(_debug_option)
+@add_options(_verb_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
@@ -223,6 +264,8 @@ def stability(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
+@add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
@@ -240,6 +283,8 @@ def explain(**kwargs):
 
 @main.command()
 @add_options(_debug_option)
+@add_options(_verb_option)
+@add_options(_check_add_option)
 @add_options(_n_iters_option)
 @add_options(_n_gpus_option)
 @add_options(_n_cpus_option)
@@ -255,6 +300,26 @@ def run(ctx, **kwargs):
     ctx.forward(stability, mode="explain")
     ctx.forward(stability, mode="score")
     ctx.forward(explain)
+
+
+@main.command()
+@click.argument("stab-path", type=click.Path(exists=True))
+@click.version_option(get_version())
+@click.pass_context
+def plot(ctx, stab_path):
+    """Plot the stability results"""
+
+    plot_metrics(stab_path)
+
+
+@main.command()
+@click.argument("results-folder", type=click.Path(exists=True))
+@click.version_option(get_version())
+@click.pass_context
+def rename(ctx, results_folder):
+    """Plot the stability results"""
+
+    rename_results(results_folder)
 
 
 if __name__ == "__main__":
