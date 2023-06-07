@@ -279,6 +279,7 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
+# TODO: create docstrings
 def convert_names(dataset, keys, axis):
     for i, key in enumerate(keys):
         if key == "circuits":
