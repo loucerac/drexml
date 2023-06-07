@@ -225,7 +225,7 @@ def plot_stability(input_path, output_path=None):
     )
     plt.savefig(output_path.joinpath(f"{input_path.stem}.pdf"), bbox_inches="tight")
 
-
+#MARINA: example docstring (the other functions are unnecessary)
 def plot_metrics(input_path, output_folder=None, width=2.735):
     """
     Read the drexml results TSV file and plot it. The R^2 confidence interval for the mean
