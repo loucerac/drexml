@@ -10,7 +10,23 @@ import seaborn as sns
 
 
 def preprocess_data(input_path):
-    """Read and preprocess results."""
+    """
+    Preprocess the stability results.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input file.
+
+    Returns
+    -------
+    data : pandas.DataFrame
+        Data to be plotted.
+    ilow : int
+        Index of the stability interval lower bound for the MAP.
+    iup : int
+        Index of the stability interval higher bound for the MAP.   
+    """
 
     data = pd.read_csv(input_path, sep="\t")
     if "stability_upper_95ci" not in data.columns:
@@ -31,7 +47,21 @@ def preprocess_data(input_path):
 
 
 def plot_stability_ax(ax, data, ilow, iup):
-    """Plot stability axis."""
+    """
+    Plot the stability results.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Axis to plot the results.
+    data : pandas.DataFrame
+        Data to be plotted.
+    ilow : int
+        Index of the stability interval lower bound for the MAP.
+    iup : int
+        Index of the stability interval higher bound for the MAP.   
+    """
+
     label_font_size = 10
     axis_font = {"size": f"{label_font_size}"}
     scatter_size = 10
@@ -91,7 +121,17 @@ def plot_stability_ax(ax, data, ilow, iup):
 
 
 def plot_r2_ax(ax_right, data):
-    """Plot R2 axis."""
+    """
+    Plot the R^2 results.
+
+    Parameters
+    ----------
+    ax_right : matplotlib.axes._subplots.AxesSubplot
+        Axis to plot the results.
+    data : pandas.DataFrame
+        Data to be plotted.
+    
+    """
 
     label_font_size = 10
     axis_font = {"size": f"{label_font_size}"}
@@ -127,7 +167,18 @@ def plot_r2_ax(ax_right, data):
 
 
 def plot_stability(input_path, output_path=None):
-    """Plot the stability results."""
+    """
+    Plot the stability results.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input file.
+    output_path : str, optional
+        Path to the output file. If None, the output file is saved in the
+        same directory as the input file.
+    
+    """
 
     print(input_path)
     print(output_path)
@@ -176,7 +227,22 @@ def plot_stability(input_path, output_path=None):
 
 
 def plot_metrics(input_path, output_folder=None, width=2.735):
-    """Plot stability versus R^2 with 95% CI"""
+    """
+    Read the drexml results TSV file and plot it. The R^2 confidence interval for the mean
+    go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
+    stability stimate.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input file.
+    output_folder : str, optional
+        Path to the output folder. If None, the output folder is the same
+        as the input folder.
+    width : float, optional
+        Width of the plot.
+    
+    """
 
     input_path = pathlib.Path(input_path).absolute()
     if output_folder is None:
