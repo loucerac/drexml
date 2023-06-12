@@ -268,7 +268,6 @@ def preprocess_map(frame, disease_seed_genes, circuits_column):
     """
     if circuits_column == DEFAULT_STR:
         circuits_column = "in_disease"
-    frame = frame.set_index(circuits_column)
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     if disease_seed_genes != DEFAULT_STR:
         gene_seeds = disease_seed_genes.split(",")
@@ -312,7 +311,7 @@ def preprocess_genes(frame, genes_column):
     This function selects rows from the input data frame based on the values in the 
     specified genes column and returns the resulting data frame.
     """
-    
+
     if genes_column == DEFAULT_STR:
         genes_column = "drugbank_approved_targets"
     frame = frame.loc[frame[genes_column]]
