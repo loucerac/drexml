@@ -5,12 +5,11 @@ IO module for DREXML.
 import pathlib
 
 import pandas as pd
-from dotenv.main import dotenv_values
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
+from drexml.utils import read_disease_config, DEFAULT_STR
 
-DEFAULT_STR = "$default$"
 DEBUG_NAMES = {
     "gene_exp": "gene_exp.tsv.gz",
     "pathvals": "pathvals.tsv.gz",
@@ -34,7 +33,7 @@ def fetch_file(disease, key, env, version="latest", debug=False):
     """Retrieve data."""
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
-    env = dotenv_values(experiment_env_path)
+    env = read_disease_config(experiment_env_path)
     if env[key].lower() == DEFAULT_STR:
         if version == "latest":
             try:
@@ -340,7 +339,7 @@ def get_disease_data(disease, debug):
 
     # Load data
     experiment_env_path = pathlib.Path(disease)
-    env = dotenv_values(experiment_env_path)
+    env = read_disease_config(experiment_env_path)
 
     gene_exp = fetch_file(
         disease, key="gene_exp", env=env, version="latest", debug=debug
@@ -368,3 +367,47 @@ def get_disease_data(disease, debug):
     print(pathvals.shape)
 
     return gene_exp, pathvals, circuits, genes
+
+
+
+def get_data(disease, debug, scale=False):
+    """Load disease data and metadata.
+
+    Parameters
+    ----------
+    disease : path-like
+        Path to disease config file.
+    debug : bool
+        _description_, by default False.
+    scale : bool, optional
+        _description_, by default False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Gene expression data.
+    pandas.DataFrame
+        Circuit activation data (hipathia).
+    pandas.DataFrame
+        Circuit definition binary matrix.
+    pandas.DataFrame
+        KDT definition binary matrix.
+    """
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
+
+    if scale:
+
+        pathvals = pd.DataFrame(
+            MinMaxScaler().fit_transform(pathvals),
+            columns=pathvals.columns,
+            index=pathvals.index,
+        )
+
+    print(gene_xpr.shape, pathvals.shape)
+
+    if debug:
+        size = 9
+        gene_xpr = gene_xpr.sample(n=size)
+        pathvals = pathvals.loc[gene_xpr.index, :]
+
+    return gene_xpr, pathvals, circuits, genes

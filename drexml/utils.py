@@ -26,8 +26,11 @@ with warnings.catch_warnings():
 from sklearn.model_selection import ShuffleSplit, train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from drexml.datasets import get_disease_data
 from drexml.models import get_model
+from dotenv.main import dotenv_values
+
+
+DEFAULT_STR = "$default$"
 
 
 def rename_results(folder):
@@ -174,49 +177,6 @@ def get_out_path(disease):
     return out_path
 
 
-def get_data(disease, debug, scale=False):
-    """Load disease data and metadata.
-
-    Parameters
-    ----------
-    disease : path-like
-        Path to disease config file.
-    debug : bool
-        _description_, by default False.
-    scale : bool, optional
-        _description_, by default False.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Gene expression data.
-    pandas.DataFrame
-        Circuit activation data (hipathia).
-    pandas.DataFrame
-        Circuit definition binary matrix.
-    pandas.DataFrame
-        KDT definition binary matrix.
-    """
-    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
-
-    if scale:
-
-        pathvals = pd.DataFrame(
-            MinMaxScaler().fit_transform(pathvals),
-            columns=pathvals.columns,
-            index=pathvals.index,
-        )
-
-    print(gene_xpr.shape, pathvals.shape)
-
-    if debug:
-        size = 9
-        gene_xpr = gene_xpr.sample(n=size)
-        pathvals = pathvals.loc[gene_xpr.index, :]
-
-    return gene_xpr, pathvals, circuits, genes
-
-
 def get_cuda_lib():
     """Get CUDA library name."""
     lib_names = ("libcuda.so", "libcuda.dylib", "cuda.dll")
@@ -305,3 +265,40 @@ def convert_names(dataset, keys, axis):
         dataset = dataset.rename(name_dict, axis=axis[i])
 
     return dataset
+
+
+def read_disease_config(disease):
+    """Read disease config file.
+
+    Parameters
+    ----------
+    disease : path-like
+        Path to disease config file.
+
+    Returns
+    -------
+    dict
+        Dictionary with disease parameters.
+    """
+    config = dotenv_values(disease)
+
+    required_keys = (
+        "disease_seed_genes",
+        "use_physio",
+        "data_path",
+        "gene_exp",
+        "pathvals",
+        "circuits",
+        "circuits_column",
+        "genes",
+        "genes_column",
+    )
+
+    for key in required_keys:
+        if key not in config:
+            config[key] = DEFAULT_STR
+
+
+    print(config)
+
+    return config

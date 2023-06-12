@@ -30,8 +30,8 @@ with warnings.catch_warnings():
     )
 
 from drexml.plotting import plot_metrics
+from drexml.datasets import get_data
 from drexml.utils import (
-    get_data,
     get_number_cuda_devices,
     get_out_path,
     get_version,
