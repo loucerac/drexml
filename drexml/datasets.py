@@ -22,6 +22,7 @@ PRODUCTION_NAMES = {
     "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
     "pathvals": "expreset_pathvals_gtexV8.rds.feather",
     "genes": "genes.tsv.gz",
+    "circuits": "circuits_to_genes.tsv.gz"
 }
 
 NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
@@ -42,7 +43,7 @@ def fetch_file(disease, key, env, version="latest", debug=False):
             except (ConnectTimeout) as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(
-                    ".data", "zenodo", RECORD_ID, "20230315"
+                    ".data", "zenodo", RECORD_ID, "20230612"
                 )
     else:
         data_path = pathlib.Path(env["data_path"]).absolute()
@@ -165,7 +166,7 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
-        return preprocess_map(res, env["circuits_column"])
+        return preprocess_map(res, env["disease_seed_genes"], env["circuits_column"])
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -235,7 +236,7 @@ def preprocess_activities(frame):
     return frame
 
 
-def preprocess_map(frame, circuits_column):
+def preprocess_map(frame, disease_seed_genes, circuits_column):
     """
     Preprocesses a map data frame.
 
@@ -267,10 +268,18 @@ def preprocess_map(frame, circuits_column):
     boolean values. It then returns the resulting data frame.
 
     """
-
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
-    frame[circuits_column] = frame[circuits_column].astype(bool)
-    return frame
+    if disease_seed_genes != DEFAULT_STR:
+        gene_seeds = disease_seed_genes.split(",")
+        gene_seeds = frame.columns.intersection(gene_seeds)
+        circuits = frame.index[frame[gene_seeds].any(axis=1)].tolist()
+    else:   
+        if circuits_column == DEFAULT_STR:
+            circuits_column = "in_disease"
+        frame[circuits_column] = frame[circuits_column].astype(bool)
+        circuits = frame.index[frame[circuits_column]].tolist()
+
+    return circuits
 
 
 def preprocess_genes(frame, genes_column):
@@ -304,6 +313,8 @@ def preprocess_genes(frame, genes_column):
     This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.
 
     """
+    if genes_column == DEFAULT_STR:
+        genes_column = "drugbank_approved_targets"
     frame = frame.loc[frame[genes_column]]
     return frame
 
@@ -331,8 +342,6 @@ def get_disease_data(disease, debug):
     # Load data
     experiment_env_path = pathlib.Path(disease)
     env = dotenv_values(experiment_env_path)
-    genes_column = env["genes_column"]
-    circuits_column = env["circuits_column"]
 
     gene_exp = fetch_file(
         disease, key="gene_exp", env=env, version="latest", debug=debug
@@ -355,6 +364,8 @@ def get_disease_data(disease, debug):
     usable_genes = genes.index.intersection(gtex_entrez)
 
     gene_exp = gene_exp[usable_genes]
-    pathvals = pathvals[circuits.index[circuits[circuits_column]]]
+    pathvals = pathvals[circuits]
+
+    print(pathvals.shape)
 
     return gene_exp, pathvals, circuits, genes
