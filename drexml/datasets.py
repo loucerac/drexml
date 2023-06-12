@@ -22,7 +22,7 @@ PRODUCTION_NAMES = {
     "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
     "pathvals": "expreset_pathvals_gtexV8.rds.feather",
     "genes": "genes.tsv.gz",
-    "circuits": "circuits_to_genes.tsv.gz"
+    "circuits": "circuits_to_genes.tsv.gz",
 }
 
 NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
@@ -244,38 +244,37 @@ def preprocess_map(frame, disease_seed_genes, circuits_column):
     ----------
     frame : pandas.DataFrame
         The map data frame to preprocess.
+    disease_seed_genes : str
+        The comma separated list of disease seed genes.
     circuits_column : str
         The name of the column containing circuit information.
 
     Returns
     -------
-    pandas.DataFrame
-        The preprocessed map data frame.
+    list of str
+        The list of circuits.
 
     Examples
     --------
     >>> import pandas as pd
-    >>> df = pd.DataFrame({"-": [1, 2], "Activity 1": [3, 4]}, index=["A-B", "C-D"])
-    >>> preprocess_map(df, "Activity 1")
-       .  Activity.1
-    A.B          3
-    C.D          4
+    >>> df = pd.DataFrame({"in_disease": [True, False], "hipathia": ["A", "B"]})
+    >>> preprocess_map(df, "A,B", "in_disease")
+    ['A', 'B']
 
     Notes
     -----
-    This function replaces hyphens and spaces in the index labels of the input data
-    frame with periods and converts the values in the specified circuits column to
-    boolean values. It then returns the resulting data frame.
-
+    This function replaces hyphens and spaces in the index names of the input data frame
+      with periods and returns the resulting list of circuits.
     """
+    if circuits_column == DEFAULT_STR:
+        circuits_column = "in_disease"
+    frame = frame.set_index(circuits_column)
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     if disease_seed_genes != DEFAULT_STR:
         gene_seeds = disease_seed_genes.split(",")
         gene_seeds = frame.columns.intersection(gene_seeds)
         circuits = frame.index[frame[gene_seeds].any(axis=1)].tolist()
-    else:   
-        if circuits_column == DEFAULT_STR:
-            circuits_column = "in_disease"
+    else:
         frame[circuits_column] = frame[circuits_column].astype(bool)
         circuits = frame.index[frame[circuits_column]].tolist()
 
@@ -310,9 +309,10 @@ def preprocess_genes(frame, genes_column):
 
     Notes
     -----
-    This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.
-
+    This function selects rows from the input data frame based on the values in the 
+    specified genes column and returns the resulting data frame.
     """
+    
     if genes_column == DEFAULT_STR:
         genes_column = "drugbank_approved_targets"
     frame = frame.loc[frame[genes_column]]
