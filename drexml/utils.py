@@ -23,12 +23,10 @@ with warnings.catch_warnings():
     )
     import shap
 
+from dotenv.main import dotenv_values
 from sklearn.model_selection import ShuffleSplit, train_test_split
-from sklearn.preprocessing import MinMaxScaler
 
 from drexml.models import get_model
-from dotenv.main import dotenv_values
-
 
 DEFAULT_STR = "$default$"
 
@@ -272,33 +270,88 @@ def read_disease_config(disease):
 
     Parameters
     ----------
-    disease : path-like
+    disease : str
         Path to disease config file.
 
     Returns
     -------
     dict
-        Dictionary with disease parameters.
+        Config dictionary.
+
     """
+
+    # TODO: when moving to Python >= 3.9 use '|' to update dicts
     config = dotenv_values(disease)
 
-    required_keys = (
-        "disease_seed_genes",
-        "use_physio",
-        "data_path",
-        "gene_exp",
-        "pathvals",
-        "circuits",
-        "circuits_column",
-        "genes",
-        "genes_column",
-    )
+    default_dict = {
+        "seed_genes": None,
+        "use_physio": True,
+        "data_path": DEFAULT_STR,
+        "circuits_column": "in_disease",
+        "genes_column": "drugbank_approved_targets",
+        "GTEX_VERSION": "V8",
+        "MYGENE_VERSION": "20230120",
+        "DRUGBANK_VERSION": "v050108",
+        "HIPATHIA_VERSION": "v2-14-0",
+        "EDGER_VERSION": "v3-40-0",
+    }
 
-    for key in required_keys:
+    for key, _ in default_dict.items():
         if key not in config:
-            config[key] = DEFAULT_STR
+            config[key] = default_dict[key]
 
+    try:
+        config["seed_genes"] = str(config["seed_genes"]).split(",")
+    except ValueError as err:
+        print(err)
+        raise ValueError(
+            "seed_genes should be a comma-separated list of genes."
+        ) from err
 
-    print(config)
+    try:
+        if config["use_physio"].lower() == "true":
+            config["use_physio"] = "1"
+        if config["use_physio"].lower() == "false":
+            config["use_physio"] = "0"
+        config["use_physio"] = bool(int(config["use_physio"]))
+    except ValueError as err:
+        print(err)
+        raise ValueError("use_physio should be a boolean.") from err
+
+    try:
+        config["circuits_column"] = str(config["circuits_column"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("circuits_column should be string-like.") from err
+
+    try:
+        config["GTEX_VERSION"] = str(config["GTEX_VERSION"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("GTEX_VERSION should be one of 'V8'.") from err
+
+    try:
+        config["MYGENE_VERSION"] = str(config["MYGENE_VERSION"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("MYGENE_VERSION should be one of '20230120'.") from err
+
+    try:
+        config["DRUGBANK_VERSION"] = str(config["DRUGBANK_VERSION"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("DRUGBANK_VERSION should be one of 'v050108'.") from err
+
+    try:
+        config["HIPATHIA_VERSION"] = str(config["HIPATHIA_VERSION"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("HIPATHIA_VERSION should be one of 'v2-14-0'.") from err
+
+    try:
+        config["EDGER_VERSION"] = str(config["EDGER_VERSION"])
+    except ValueError as err:
+        print(err)
+        raise ValueError("EDGER_VERSION should be one of 'v3-40-0'.") from err
 
     return config
