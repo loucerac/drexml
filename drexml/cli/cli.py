@@ -29,8 +29,8 @@ with warnings.catch_warnings():
         "ignore", module="shap", category=NumbaPendingDeprecationWarning
     )
 
-from drexml.plotting import plot_metrics
 from drexml.datasets import get_data
+from drexml.plotting import plot_metrics
 from drexml.utils import (
     get_number_cuda_devices,
     get_out_path,
