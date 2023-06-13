@@ -7,8 +7,10 @@ import pathlib
 import pandas as pd
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
+from sklearn.preprocessing import MinMaxScaler
 from zenodo_client import Zenodo
-from drexml.utils import read_disease_config, DEFAULT_STR
+
+from drexml.utils import DEFAULT_STR, read_disease_config
 
 DEBUG_NAMES = {
     "gene_exp": "gene_exp.tsv.gz",
@@ -307,7 +309,7 @@ def preprocess_genes(frame, genes_column):
 
     Notes
     -----
-    This function selects rows from the input data frame based on the values in the 
+    This function selects rows from the input data frame based on the values in the
     specified genes column and returns the resulting data frame.
     """
 
@@ -369,7 +371,6 @@ def get_disease_data(disease, debug):
     return gene_exp, pathvals, circuits, genes
 
 
-
 def get_data(disease, debug, scale=False):
     """Load disease data and metadata.
 
@@ -411,3 +412,34 @@ def get_data(disease, debug, scale=False):
         pathvals = pathvals.loc[gene_xpr.index, :]
 
     return gene_xpr, pathvals, circuits, genes
+
+
+def build_gexp_fname(config):
+
+    return "_".join(
+        ["gexp", f"gtex-{config['GTEX_VERSION']}", f"edger-{config['EDGER_VERSION']}"]
+    )
+
+
+def build_pathvals_fname(config):
+
+    return "_".join(
+        [
+            "pathvals",
+            f"gtex-{config['GTEX_VERSION']}",
+            f"edger-{config['EDGER_VERSION']}",
+            f"hipathia-{config['HIPATHIA_VERSION']}",
+        ]
+    )
+
+
+def build_genes_fname(config):
+
+    return "_".join(
+        [
+            "genes",
+            f"gtex-{config['GTEX_VERSION']}",
+            f"drugbank-{config['DRUGBANK_VERSION']}",
+            f"mygene-{config['MYGENE_VERSION']}",
+        ]
+    )
