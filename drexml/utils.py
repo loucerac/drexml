@@ -279,8 +279,21 @@ def get_resource_path(fname):
     return Path(data_file_path)
 
 
-# TODO: create docstrings
 def convert_names(dataset, keys, axis):
+    """
+    Convert names in the dataset.
+    -------
+    Parameters:
+    - dataset: The dataset to convert.
+    - keys: The keys specifying the conversion rules.
+    - axis: The axis along which to perform the conversion.
+
+    Returns:
+    - dataset: The dataset with converted names.
+
+    Raises:
+    - NotImplementedError: If an unsupported key is provided.
+    """
     for i, key in enumerate(keys):
         if key == "circuits":
             fname = "circuit_names.tsv"
