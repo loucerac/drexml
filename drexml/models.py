@@ -51,7 +51,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
     )
 
     if n_iters > 0:
-        raise NotImplementedError("Hyperparameter optimization not implemented.")
+        raise NotImplementedError("Hyperparameter optimization disabled since v0.2 .")
 
     print(f"Predicting {n_targets} circuits with {n_features} KDTs")
 
