@@ -36,6 +36,7 @@ from drexml.utils import (
     get_out_path,
     get_version,
     rename_results,
+    check_gputree_availability
 )
 
 FNAME_DICT = {
@@ -158,8 +159,11 @@ def build_ctx(ctx, step=None):
             ctx_new["mode"] = "final"
 
     if "n_gpus" in ctx_new.keys():
-        if ctx_new["n_gpus"] < 0:
-            ctx_new["n_gpus"] = get_number_cuda_devices()
+        if check_gputree_availability():
+            if ctx_new["n_gpus"] < 0:
+                ctx_new["n_gpus"] = get_number_cuda_devices()
+        else:
+            ctx_new["n_gpus"] = 0
     if "n_cpus" in ctx_new.keys():
         if ctx_new["n_cpus"] < 0:
             ctx_new["n_cpus"] = multiprocessing.cpu_count()
