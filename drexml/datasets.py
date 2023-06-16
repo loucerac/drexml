@@ -36,11 +36,11 @@ def fetch_file(disease, key, env, version="latest", debug=False):
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
-    if env[key].lower() == DEFAULT_STR:
+    if env[key + "_zenodo"]:
         if version == "latest":
             try:
                 zenodo = Zenodo()
-                path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
+                path = zenodo.download_latest(RECORD_ID, env[key], force=False)
             except (ConnectTimeout) as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(
