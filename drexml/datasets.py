@@ -167,7 +167,7 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
-        return preprocess_map(res, env["disease_seed_genes"], env["circuits_column"])
+        return preprocess_map(res, env["seed_genes"], env["circuits_column"])
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -230,7 +230,8 @@ def preprocess_activities(frame):
 
     Notes
     -----
-    This function replaces hyphens and spaces in the column names of the input data frame with periods and returns the resulting data frame.
+    This function replaces hyphens and spaces in the column names of the input data
+    frame with periods and returns the resulting data frame.
 
     """
     frame.columns = frame.columns.str.replace("-", ".").str.replace(" ", ".")
@@ -267,13 +268,10 @@ def preprocess_map(frame, disease_seed_genes, circuits_column):
     This function replaces hyphens and spaces in the index names of the input data frame
       with periods and returns the resulting list of circuits.
     """
-    if circuits_column == DEFAULT_STR:
-        circuits_column = "in_disease"
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
-    if disease_seed_genes != DEFAULT_STR:
-        gene_seeds = disease_seed_genes.split(",")
-        gene_seeds = frame.columns.intersection(gene_seeds)
-        circuits = frame.index[frame[gene_seeds].any(axis=1)].tolist()
+    if disease_seed_genes:
+        disease_seed_genes = frame.columns.intersection(disease_seed_genes)
+        circuits = frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
     else:
         frame[circuits_column] = frame[circuits_column].astype(bool)
         circuits = frame.index[frame[circuits_column]].tolist()
@@ -313,8 +311,6 @@ def preprocess_genes(frame, genes_column):
     specified genes column and returns the resulting data frame.
     """
 
-    if genes_column == DEFAULT_STR:
-        genes_column = "drugbank_approved_targets"
     frame = frame.loc[frame[genes_column]]
     return frame
 
@@ -412,34 +408,3 @@ def get_data(disease, debug, scale=False):
         pathvals = pathvals.loc[gene_xpr.index, :]
 
     return gene_xpr, pathvals, circuits, genes
-
-
-def build_gexp_fname(config):
-
-    return "_".join(
-        ["gexp", f"gtex-{config['GTEX_VERSION']}", f"edger-{config['EDGER_VERSION']}"]
-    )
-
-
-def build_pathvals_fname(config):
-
-    return "_".join(
-        [
-            "pathvals",
-            f"gtex-{config['GTEX_VERSION']}",
-            f"edger-{config['EDGER_VERSION']}",
-            f"hipathia-{config['HIPATHIA_VERSION']}",
-        ]
-    )
-
-
-def build_genes_fname(config):
-
-    return "_".join(
-        [
-            "genes",
-            f"gtex-{config['GTEX_VERSION']}",
-            f"drugbank-{config['DRUGBANK_VERSION']}",
-            f"mygene-{config['MYGENE_VERSION']}",
-        ]
-    )
