@@ -28,7 +28,7 @@ PRODUCTION_NAMES = {
 
 NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
 
-RECORD_ID = "7737166"
+RECORD_ID = "6020480"
 
 
 def fetch_file(disease, key, env, version="latest", debug=False):
