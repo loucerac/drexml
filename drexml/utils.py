@@ -285,13 +285,20 @@ def read_disease_config(disease):
 
     default_dict = {
         "seed_genes": None,
-        "use_physio": True,
-        "data_path": DEFAULT_STR,
+        "use_physio": "true",
+        "gene_exp": None,
+        "gene_exp_zenodo": False,
+        "pathvals": None,
+        "pathvals_zenodo": False,
+        "circuits": None,
+        "circuits_zenodo": False,
+        "genes": None,
+        "genes_zenodo": False,
         "circuits_column": "in_disease",
         "genes_column": "drugbank_approved_targets",
-        "GTEX_VERSION": "V8",
-        "MYGENE_VERSION": "20230120",
-        "DRUGBANK_VERSION": "v050108",
+        "GTEX_VERSION": "v8",
+        "MYGENE_VERSION": "v20230220",
+        "DRUGBANK_VERSION": "v050110",
         "HIPATHIA_VERSION": "v2-14-0",
         "EDGER_VERSION": "v3-40-0",
     }
@@ -304,9 +311,8 @@ def read_disease_config(disease):
         config["seed_genes"] = str(config["seed_genes"]).split(",")
     except ValueError as err:
         print(err)
-        raise ValueError(
-            "seed_genes should be a comma-separated list of genes."
-        ) from err
+        print("seed_genes should be a comma-separated list of genes.")
+        raise
 
     try:
         if config["use_physio"].lower() == "true":
@@ -316,42 +322,182 @@ def read_disease_config(disease):
         config["use_physio"] = bool(int(config["use_physio"]))
     except ValueError as err:
         print(err)
-        raise ValueError("use_physio should be a boolean.") from err
+        print("use_physio should be a boolean.")
+        raise
+
+    try:
+        if config["gene_exp"] is not None:
+            config["gene_exp"] = str(config["gene_exp"])
+    except ValueError as err:
+        print(err)
+        print("gene_exp should be a path.")
+        raise
+
+    try:
+        if config["pathvals"] is not None:
+            config["pathvals"] = str(config["pathvals"])
+    except ValueError as err:
+        print(err)
+        print("pathvals should be a path.")
+        raise
+
+    try:
+        if config["genes"] is not None:
+            config["genes"] = str(config["genes"])
+    except ValueError as err:
+        print(err)
+        print("genes should be a path.")
+        raise
+
+    try:
+        if config["circuits"] is not None:
+            config["circuits"] = str(config["circuits"])
+    except ValueError as err:
+        print(err)
+        print("circuits should be a path.")
+        raise
 
     try:
         config["circuits_column"] = str(config["circuits_column"])
     except ValueError as err:
         print(err)
-        raise ValueError("circuits_column should be string-like.") from err
+        print("circuits_column should be string-like.")
+        raise
 
     try:
         config["GTEX_VERSION"] = str(config["GTEX_VERSION"])
     except ValueError as err:
         print(err)
-        raise ValueError("GTEX_VERSION should be one of 'V8'.") from err
+        print("GTEX_VERSION should be one of 'V8'.")
+        raise
 
     try:
         config["MYGENE_VERSION"] = str(config["MYGENE_VERSION"])
     except ValueError as err:
         print(err)
-        raise ValueError("MYGENE_VERSION should be one of '20230120'.") from err
+        print("MYGENE_VERSION should be one of 'v20230120'.")
+        raise
 
     try:
         config["DRUGBANK_VERSION"] = str(config["DRUGBANK_VERSION"])
     except ValueError as err:
         print(err)
-        raise ValueError("DRUGBANK_VERSION should be one of 'v050108'.") from err
+        print("DRUGBANK_VERSION should be one of 'v050108'.")
+        raise
 
     try:
         config["HIPATHIA_VERSION"] = str(config["HIPATHIA_VERSION"])
     except ValueError as err:
         print(err)
-        raise ValueError("HIPATHIA_VERSION should be one of 'v2-14-0'.") from err
+        print("HIPATHIA_VERSION should be one of 'v2-14-0'.")
+        raise
 
     try:
         config["EDGER_VERSION"] = str(config["EDGER_VERSION"])
     except ValueError as err:
         print(err)
-        raise ValueError("EDGER_VERSION should be one of 'v3-40-0'.") from err
+        print("EDGER_VERSION should be one of 'v3-40-0'.")
+        raise
+
+    config = update_config(config)
+
+    return config
+
+
+def build_gene_exp_fname(config):
+
+    return (
+        "_".join(
+            [
+                "gexp",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"edger-{config['EDGER_VERSION']}",
+            ]
+        )
+        + ".feather"
+    )
+
+
+def build_pathvals_fname(config):
+
+    return (
+        "_".join(
+            [
+                "pathvals",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"edger-{config['EDGER_VERSION']}",
+                f"hipathia-{config['HIPATHIA_VERSION']}",
+            ]
+        )
+        + ".feather"
+    )
+
+
+def build_genes_fname(config):
+
+    return (
+        "_".join(
+            [
+                "genes",
+                f"drugbank-{config['DRUGBANK_VERSION']}",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"mygene-{config['MYGENE_VERSION']}",
+            ]
+        )
+        + ".tsv.gz"
+    )
+
+
+def build_circuits_fname(config):
+
+    return (
+        "_".join(
+            [
+                "circuits2genes",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"hipathia-{config['HIPATHIA_VERSION']}",
+            ]
+        )
+        + ".tsv.gz"
+    )
+
+
+def update_gene_exp(config):
+    if config["gene_exp"] is None:
+        config["gene_exp"] = build_gene_exp_fname(config)
+        config["gene_exp_zenodo"] = True
+
+    return config
+
+
+def update_pathvals(config):
+    if config["pathvals"] is None:
+        config["pathvals"] = build_pathvals_fname(config)
+        config["pathvals_zenodo"] = True
+
+    return config
+
+
+def update_genes(config):
+    if config["genes"] is None:
+        config["genes"] = build_genes_fname(config)
+        config["genes_zenodo"] = True
+
+    return config
+
+
+def update_circuits(config):
+    if config["circuits"] is None:
+        config["circuits"] = build_circuits_fname(config)
+        config["circuits_zenodo"] = True
+
+    return config
+
+
+def update_config(config):
+    config = update_gene_exp(config)
+    config = update_pathvals(config)
+    config = update_genes(config)
+    config = update_circuits(config)
 
     return config
