@@ -30,7 +30,10 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
     """
 
     this_seed = 275
-    max_features = int(np.sqrt(n_features) + 20)
+    if debug:
+        max_features = 1.0
+    else:
+        max_features = int(np.sqrt(n_features) + 20)
     if debug:
         n_estimators = 2
         max_depth = 2
