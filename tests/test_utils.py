@@ -6,15 +6,14 @@ from tempfile import mkstemp
 
 import pytest
 
+from drexml.config import DEFAULT_DICT
 from drexml.utils import (
     check_gputree_availability,
     get_number_cuda_devices,
     get_out_path,
     get_version,
     read_disease_config,
-    update_circuits
 )
-from drexml.config import DEFAULT_DICT
 
 from .this_utils import make_disease_config
 
@@ -79,8 +78,6 @@ def test_read_disease_config_only_seeds():
 
     config = read_disease_config(path)
 
-    circuit = "P.hsa03320.28"
-
     assert len(config["seed_genes"]) == 1
     assert config["seed_genes"][0] == "2180"
 
@@ -96,12 +93,11 @@ def test_read_disease_config_update_with_seeds():
     config = read_disease_config(path)
 
     assert len(config["seed_genes"]) == 1
-    assert config["seed_genes"][0] == "2180" 
+    assert config["seed_genes"][0] == "2180"
     assert config["pathvals"] != DEFAULT_DICT["pathvals"]
     assert config["genes"] != DEFAULT_DICT["genes"]
     assert config["circuits"] == DEFAULT_DICT["circuits"]
     assert config["gene_exp"] != DEFAULT_DICT["gene_exp"]
-
 
 
 def test_read_disease_config_update_without_seeds():
