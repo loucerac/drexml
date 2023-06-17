@@ -27,6 +27,7 @@ from dotenv.main import dotenv_values
 from sklearn.model_selection import ShuffleSplit, train_test_split
 
 from drexml.models import get_model
+from drexml.config import DEFAULT_DICT
 
 DEFAULT_STR = "$default$"
 
@@ -283,7 +284,7 @@ def read_disease_config(disease):
     # TODO: when moving to Python >= 3.9 use '|' to update dicts
     config = dotenv_values(disease)
 
-    default_dict = {
+    DEFAULT_DICT = {
         "seed_genes": None,
         "use_physio": "true",
         "gene_exp": None,
@@ -303,12 +304,13 @@ def read_disease_config(disease):
         "EDGER_VERSION": "v3-40-0",
     }
 
-    for key, _ in default_dict.items():
+    for key, _ in DEFAULT_DICT.items():
         if key not in config:
-            config[key] = default_dict[key]
+            config[key] = DEFAULT_DICT[key]
 
     try:
-        config["seed_genes"] = str(config["seed_genes"]).split(",")
+        if config["seed_genes"] is not None:
+            config["seed_genes"] = str(config["seed_genes"]).split(",")
     except ValueError as err:
         print(err)
         print("seed_genes should be a comma-separated list of genes.")
@@ -487,7 +489,7 @@ def update_genes(config):
 
 
 def update_circuits(config):
-    if config["circuits"] is None:
+    if config["circuits"] is None and config["seed_genes"] is None:
         config["circuits"] = build_circuits_fname(config)
         config["circuits_zenodo"] = True
 
