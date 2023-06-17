@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 
 
-def get_model(n_features, n_targets, n_jobs, debug, n_iters=None):
+def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
     """Create a model.
 
     Parameters
