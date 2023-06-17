@@ -262,7 +262,7 @@ def stability(**kwargs):
     run_cmd(ctx)
 
     if ctx["mode"].lower() == "score":
-        fnames = ["stability_results.tsv"]
+        fnames = ["stability_results.tsv", "stability_results_symbol.tsv"]
         copy_files(ctx, fnames)
 
 
@@ -281,7 +281,7 @@ def explain(**kwargs):
 
     run_cmd(ctx)
 
-    fnames = ["shap_selection.tsv", "shap_summary.tsv"]
+    fnames = ["shap_selection.tsv", "shap_summary.tsv", "shap_selection_symbol.tsv", "shap_summary_symbol.tsv"]
     copy_files(ctx, fnames)
 
 

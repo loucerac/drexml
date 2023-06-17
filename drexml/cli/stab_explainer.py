@@ -26,7 +26,7 @@ from sklearn.model_selection import train_test_split
 
 from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
 from drexml.models import get_model
-from drexml.utils import parse_stab
+from drexml.utils import convert_names, parse_stab
 
 if __name__ == "__main__":
     import sys
@@ -165,8 +165,26 @@ if __name__ == "__main__":
         shap_relevances.to_csv(shap_summary_fpath, sep="\t")
         print(f"Shap summary results saved to: {shap_summary_fpath}")
 
+        shap_summary_renamed = convert_names(
+            shap_relevances.set_index(shap_relevances.columns[0]), ["circuits", "genes"], axis=[0, 1]
+        )
+        shap_summary_renamed.to_csv(
+            shap_summary_fpath.absolute().parent.joinpath(
+                f"{shap_summary_fpath.stem}_symbol.tsv"
+            ),
+            sep="\t",
+            index_label="circuit_name",
+        )
+
         # Save results
         fs_fname = "shap_selection.tsv"
         fs_fpath = data_folder.joinpath(fs_fname)
         (filt_i * 1).to_csv(fs_fpath, sep="\t")
         print(f"Shap selection results saved to: {fs_fpath}")
+
+        fs_renamed = convert_names(filt_i.set_index(filt_i.columns[0]), ["circuits", "genes"], axis=[0, 1])
+        fs_renamed.to_csv(
+            fs_fpath.absolute().parent.joinpath(f"{fs_fpath.stem}_symbol.tsv"),
+            sep="\t",
+            index_label="circuit_name",
+        )
