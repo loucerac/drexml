@@ -26,8 +26,8 @@ with warnings.catch_warnings():
 from dotenv.main import dotenv_values
 from sklearn.model_selection import ShuffleSplit, train_test_split
 
-from drexml.models import get_model
 from drexml.config import DEFAULT_DICT
+from drexml.models import get_model
 
 DEFAULT_STR = "$default$"
 
@@ -245,9 +245,9 @@ def convert_names(dataset, keys, axis):
             index_name = "hipathia_id"
             col_name = "name"
         elif key == "genes":
-            fname = "entrez_sym-table.tsv"
-            index_name = "entrez"
-            col_name = "symbol"
+            fname = "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz"
+            index_name = "entrez_id"
+            col_name = "symbol_id"
         else:
             raise NotImplementedError()
 
@@ -489,9 +489,20 @@ def update_genes(config):
 
 
 def update_circuits(config):
-    if config["circuits"] is None and config["seed_genes"] is None:
-        config["circuits"] = build_circuits_fname(config)
-        config["circuits_zenodo"] = True
+
+    if config["circuits"] is None:
+        if config["seed_genes"] is None:
+            raise ValueError("Either circuits or seed_genes list is required.")
+        else:
+            if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
+                config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
+            ):
+                config["circuits"] = build_circuits_fname(config)
+                config["circuits_zenodo"] = True
+            else:
+                config["circuits"] = get_resource_path(
+                    "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
+                )
 
     return config
 

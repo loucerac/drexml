@@ -10,7 +10,7 @@ from requests.exceptions import ConnectTimeout
 from sklearn.preprocessing import MinMaxScaler
 from zenodo_client import Zenodo
 
-from drexml.utils import DEFAULT_STR, read_disease_config
+from drexml.utils import read_disease_config
 
 DEBUG_NAMES = {
     "gene_exp": "gene_exp.tsv.gz",
@@ -20,8 +20,6 @@ DEBUG_NAMES = {
 }
 
 PRODUCTION_NAMES = {
-    "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
-    "pathvals": "expreset_pathvals_gtexV8.rds.feather",
     "genes": "genes.tsv.gz",
     "circuits": "circuits_to_genes.tsv.gz",
 }
@@ -47,12 +45,13 @@ def fetch_file(disease, key, env, version="latest", debug=False):
                     ".data", "zenodo", RECORD_ID, "20230612"
                 )
     else:
-        data_path = pathlib.Path(env["data_path"]).absolute()
-        print(data_path)
-        if data_path.name.lower() == DEFAULT_STR:
-            print(disease, env[key], data_path)
+        if env[key] is not None:
             data_path = experiment_env_path.parent
-        path = data_path.joinpath(env[key])
+            path = data_path.joinpath(env[key])
+            if not path.exists():
+                path = pathlib.Path(env[key])
+
+    print(key, path)
 
     frame = load_df(path, key)
     frame = preprocess_frame(frame, env, key)
@@ -404,7 +403,7 @@ def get_data(disease, debug, scale=False):
 
     if debug:
         size = 9
-        gene_xpr = gene_xpr.sample(n=size)
+        gene_xpr = gene_xpr.sample(n=size, random_state=0)
         pathvals = pathvals.loc[gene_xpr.index, :]
 
     return gene_xpr, pathvals, circuits, genes
