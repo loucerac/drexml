@@ -9,11 +9,12 @@ from pathlib import Path
 
 from drexml.utils import get_resource_path
 
+THIS_DIR = Path(__file__).absolute().parent
+
 DATA_DICT = {
     "circuits": "circuits.tsv.gz",
     "gene_exp": "gene_exp.tsv.gz",
     "pathvals": "pathvals.tsv.gz",
-    "genes": "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz",
 }
 
 
