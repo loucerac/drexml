@@ -11,6 +11,7 @@ from drexml.utils import (
     check_gputree_availability,
     get_number_cuda_devices,
     get_out_path,
+    get_resource_path,
     get_version,
     read_disease_config,
 )
@@ -19,6 +20,24 @@ from .this_utils import make_disease_config
 
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 WITH_GPU = [True] if get_number_cuda_devices() > 0 else [False]
+
+
+RESOURCE_FNAMES = [
+    "circuit_names.tsv",
+    "circuits.tsv.gz",
+    "gene_exp.tsv.gz",
+    "pathvals.tsv.gz",
+    "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz",
+    "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz",
+]
+
+
+@pytest.mark.parametrize("fname", RESOURCE_FNAMES)
+def test_get_resource_path(fname):
+    """Test get_resource_path"""
+
+    fpath = get_resource_path(fname)
+    assert fpath.exists()
 
 
 @pytest.mark.parametrize("n_gpus_found", N_GPU_LST)
@@ -96,7 +115,7 @@ def test_read_disease_config_update_with_seeds():
     assert config["seed_genes"][0] == "2180"
     assert config["pathvals"] != DEFAULT_DICT["pathvals"]
     assert config["genes"] != DEFAULT_DICT["genes"]
-    assert config["circuits"] == DEFAULT_DICT["circuits"]
+    assert config["circuits"].exists()
     assert config["gene_exp"] != DEFAULT_DICT["gene_exp"]
 
 
