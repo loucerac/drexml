@@ -18,7 +18,6 @@ PLOTTING_EXTENSIONS = ["pdf", "png"]
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 
-
 def check_new_versus_all(name, tmp_fodler):
     old_df = pd.read_csv(THIS_DIR.joinpath(name), sep="\t", index_col=0)
     new_df = pd.read_csv(tmp_fodler.joinpath(name), sep="\t", index_col=0)
@@ -30,7 +29,7 @@ def check_new_versus_all(name, tmp_fodler):
 def test_cli_run(n_gpus):
     """Unit tests for CLI app."""
 
-    click.echo("Running CLI tests fro DREXML.")
+    click.echo("Running CLI tests for DREXML.")
 
     disease_path = make_disease_config(use_seeds=True, update=False)
     ml_folder_expected = disease_path.parent.joinpath("results")

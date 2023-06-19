@@ -36,7 +36,6 @@ from drexml.utils import (
     get_number_cuda_devices,
     get_out_path,
     get_version,
-    rename_results,
 )
 
 FNAME_DICT = {
@@ -222,11 +221,12 @@ def main():
 def orchestrate(**kwargs):
     """Orchestrate the drexml procedure. Entry point for multi-disease workflows."""
 
-    print(f"running drexml explainer v {get_version()}")
+    click.echo(f"running drexml explainer v {get_version()}")
     ctx = build_ctx(kwargs)
 
     # Load data
     gene_xpr, pathvals, _, _ = get_data(ctx["disease_path"], ctx["debug"])
+    click.echo(ctx["data_folder"].joinpath("features.jbl"))
     joblib.dump(gene_xpr, ctx["data_folder"].joinpath("features.jbl"))
     joblib.dump(pathvals, ctx["data_folder"].joinpath("target.jbl"))
 
@@ -319,16 +319,6 @@ def plot(ctx, stab_path):
     """Plot the stability results"""
 
     plot_metrics(stab_path)
-
-
-@main.command()
-@click.argument("results-folder", type=click.Path(exists=True))
-@click.version_option(get_version())
-@click.pass_context
-def rename(ctx, results_folder):
-    """Plot the stability results"""
-
-    rename_results(results_folder)
 
 
 if __name__ == "__main__":
