@@ -32,31 +32,15 @@ from drexml.models import get_model
 DEFAULT_STR = "$default$"
 
 
-def rename_results(folder):
-    """Translate entrez to symbols, and KEGG circuit IDs to names."""
-    folder = Path(folder)
+def check_cli_arg_is_bool(arg):
+    if arg in ["true", "True", "TRUE", "1"]:
+        arg = True
+    elif arg in ["false", "False", "FALSE", "0"]:
+        arg = False
+    else:
+        raise ValueError("debug must be a boolean")
 
-    for path in folder.rglob("shap_selection*.tsv"):
-        if "symbol" in path.stem:
-            continue
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
-
-    for path in folder.rglob("shap_summary*.tsv"):
-        if "symbol" in path.stem:
-            continue
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
-
-    for path in folder.rglob("stability_results.tsv"):
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits"], axis=[0])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+    return arg
 
 
 def parse_stab(argv):
@@ -86,8 +70,8 @@ def parse_stab(argv):
     data_folder = Path(data_folder)
     n_gpus = int(n_gpus)
     n_cpus = int(n_cpus)
-    debug = bool(int(debug))
-    add = bool(int(add))
+    debug = check_cli_arg_is_bool(debug)
+    add = check_cli_arg_is_bool(add)
 
     if mode == "final":
         n_splits = 1
@@ -168,7 +152,7 @@ def get_out_path(disease):
         print(f"Working with experiment {env_possible.parent.name}")
         out_path = env_possible.parent.joinpath("results")
     else:
-        raise NotImplementedError("Use experiment")
+        raise NotImplementedError("Error loading a .env describing the experiment")
 
     out_path.mkdir(parents=True, exist_ok=True)
     print(f"Storage folder: {out_path}")
@@ -176,7 +160,7 @@ def get_out_path(disease):
     return out_path
 
 
-def get_cuda_lib():
+def get_cuda_lib():  # pragma: no cover
     """Get CUDA library name."""
     lib_names = ("libcuda.so", "libcuda.dylib", "cuda.dll")
     for lib_name in lib_names:
@@ -192,7 +176,7 @@ def get_cuda_lib():
     return cuda
 
 
-def get_number_cuda_devices():
+def get_number_cuda_devices():  # pragma: no cover
     """Get number of CUDA devices."""
 
     try:
@@ -205,7 +189,7 @@ def get_number_cuda_devices():
     return n_gpus
 
 
-def get_number_cuda_devices_():
+def get_number_cuda_devices_():  # pragma: no cover
     """Get number of CUDA devices."""
 
     cuda = get_cuda_lib()
@@ -216,7 +200,18 @@ def get_number_cuda_devices_():
     return int(n_gpus.value)
 
 
-def check_gputree_availability():
+def get_cuda_version():  # pragma: no cover
+    """Get CUDA version."""
+    cuda = get_cuda_lib()
+    cuda.cuInit(0)
+    cc_major = ctypes.c_int()
+    cc_minor = ctypes.c_int()
+    cuda.cuDeviceComputeCapability(ctypes.byref(cc_major), ctypes.byref(cc_minor), 0)
+
+    return int(cc_major.value), int(cc_minor.value)
+
+
+def check_gputree_availability():  # pragma: no cover
     """Check if GPUTree has been corectly compiled."""
     try:
         shap.utils.assert_import("cext_gpu")

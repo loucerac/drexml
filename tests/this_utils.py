@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from drexml.utils import get_resource_path
+import pandas as pd
 
 THIS_DIR = Path(__file__).absolute().parent
 
@@ -16,6 +16,21 @@ DATA_DICT = {
     "gene_exp": "gene_exp.tsv.gz",
     "pathvals": "pathvals.tsv.gz",
 }
+
+
+def read_test_circuits():
+    """Read test circuits."""
+    return pd.read_csv(THIS_DIR.joinpath("circuits.tsv.gz"), sep="\t", index_col=0)
+
+
+def read_test_gene_exp():
+    """Read test gene expression."""
+    return pd.read_csv(THIS_DIR.joinpath("gene_exp.tsv.gz"), sep="\t", index_col=0)
+
+
+def read_test_pathvals():
+    """Read test pathvals."""
+    return pd.read_csv(THIS_DIR.joinpath("pathvals.tsv.gz"), sep="\t", index_col=0)
 
 
 def make_disease_config(use_seeds=True, update=False):
@@ -43,7 +58,7 @@ def make_disease_config(use_seeds=True, update=False):
 
     for _, file_name in DATA_DICT.items():
         shutil.copy(
-            get_resource_path(file_name).as_posix(),
+            THIS_DIR.joinpath(file_name).as_posix(),
             tmp_dir.joinpath(file_name).as_posix(),
         )
 
