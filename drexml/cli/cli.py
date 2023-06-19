@@ -281,7 +281,12 @@ def explain(**kwargs):
 
     run_cmd(ctx)
 
-    fnames = ["shap_selection.tsv", "shap_summary.tsv", "shap_selection_symbol.tsv", "shap_summary_symbol.tsv"]
+    fnames = [
+        "shap_selection.tsv",
+        "shap_summary.tsv",
+        "shap_selection_symbol.tsv",
+        "shap_summary_symbol.tsv",
+    ]
     copy_files(ctx, fnames)
 
 

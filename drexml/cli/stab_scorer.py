@@ -13,7 +13,7 @@ from sklearn.metrics import r2_score
 
 from drexml.explain import build_stability_dict
 from drexml.pystab import nogueria_test
-from drexml.utils import get_stab, parse_stab, convert_names
+from drexml.utils import convert_names, get_stab, parse_stab
 
 if __name__ == "__main__":
     import sys
@@ -131,8 +131,12 @@ if __name__ == "__main__":
         data_folder.joinpath("stability_results.tsv"), sep="\t", index_label="name"
     )
 
-    stability_results_renamed_df = convert_names(stability_results_df, ["circuits"], axis=[0])
+    stability_results_renamed_df = convert_names(
+        stability_results_df, ["circuits"], axis=[0]
+    )
 
     stability_results_renamed_df.to_csv(
-            data_folder.joinpath("stability_results_symbol.tsv"), sep="\t", index_label="name"
-        )
+        data_folder.joinpath("stability_results_symbol.tsv"),
+        sep="\t",
+        index_label="name",
+    )
