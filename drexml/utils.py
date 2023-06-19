@@ -284,26 +284,6 @@ def read_disease_config(disease):
     # TODO: when moving to Python >= 3.9 use '|' to update dicts
     config = dotenv_values(disease)
 
-    DEFAULT_DICT = {
-        "seed_genes": None,
-        "use_physio": "true",
-        "gene_exp": None,
-        "gene_exp_zenodo": False,
-        "pathvals": None,
-        "pathvals_zenodo": False,
-        "circuits": None,
-        "circuits_zenodo": False,
-        "genes": None,
-        "genes_zenodo": False,
-        "circuits_column": "in_disease",
-        "genes_column": "drugbank_approved_targets",
-        "GTEX_VERSION": "v8",
-        "MYGENE_VERSION": "v20230220",
-        "DRUGBANK_VERSION": "v050110",
-        "HIPATHIA_VERSION": "v2-14-0",
-        "EDGER_VERSION": "v3-40-0",
-    }
-
     for key, _ in DEFAULT_DICT.items():
         if key not in config:
             config[key] = DEFAULT_DICT[key]
@@ -493,16 +473,15 @@ def update_circuits(config):
     if config["circuits"] is None:
         if config["seed_genes"] is None:
             raise ValueError("Either circuits or seed_genes list is required.")
+        if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
+            config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
+        ):
+            config["circuits"] = build_circuits_fname(config)
+            config["circuits_zenodo"] = True
         else:
-            if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
-                config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
-            ):
-                config["circuits"] = build_circuits_fname(config)
-                config["circuits_zenodo"] = True
-            else:
-                config["circuits"] = get_resource_path(
-                    "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
-                )
+            config["circuits"] = get_resource_path(
+                "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
+            )
 
     return config
 
