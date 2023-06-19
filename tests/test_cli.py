@@ -15,7 +15,8 @@ from drexml.utils import check_gputree_availability
 from .this_utils import THIS_DIR, make_disease_config
 
 PLOTTING_EXTENSIONS = ["pdf", "png"]
-N_GPU_LST = [0] if check_gputree_availability() else [0]
+N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
+
 
 
 def check_new_versus_all(name, tmp_fodler):
