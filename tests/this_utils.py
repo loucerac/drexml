@@ -31,6 +31,9 @@ def make_disease_config(use_seeds=True, update=False):
             if use_seeds:
                 if key == "circuits":
                     continue
+            else:
+                if key == "circuits":
+                    this_file.write(f"{key}=./{file_name}\n")
 
             if not update:
                 this_file.write(f"{key}=./{file_name}\n")
