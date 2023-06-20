@@ -26,7 +26,7 @@ with warnings.catch_warnings():
 from dotenv.main import dotenv_values
 from sklearn.model_selection import ShuffleSplit, train_test_split
 
-from drexml.config import DEFAULT_DICT
+from drexml.config import DEFAULT_DICT, VERSION_DICT
 from drexml.models import get_model
 
 DEFAULT_STR = "$default$"
@@ -261,6 +261,81 @@ def convert_names(dataset, keys, axis):
     return dataset
 
 
+def read_seed_genes(config):
+    """Read seed genes."""
+    try:
+        if config["seed_genes"] is not None:
+            config["seed_genes"] = str(config["seed_genes"]).split(",")
+            for int_str in config["seed_genes"]:
+                int_str = int_str.strip()
+                if not int_str.isdigit():
+                    raise ValueError(f"{int_str} is not a valid integer.")
+    except ValueError as err:
+        print(err)
+        print("seed_genes should be a comma-separated list of genes.")
+        raise
+
+    return config
+
+
+def read_use_physio(config):
+    """Read use physio."""
+    try:
+        config["use_physio"] = check_cli_arg_is_bool(config["use_physio"])
+    except ValueError as err:
+        print(err)
+        print("use_physio should be a boolean.")
+        raise
+
+    return config
+
+
+def read_path_based(config, key, data_path):
+    try:
+        if config[key] is not None:
+            path = data_path.joinpath(config[key])
+            if not path.exists():
+                path = Path(config[key])
+            config[key] = path
+            with open(path, "r", encoding="utf8") as this_file:
+                pass
+    except (ValueError, FileNotFoundError) as err:
+        print(err)
+        print(f"{key} should be a path.")
+        raise
+
+    return config
+
+
+def read_circuits_column(config):
+    """Read circuits column."""
+    try:
+        config["circuits_column"] = str(config["circuits_column"])
+        if not config["circuits_column"]:
+            raise ValueError(f"{config['circuits_column']} is not alphanumeric.")
+    except ValueError as err:
+        print(err)
+        print("circuits_column should be string-like.")
+        raise
+
+    return config
+
+
+def read_version_based(config, key, version_dict):
+    """Read version based."""
+
+    try:
+        config[key] = str(config[key])
+        if config[key] not in version_dict[key]:
+            raise ValueError(f"{key} should be one of {version_dict[key]}.")
+    except ValueError as err:
+        print(err)
+        print("{key} should be one of {version_dict[key]}.")
+        raise
+
+    return config
+
+
 def read_disease_config(disease):
     """Read disease config file.
 
@@ -278,105 +353,34 @@ def read_disease_config(disease):
 
     # TODO: when moving to Python >= 3.9 use '|' to update dicts
     config = dotenv_values(disease)
+    env_parent_path = Path(disease).parent
 
     for key, _ in DEFAULT_DICT.items():
         if key not in config:
             config[key] = DEFAULT_DICT[key]
 
-    try:
-        if config["seed_genes"] is not None:
-            config["seed_genes"] = str(config["seed_genes"]).split(",")
-    except ValueError as err:
-        print(err)
-        print("seed_genes should be a comma-separated list of genes.")
-        raise
+    config = read_seed_genes(config)
+    config = read_use_physio(config)
+    config = read_path_based(config, key="gene_exp", data_path=env_parent_path)
+    config = read_path_based(config, key="pathvals", data_path=env_parent_path)
+    config = read_path_based(config, key="genes", data_path=env_parent_path)
+    config = read_path_based(config, key="circuits", data_path=env_parent_path)
+    config = read_circuits_column(config)
 
-    try:
-        if config["use_physio"].lower() == "true":
-            config["use_physio"] = "1"
-        if config["use_physio"].lower() == "false":
-            config["use_physio"] = "0"
-        config["use_physio"] = bool(int(config["use_physio"]))
-    except ValueError as err:
-        print(err)
-        print("use_physio should be a boolean.")
-        raise
+    config = read_version_based(config, key="GTEX_VERSION", version_dict=VERSION_DICT)
+    config = read_version_based(config, key="MYGENE_VERSION", version_dict=VERSION_DICT)
+    config = read_version_based(
+        config, key="DRUGBANK_VERSION", version_dict=VERSION_DICT
+    )
+    config = read_version_based(
+        config, key="HIPATHIA_VERSION", version_dict=VERSION_DICT
+    )
+    config = read_version_based(config, key="EDGER_VERSION", version_dict=VERSION_DICT)
 
-    try:
-        if config["gene_exp"] is not None:
-            config["gene_exp"] = str(config["gene_exp"])
-    except ValueError as err:
-        print(err)
-        print("gene_exp should be a path.")
-        raise
-
-    try:
-        if config["pathvals"] is not None:
-            config["pathvals"] = str(config["pathvals"])
-    except ValueError as err:
-        print(err)
-        print("pathvals should be a path.")
-        raise
-
-    try:
-        if config["genes"] is not None:
-            config["genes"] = str(config["genes"])
-    except ValueError as err:
-        print(err)
-        print("genes should be a path.")
-        raise
-
-    try:
-        if config["circuits"] is not None:
-            config["circuits"] = str(config["circuits"])
-    except ValueError as err:
-        print(err)
-        print("circuits should be a path.")
-        raise
-
-    try:
-        config["circuits_column"] = str(config["circuits_column"])
-    except ValueError as err:
-        print(err)
-        print("circuits_column should be string-like.")
-        raise
-
-    try:
-        config["GTEX_VERSION"] = str(config["GTEX_VERSION"])
-    except ValueError as err:
-        print(err)
-        print("GTEX_VERSION should be one of 'V8'.")
-        raise
-
-    try:
-        config["MYGENE_VERSION"] = str(config["MYGENE_VERSION"])
-    except ValueError as err:
-        print(err)
-        print("MYGENE_VERSION should be one of 'v20230120'.")
-        raise
-
-    try:
-        config["DRUGBANK_VERSION"] = str(config["DRUGBANK_VERSION"])
-    except ValueError as err:
-        print(err)
-        print("DRUGBANK_VERSION should be one of 'v050108'.")
-        raise
-
-    try:
-        config["HIPATHIA_VERSION"] = str(config["HIPATHIA_VERSION"])
-    except ValueError as err:
-        print(err)
-        print("HIPATHIA_VERSION should be one of 'v2-14-0'.")
-        raise
-
-    try:
-        config["EDGER_VERSION"] = str(config["EDGER_VERSION"])
-    except ValueError as err:
-        print(err)
-        print("EDGER_VERSION should be one of 'v3-40-0'.")
-        raise
-
-    config = update_config(config)
+    config = update_gene_exp(config)
+    config = update_pathvals(config)
+    config = update_genes(config)
+    config = update_circuits(config)
 
     return config
 
@@ -477,14 +481,5 @@ def update_circuits(config):
             config["circuits"] = get_resource_path(
                 "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
             )
-
-    return config
-
-
-def update_config(config):
-    config = update_gene_exp(config)
-    config = update_pathvals(config)
-    config = update_genes(config)
-    config = update_circuits(config)
 
     return config
