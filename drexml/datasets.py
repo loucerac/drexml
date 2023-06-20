@@ -12,20 +12,6 @@ from zenodo_client import Zenodo
 
 from drexml.utils import read_disease_config
 
-DEBUG_NAMES = {
-    "gene_exp": "gene_exp.tsv.gz",
-    "pathvals": "pathvals.tsv.gz",
-    "circuits": "circuits.tsv.gz",
-    "genes": "genes.tsv.gz",
-}
-
-PRODUCTION_NAMES = {
-    "genes": "genes.tsv.gz",
-    "circuits": "circuits_to_genes.tsv.gz",
-}
-
-NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
-
 RECORD_ID = "6020480"
 
 
@@ -45,11 +31,8 @@ def fetch_file(disease, key, env, version="latest", debug=False):
                     ".data", "zenodo", RECORD_ID, "20230612"
                 )
     else:
-        if env[key] is not None:
-            data_path = experiment_env_path.parent
-            path = data_path.joinpath(env[key])
-            if not path.exists():
-                path = pathlib.Path(env[key])
+
+        path = env[key]
 
     print(key, path)
 
