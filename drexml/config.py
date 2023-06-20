@@ -23,3 +23,12 @@ DEFAULT_DICT = {
     "HIPATHIA_VERSION": "v2-14-0",
     "EDGER_VERSION": "v3-40-0",
 }
+
+
+VERSION_DICT = {
+    "GTEX_VERSION": ["v8"],
+    "MYGENE_VERSION": ["v20230220"],
+    "DRUGBANK_VERSION": ["v050110"],
+    "HIPATHIA_VERSION": ["v2-14-0"],
+    "EDGER_VERSION": ["v3-40-0"],
+}
