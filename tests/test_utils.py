@@ -3,6 +3,7 @@
 Unit testing for utils module.
 """
 import pathlib
+import tempfile
 from tempfile import mkstemp
 
 import click
@@ -10,10 +11,11 @@ import numpy as np
 import pandas as pd
 import pytest
 import shap
+import utils
 from click.testing import CliRunner
 
 from drexml.cli.cli import main
-from drexml.config import DEFAULT_DICT
+from drexml.config import DEFAULT_DICT, VERSION_DICT
 from drexml.utils import (
     check_cli_arg_is_bool,
     check_gputree_availability,
@@ -281,3 +283,87 @@ def test_convert_names_axisnotok():
     data = pd.DataFrame(np.random.rand(3, 1), columns=["P.hsa03320.28"])
 
     convert_names(data, keys=("circuits",), axis=(2,))
+
+
+@pytest.mark.parametrize("seeds", ["11.2", "hola, 12"])
+@pytest.mark.xfail(raises=ValueError)
+def test_read_seed_genes_fails(seeds):
+    """Unit test that read_seed_genes raises an error."""
+    config = {"seed_genes": seeds}
+    utils.read_seed_genes(config)
+
+
+@pytest.mark.parametrize("value", ["hola"])
+@pytest.mark.xfail(raises=ValueError)
+def test_read_use_physio_fails(value):
+    """Unit test that read_use_physio raises an error."""
+    config = {"use_physio": value}
+    utils.read_use_physio(config)
+
+
+@pytest.mark.xfail(raises=(ValueError, FileNotFoundError))
+def test_read_path_based_fails():
+    """Unit test that read_path_based raises an error."""
+    tmp_dir = pathlib.Path(tempfile.mkdtemp())
+    file_which_should_not_exist = tmp_dir.joinpath("test.txt")
+    config = {"pathvals": file_which_should_not_exist.as_posix()}
+    utils.read_path_based(config, "pathvals", tmp_dir)
+
+
+@pytest.mark.xfail(raises=(ValueError, FileNotFoundError))
+def test_read_path_based_fails():
+    """Unit test that read_path_based raises an error."""
+    tmp_dir = pathlib.Path(tempfile.mkdtemp())
+    file_which_should_not_exist = tmp_dir.joinpath("test.txt")
+    config = {"pathvals": file_which_should_not_exist.as_posix()}
+    utils.read_path_based(config, "pathvals", tmp_dir)
+
+
+@pytest.mark.parametrize(
+    "key_str",
+    [
+        "GTEX_VERSION",
+        "MYGENE_VERSION",
+        "DRUGBANK_VERSION",
+        "HIPATHIA_VERSION",
+        "EDGER_VERSION",
+    ],
+)
+@pytest.mark.xfail(raises=(ValueError,))
+def test_read_version_based(key_str):
+    """Unit test that read_version_based raises an error."""
+    config = {key_str: "hola"}
+    utils.read_version_based(config, key=key_str, version_dict=VERSION_DICT)
+
+
+@pytest.mark.xfail(raises=(ValueError,))
+def test_read_circuits_column_fail():
+    """Unit test that read_circuits_column raises an error."""
+    config = {"circuits_column": ""}
+    utils.read_circuits_column(config)
+
+
+@pytest.mark.xfail(raises=(ValueError,))
+def test_update_circuits_fail():
+    """Unit test that read_circuits_column raises an error."""
+    config = {"circuits": None, "seed_genes": None}
+    utils.update_circuits(config)
+
+
+@pytest.mark.xfail(raises=(ValueError,))
+def test_update_circuits_zenodo():
+    """Unit test that read_circuits_column raises an error."""
+    config = {
+        "circuits": None,
+        "seed_genes": "1",
+        "GTEX_VERSION": "v42",
+        "HIPATHIA_VERSION": "v42",
+    }
+    config = utils.update_circuits(config)
+    assert config["circuits_zenodo"] is True
+
+
+def test_build_circuits_fname():
+    """Unit test that build_circuits_fname returns the expected file name."""
+    circuits_fname = utils.build_circuits_fname(DEFAULT_DICT)
+    assert utils.get_resource_path(circuits_fname).exists()
