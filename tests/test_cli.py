@@ -62,7 +62,7 @@ def test_cli_run(n_gpus):
     assert all([x.exists() for x in renamed_files])
 
     plot_files = [
-        ml_folder_expected.joinpath(f"{x.stem}_symbol.png")
+        ml_folder_expected.joinpath(f"{x.stem}_symbol.{ext}")
         for ext in PLOTTING_EXTENSIONS
         for x in exist_files
         if "stability" in x.stem
