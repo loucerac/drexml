@@ -62,6 +62,6 @@ line-length = 88
 
 
 [tool.coverage.run]
-omit = [".*", "*/site-packages/*"]
+omit = [".*", "*/site-packages/*", "./tests/*"]
 [tool.coverage.report]
 fail_under = 100
