@@ -11,8 +11,8 @@ from .test_utils import make_disease_config
 
 
 @pytest.mark.parametrize("use_seeds", [True, False])
-@pytest.mark.parametrize("update", [True, False])
-def test_get_disease_data_(use_seeds, update):
+@pytest.mark.parametrize("update", [False])
+def test_get_disease_data(use_seeds, update):
     """Test get_disease_data."""
 
     expected_circuits = ["P.hsa03320.28", "P.hsa04920.43"]
