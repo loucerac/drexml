@@ -31,3 +31,6 @@ ifeq ($(use_gpu),1)
 else
 	nox
 endif
+cover:
+	$(CONDA_ACTIVATE) ./.venv
+	poetry run coverage run -m pytest tests/ -v && poetry run coverage report -m
