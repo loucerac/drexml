@@ -460,7 +460,12 @@ def update_pathvals(config):
 
 
 def update_genes(config):
-    if config["genes"] is None:
+    if (
+        (config["genes"] is None)
+        or (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"])
+        or (config["DRUGBANK_VERSION"] != DEFAULT_DICT["DRUGBANK_VERSION"])
+        or config["MYGENE_VERSION"] != DEFAULT_DICT["MYGENE_VERSION"]
+    ):
         config["genes"] = build_genes_fname(config)
         config["genes_zenodo"] = True
 
