@@ -460,14 +460,17 @@ def update_pathvals(config):
 
 
 def update_genes(config):
-    if (
-        (config["genes"] is None)
-        or (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"])
-        or (config["DRUGBANK_VERSION"] != DEFAULT_DICT["DRUGBANK_VERSION"])
-        or config["MYGENE_VERSION"] != DEFAULT_DICT["MYGENE_VERSION"]
-    ):
-        config["genes"] = build_genes_fname(config)
-        config["genes_zenodo"] = True
+    if config["genes"] is None:
+        if (
+            (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"])
+            or (config["DRUGBANK_VERSION"] != DEFAULT_DICT["DRUGBANK_VERSION"])
+            or (config["MYGENE_VERSION"] != DEFAULT_DICT["MYGENE_VERSION"])
+        ):
+            config["genes_zenodo"] = True
+            config["genes"] = build_genes_fname(config)
+
+    if not config["genes_zenodo"]:
+        config["genes"] = get_resource_path(build_genes_fname(config))
 
     return config
 
