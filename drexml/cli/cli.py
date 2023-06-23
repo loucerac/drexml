@@ -162,7 +162,7 @@ def build_ctx(ctx, step=None):
             if ctx_new["n_gpus"] < 0:
                 ctx_new["n_gpus"] = get_number_cuda_devices()
         else:
-            ctx_new["n_gpus"] = 0
+            ctx_new["n_gpus"] = 0  # pragma: no cover
     if "n_cpus" in ctx_new.keys():
         if ctx_new["n_cpus"] < 0:
             ctx_new["n_cpus"] = multiprocessing.cpu_count()
@@ -252,8 +252,6 @@ def stability(**kwargs):
         current_step = "stab-explain"
     elif kwargs["mode"].lower() == "score":
         current_step = "stab-score"
-    else:
-        sys.exit("Unknown stability analysis step.")
 
     click.echo(f"Running drexml {current_step} v {get_version()}")
 
@@ -322,4 +320,4 @@ def plot(ctx, stab_path):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover
