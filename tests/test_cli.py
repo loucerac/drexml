@@ -34,7 +34,13 @@ def test_cli_run(n_gpus):
     disease_path = make_disease_config(use_seeds=True, update=False)
     ml_folder_expected = disease_path.parent.joinpath("results")
 
-    opts = ["run", "--debug", f"--n-gpus {n_gpus}", f"{disease_path.as_posix()}"]
+    opts = [
+        "run",
+        "--verbosity",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path.as_posix()}",
+    ]
     click.echo(" ".join(opts))
     runner = CliRunner()
     runner.invoke(main, " ".join(opts))
