@@ -28,3 +28,8 @@ def test_get_disease_data(use_seeds, update):
     assert genes.to_numpy().ndim == 2
     assert gene_exp.columns.isin(genes.index).all()
     assert gene_exp.columns.isin(genes.index[genes.drugbank_approved_targets]).all()
+
+
+# @pytest.mark.xfail(raises=(ValueError, FileNotFoundError, UnicodeDecodeError))
+# def test_load_df_fails_tsv():
+#     """Test load_df fails when loading a non TSV or FEATHER file."""
