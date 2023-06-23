@@ -83,3 +83,61 @@ def test_cli_run(n_gpus):
     runner.invoke(main, " ".join(opts))
 
     assert all([x.exists() for x in plot_files])
+
+
+@pytest.mark.xfail()
+def test_cli_run_step_fails():
+    """Test that cli fails when skipping an step."""
+
+    n_gpus = 0
+    click.echo("Running CLI tests for DREXML.")
+
+    disease_path = make_disease_config(use_seeds=True, update=False)
+
+    runner = CliRunner()
+
+    orchestrate_opts = [
+        "orchestrate",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path.as_posix()}",
+    ]
+    click.echo(" ".join(orchestrate_opts))
+    runner.invoke(main, " ".join(orchestrate_opts))
+
+
+@pytest.mark.xfail()
+def test_cli_run_mode_fails():
+    """Test that cli fails when skipping an step."""
+
+    n_gpus = 0
+    click.echo("Running CLI tests for DREXML.")
+
+    disease_path = make_disease_config(use_seeds=True, update=False)
+
+    runner = CliRunner()
+
+    orchestrate_opts = [
+        "orchestrate",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path.as_posix()}",
+    ]
+    click.echo(" ".join(orchestrate_opts))
+    runner.invoke(main, " ".join(orchestrate_opts))
+
+    train_opts = [
+        "stability --mode train",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path.as_posix()}",
+    ]
+    runner.invoke(main, " ".join(train_opts))
+
+    cmd_opts = [
+        "stability --mode vader",
+        "--debug",
+        f"--n-gpus {n_gpus}",
+        f"{disease_path.as_posix()}",
+    ]
+    runner.invoke(main, " ".join(cmd_opts))
