@@ -20,7 +20,7 @@ def fetch_file(disease, key, env, version="latest", debug=False):
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
-    if env[key + "_zenodo"]: # pragma: no cover
+    if env[key + "_zenodo"]:  # pragma: no cover
         if version == "latest":
             try:
                 zenodo = Zenodo()
