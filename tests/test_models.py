@@ -34,3 +34,10 @@ def test_model_hp(debug):
     assert model.n_estimators == n_estimators_expected
     assert model.max_depth == max_depth_expected
     assert model.max_features == max_features_expected
+
+
+@pytest.mark.xfail(raises=(NotImplementedError,))
+def test_get_model_fails():
+    """Test that get_model fails when triyng to perform HP opt."""
+
+    get_model(n_features=1, n_targets=1, n_jobs=1, debug=False, n_iters=100)
