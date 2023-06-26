@@ -30,7 +30,23 @@ RECORD_ID = "7737166"
 
 
 def fetch_file(disease, key, env, version="latest", debug=False):
-    """Retrieve data."""
+    """
+    Retrieve data.
+    Parameters:
+    - disease (str): The name of the disease.
+    - key (str): The key associated with the data.
+    - env (Union[str, pathlib.Path]): The environment variable or path containing the data.
+    - version (str, optional): The version of the data to retrieve (default: "latest").
+    - debug (bool, optional): Whether to enable debug mode (default: False).
+
+    Returns:
+    - frame (np.ndarray): The preprocessed data frame.
+
+    Raises:
+    - ConnectTimeout: If a connection timeout occurs during retrieval.
+
+    """
+  
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = dotenv_values(experiment_env_path)
