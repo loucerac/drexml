@@ -22,7 +22,7 @@ def test_get_disease_data(use_seeds, update):
     expected_circuits = ["P.hsa03320.28", "P.hsa04920.43"]
 
     disease_path = make_disease_config(use_seeds=use_seeds, update=update)
-    gene_exp, pathvals, circuits, genes = get_disease_data(disease_path, debug=True)
+    gene_exp, pathvals, circuits, genes = get_disease_data(disease_path)
 
     assert gene_exp.to_numpy().ndim == 2
     assert pathvals.to_numpy().ndim == 2

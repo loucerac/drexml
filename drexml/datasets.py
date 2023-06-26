@@ -313,7 +313,7 @@ def preprocess_genes(frame, genes_column):
     return frame
 
 
-def get_disease_data(disease, debug):
+def get_disease_data(disease):
     """Get data for a disease.
 
     Parameters
@@ -382,7 +382,7 @@ def get_data(disease, debug):
     pandas.DataFrame
         KDT definition binary matrix.
     """
-    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease)
 
     print(gene_xpr.shape, pathvals.shape)
 
