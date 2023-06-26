@@ -236,7 +236,7 @@ def preprocess_activities(frame):
     return frame
 
 
-def preprocess_map(frame, disease_seed_genes, circuits_column):
+def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
     """
     Preprocesses a map data frame.
 
@@ -273,6 +273,9 @@ def preprocess_map(frame, disease_seed_genes, circuits_column):
     else:
         frame[circuits_column] = frame[circuits_column].astype(bool)
         circuits = frame.index[frame[circuits_column]].tolist()
+
+    if use_physio:
+        circuits = [c for c in circuits if c in physio_lst]
 
     return circuits
 
