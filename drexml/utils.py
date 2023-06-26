@@ -346,6 +346,8 @@ def read_use_physio(config):
         print("use_physio should be a boolean.")
         raise
 
+    return config
+
 def read_path_based(config, key, data_path):
     """Read path based.
 
