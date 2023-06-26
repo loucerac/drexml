@@ -32,7 +32,7 @@ from drexml.utils import (
 from .this_utils import make_disease_config
 
 RESOURCE_FNAMES = [
-    "circuit_names.tsv",
+    "circuit_names.tsv.gz",
     "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz",
     "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz",
 ]

@@ -290,8 +290,8 @@ def convert_names(dataset, keys, axis):
     for i, key in enumerate(keys):
         if key == "circuits":
             fname = "circuit_names.tsv"
-            index_name = "hipathia_id"
-            col_name = "name"
+            index_name = "circuit_id"
+            col_name = "circuit_name"
         elif key == "genes":
             fname = "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz"
             index_name = "entrez_id"

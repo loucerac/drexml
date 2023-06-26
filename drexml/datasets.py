@@ -9,9 +9,16 @@ from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
 
-from drexml.utils import read_disease_config
+from drexml.utils import read_disease_config, get_resource_path
 
 RECORD_ID = "6020480"
+
+
+def load_physiological_circuits():
+    fpath = get_resource_path("circuit_names.tsv.gz")
+    circuit_names = pd.read_csv(fpath, sep="\t").set_index("circuit_id")
+    circuit_names.index = circuit_names.index.str.replace("-", ".").str.replace(" ", ".")
+    return circuit_names.index[circuit_names["is_physiological"]].tolist()
 
 
 def fetch_file(disease, key, env, version="latest"):
@@ -126,7 +133,7 @@ def get_index_name_options(key):
     """
 
     if key == "circuits":
-        return ["hipathia_id", "hipathia", "circuits_id", "index"]
+        return ["hipathia_id", "hipathia", "circuits_id", "index", "circuit_id"]
     elif key == "genes":
         return ["entrezs", "entrez", "entrez_id", "index"]
     else:
@@ -165,7 +172,7 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
-        return preprocess_map(res, env["seed_genes"], env["circuits_column"])
+        return preprocess_map(res, env["seed_genes"], env["circuits_column"], env["use_physio"])
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -275,6 +282,7 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
         circuits = frame.index[frame[circuits_column]].tolist()
 
     if use_physio:
+        physio_lst = load_physiological_circuits()
         circuits = [c for c in circuits if c in physio_lst]
 
     return circuits

@@ -159,7 +159,7 @@ def build_ctx(ctx, step=None):
 
     if "n_gpus" in ctx_new.keys():
         if check_gputree_availability():
-            if ctx_new["n_gpus"] < 0:
+            if ctx_new["n_gpus"] < 0: # pragma: no cover
                 ctx_new["n_gpus"] = get_number_cuda_devices()
         else:
             ctx_new["n_gpus"] = 0  # pragma: no cover
