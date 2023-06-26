@@ -405,10 +405,13 @@ def read_path_based(config, key, data_path):
             if not path.exists():
                 path = Path(config[key])
             config[key] = path
+            with open(path, "r", encoding="utf-8") as _:
+                pass
+
     except (ValueError, FileNotFoundError) as err:
         print(err)
         print(f"{key} should be a path.")
-        raise
+        raise err
 
     return config
 
