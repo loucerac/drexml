@@ -33,6 +33,18 @@ DEFAULT_STR = "$default$"
 
 
 def check_cli_arg_is_bool(arg):
+    """Check if argument is a boolean.
+
+    Parameters
+    ----------
+    arg : str
+        Argument.
+
+    Returns
+    -------
+    bool
+        Argument.
+    """
     if arg in ["true", "True", "TRUE", "1"]:
         arg = True
     elif arg in ["false", "False", "FALSE", "0"]:
@@ -276,7 +288,23 @@ def convert_names(dataset, keys, axis):
 
 
 def read_seed_genes(config):
-    """Read seed genes."""
+    """Read seed genes from config file. It expect a comma-separated list of entrez ids.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated conig dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
     try:
         if config["seed_genes"] is not None:
             config["seed_genes"] = str(config["seed_genes"]).split(",")
@@ -293,7 +321,24 @@ def read_seed_genes(config):
 
 
 def read_use_physio(config):
-    """Read use physio."""
+    """Read use_physio from config file. It expect a boolean.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+
     try:
         config["use_physio"] = check_cli_arg_is_bool(config["use_physio"])
     except ValueError as err:
@@ -301,18 +346,36 @@ def read_use_physio(config):
         print("use_physio should be a boolean.")
         raise
 
-    return config
-
-
 def read_path_based(config, key, data_path):
+    """Read path based.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    key : str
+        Key in config dict.
+    data_path : path-like
+        Storage path.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if key is not present in config dict.
+    FileNotFoundError
+        Raise error if path does not exist.
+    """
     try:
         if config[key] is not None:
             path = data_path.joinpath(config[key])
             if not path.exists():
                 path = Path(config[key])
             config[key] = path
-            with open(path, "r", encoding="utf8") as this_file:
-                pass
     except (ValueError, FileNotFoundError) as err:
         print(err)
         print(f"{key} should be a path.")
@@ -322,7 +385,23 @@ def read_path_based(config, key, data_path):
 
 
 def read_circuits_column(config):
-    """Read circuits column."""
+    """Read circuits column.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    """
     try:
         config["circuits_column"] = str(config["circuits_column"])
         if not config["circuits_column"]:
@@ -336,8 +415,28 @@ def read_circuits_column(config):
 
 
 def read_version_based(config, key, version_dict):
-    """Read version based."""
-
+    """Read version based.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    key : str
+        Key in config dict.
+    version_dict : dict
+        Version dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    """
+    
     try:
         config[key] = str(config[key])
         if config[key] not in version_dict[key]:
@@ -414,7 +513,23 @@ def build_gene_exp_fname(config):
 
 
 def build_pathvals_fname(config):
-
+    """Build pathvals filename.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    str
+        Filename.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    """
     return (
         "_".join(
             [
@@ -429,6 +544,19 @@ def build_pathvals_fname(config):
 
 
 def build_genes_fname(config):
+    """Build genes filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+
+    """
 
     return (
         "_".join(
@@ -444,6 +572,19 @@ def build_genes_fname(config):
 
 
 def build_circuits_fname(config):
+    """Build circuits filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+
+    """
 
     return (
         "_".join(
@@ -458,6 +599,32 @@ def build_circuits_fname(config):
 
 
 def update_gene_exp(config):
+    """Update gene_exp key from config.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    
+    Notes
+    -----
+    If gene_exp is not provided, it will be built from the other keys.
+    
+    If gene_exp is provided, it will be checked if it is a path.
+    
+    If gene_exp is a path, it will be checked if it is a zenodo resource.
+    
+    """
     if config["gene_exp"] is None:
         config["gene_exp"] = build_gene_exp_fname(config)
         config["gene_exp_zenodo"] = True
@@ -466,6 +633,32 @@ def update_gene_exp(config):
 
 
 def update_pathvals(config):
+    """Update pathvals key from config.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    
+    Notes
+    -----
+    If pathvals is not provided, it will be built from the other keys.
+    
+    If pathvals is provided, it will be checked if it is a path.
+    
+    If pathvals is a path, it will be checked if it is a zenodo resource.
+    
+    """
     if config["pathvals"] is None:
         config["pathvals"] = build_pathvals_fname(config)
         config["pathvals_zenodo"] = True
@@ -474,6 +667,32 @@ def update_pathvals(config):
 
 
 def update_genes(config):
+    """Update genes key from config.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    
+    Notes
+    -----
+    If genes is not provided, it will be built from the other keys.
+    
+    If genes is provided, it will be checked if it is a path.
+    
+    If genes is a path, it will be checked if it is a zenodo resource.
+    
+    """
     if config["genes"] is None:
         if (
             (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"])
@@ -490,6 +709,32 @@ def update_genes(config):
 
 
 def update_circuits(config):
+    """Update circuits key from config.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    dict
+        Updated config dict.
+    
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.    
+    
+    Notes
+    -----
+    If circuits is not provided, it will be built from the other keys.
+    
+    If circuits is provided, it will be checked if it is a path.
+    
+    If circuits is a path, it will be checked if it is a zenodo resource.
+    
+    """
 
     if config["circuits"] is None:
         if config["seed_genes"] is None:
