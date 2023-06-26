@@ -33,7 +33,7 @@ def fetch_file(disease, key, env, version="latest"):
     - ConnectTimeout: If a connection timeout occurs during retrieval.
 
     """
-  
+
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
@@ -337,15 +337,9 @@ def get_disease_data(disease, debug):
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
 
-    gene_exp = fetch_file(
-        disease, key="gene_exp", env=env, version="latest"
-    )
-    pathvals = fetch_file(
-        disease, key="pathvals", env=env, version="latest"
-    )
-    circuits = fetch_file(
-        disease, key="circuits", env=env, version="latest"
-    )
+    gene_exp = fetch_file(disease, key="gene_exp", env=env, version="latest")
+    pathvals = fetch_file(disease, key="pathvals", env=env, version="latest")
+    circuits = fetch_file(disease, key="circuits", env=env, version="latest")
     genes = fetch_file(disease, key="genes", env=env, version="latest")
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
