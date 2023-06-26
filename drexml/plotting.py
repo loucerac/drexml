@@ -11,8 +11,8 @@ import seaborn as sns
 
 def plot_metrics(input_path, output_folder=None, width=2.735):
     """
-    Read the drexml results TSV file and plot it. The R^2 confidence interval for the mean
-    go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
+    Read the drexml results TSV file and plot it. The R^2 confidence interval for the 
+    mean go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
     stability stimate.
 
     Parameters
