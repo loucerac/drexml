@@ -10,7 +10,22 @@ import seaborn as sns
 
 
 def plot_metrics(input_path, output_folder=None, width=2.735):
-    """Plot stability versus R^2 with 95% CI"""
+    """
+    Read the drexml results TSV file and plot it. The R^2 confidence interval for the mean
+    go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
+    stability stimate.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the input file.
+    output_folder : str, optional
+        Path to the output folder. If None, the output folder is the same
+        as the input folder.
+    width : float, optional
+        Width of the plot.
+    
+    """
 
     input_path = pathlib.Path(input_path).absolute()
     if output_folder is None:

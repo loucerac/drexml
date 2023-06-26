@@ -15,7 +15,25 @@ RECORD_ID = "6020480"
 
 
 def fetch_file(disease, key, env, version="latest"):
-    """Retrieve data."""
+    """
+    Retrieve data.
+
+    Parameters:
+
+    - disease (str): The name of the disease.
+    - key (str): The key associated with the data.
+    - env (Union[str, pathlib.Path]): The environment variable or path containing the data.
+    - version (str, optional): The version of the data to retrieve (default: "latest").
+    - debug (bool, optional): Whether to enable debug mode (default: False).
+
+    Returns:
+    - frame (np.ndarray): The preprocessed data frame.
+
+    Raises:
+    - ConnectTimeout: If a connection timeout occurs during retrieval.
+
+    """
+  
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
@@ -320,15 +338,15 @@ def get_disease_data(disease, debug):
     env = read_disease_config(experiment_env_path)
 
     gene_exp = fetch_file(
-        disease, key="gene_exp", env=env, version="latest", debug=debug
+        disease, key="gene_exp", env=env, version="latest"
     )
     pathvals = fetch_file(
-        disease, key="pathvals", env=env, version="latest", debug=debug
+        disease, key="pathvals", env=env, version="latest"
     )
     circuits = fetch_file(
-        disease, key="circuits", env=env, version="latest", debug=debug
+        disease, key="circuits", env=env, version="latest"
     )
-    genes = fetch_file(disease, key="genes", env=env, version="latest", debug=debug)
+    genes = fetch_file(disease, key="genes", env=env, version="latest")
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
 
