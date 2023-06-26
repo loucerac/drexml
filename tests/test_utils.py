@@ -370,12 +370,11 @@ def test_build_circuits_fname():
 
 
 def test_update_genes_during_update():
-    """Test that update_genes when the user requests to update the gene dict.
-    """
-    
+    """Test that update_genes when the user requests to update the gene dict."""
+
     vers = "vVader"
     config = DEFAULT_DICT.copy()
     config["GTEX_VERSION"] = vers
-    
+
     config = utils.update_genes(config)
     assert (vers in config["genes"]) is True

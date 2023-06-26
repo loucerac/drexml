@@ -7,7 +7,6 @@ import pathlib
 import pandas as pd
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
-from sklearn.preprocessing import MinMaxScaler
 from zenodo_client import Zenodo
 
 from drexml.utils import read_disease_config
