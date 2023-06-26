@@ -73,8 +73,7 @@ def load_df(path, key=None):
             res = pd.read_feather(path).set_index("index", drop=True)
         except (ParserError, KeyError) as new_err:
             print("Error found while trying to load a Feather.")
-            print(new_err)
-            res = pd.DataFrame()
+            raise new_err
 
     if res.shape[0] == 0:
         raise NotImplementedError("Format not implemented yet.")
@@ -373,14 +372,6 @@ def get_data(disease, debug, scale=False):
         KDT definition binary matrix.
     """
     gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
-
-    if scale:
-
-        pathvals = pd.DataFrame(
-            MinMaxScaler().fit_transform(pathvals),
-            columns=pathvals.columns,
-            index=pathvals.index,
-        )
 
     print(gene_xpr.shape, pathvals.shape)
 
