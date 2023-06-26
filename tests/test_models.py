@@ -24,9 +24,20 @@ def test_model_hp(debug):
     n_targets = 100
     n_jobs = -1
 
-    max_features_expected = int(np.sqrt(n_features) + 20)
-    n_estimators_expected = 20 if debug else int(1.5 * (n_features + n_targets))
+    max_features_expected = 1.0 if debug else int(np.sqrt(n_features) + 20)
+    n_estimators_expected = 2 if debug else 200
+    max_depth_expected = 2 if debug else 8
 
     model = get_model(n_features, n_targets, n_jobs, debug)
 
     assert shap.utils.safe_isinstance(model, "sklearn.ensemble.RandomForestRegressor")
+    assert model.n_estimators == n_estimators_expected
+    assert model.max_depth == max_depth_expected
+    assert model.max_features == max_features_expected
+
+
+@pytest.mark.xfail(raises=(NotImplementedError,))
+def test_get_model_fails():
+    """Test that get_model fails when triyng to perform HP opt."""
+
+    get_model(n_features=1, n_targets=1, n_jobs=1, debug=False, n_iters=100)

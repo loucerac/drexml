@@ -5,52 +5,53 @@ IO module for DREXML.
 import pathlib
 
 import pandas as pd
-from dotenv.main import dotenv_values
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
 
-DEFAULT_STR = "$default$"
-DEBUG_NAMES = {
-    "gene_exp": "gene_exp.tsv.gz",
-    "pathvals": "pathvals.tsv.gz",
-    "circuits": "circuits.tsv.gz",
-    "genes": "genes.tsv.gz",
-}
+from drexml.utils import read_disease_config
 
-PRODUCTION_NAMES = {
-    "gene_exp": "expreset_Hinorm_gtexV8.rds.feather",
-    "pathvals": "expreset_pathvals_gtexV8.rds.feather",
-    "genes": "genes.tsv.gz",
-}
-
-NAMES = {True: DEBUG_NAMES, False: PRODUCTION_NAMES}
-
-RECORD_ID = "7737166"
+RECORD_ID = "6020480"
 
 
-def fetch_file(disease, key, env, version="latest", debug=False):
-    """Retrieve data."""
+def fetch_file(disease, key, env, version="latest"):
+    """
+    Retrieve data.
+
+    Parameters:
+
+    - disease (str): The name of the disease.
+    - key (str): The key associated with the data.
+    - env (Union[str, pathlib.Path]): The environment variable or path containing the data.
+    - version (str, optional): The version of the data to retrieve (default: "latest").
+    - debug (bool, optional): Whether to enable debug mode (default: False).
+
+    Returns:
+    - frame (np.ndarray): The preprocessed data frame.
+
+    Raises:
+    - ConnectTimeout: If a connection timeout occurs during retrieval.
+
+    """
+  
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
-    env = dotenv_values(experiment_env_path)
-    if env[key].lower() == DEFAULT_STR:
+    env = read_disease_config(experiment_env_path)
+    if env[key + "_zenodo"]:  # pragma: no cover
         if version == "latest":
             try:
                 zenodo = Zenodo()
-                path = zenodo.download_latest(RECORD_ID, NAMES[debug][key], force=False)
+                path = zenodo.download_latest(RECORD_ID, env[key], force=False)
             except (ConnectTimeout) as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(
-                    ".data", "zenodo", RECORD_ID, "20230315"
+                    ".data", "zenodo", RECORD_ID, "20230612"
                 )
     else:
-        data_path = pathlib.Path(env["data_path"]).absolute()
-        print(data_path)
-        if data_path.name.lower() == DEFAULT_STR:
-            print(disease, env[key], data_path)
-            data_path = experiment_env_path.parent
-        path = data_path.joinpath(env[key])
+
+        path = env[key]
+
+    print(key, path)
 
     frame = load_df(path, key)
     frame = preprocess_frame(frame, env, key)
@@ -89,8 +90,7 @@ def load_df(path, key=None):
             res = pd.read_feather(path).set_index("index", drop=True)
         except (ParserError, KeyError) as new_err:
             print("Error found while trying to load a Feather.")
-            print(new_err)
-            res = pd.DataFrame()
+            raise new_err
 
     if res.shape[0] == 0:
         raise NotImplementedError("Format not implemented yet.")
@@ -165,7 +165,7 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
-        return preprocess_map(res, env["circuits_column"])
+        return preprocess_map(res, env["seed_genes"], env["circuits_column"])
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -228,14 +228,15 @@ def preprocess_activities(frame):
 
     Notes
     -----
-    This function replaces hyphens and spaces in the column names of the input data frame with periods and returns the resulting data frame.
+    This function replaces hyphens and spaces in the column names of the input data
+    frame with periods and returns the resulting data frame.
 
     """
     frame.columns = frame.columns.str.replace("-", ".").str.replace(" ", ".")
     return frame
 
 
-def preprocess_map(frame, circuits_column):
+def preprocess_map(frame, disease_seed_genes, circuits_column):
     """
     Preprocesses a map data frame.
 
@@ -243,34 +244,37 @@ def preprocess_map(frame, circuits_column):
     ----------
     frame : pandas.DataFrame
         The map data frame to preprocess.
+    disease_seed_genes : str
+        The comma separated list of disease seed genes.
     circuits_column : str
         The name of the column containing circuit information.
 
     Returns
     -------
-    pandas.DataFrame
-        The preprocessed map data frame.
+    list of str
+        The list of circuits.
 
     Examples
     --------
     >>> import pandas as pd
-    >>> df = pd.DataFrame({"-": [1, 2], "Activity 1": [3, 4]}, index=["A-B", "C-D"])
-    >>> preprocess_map(df, "Activity 1")
-       .  Activity.1
-    A.B          3
-    C.D          4
+    >>> df = pd.DataFrame({"in_disease": [True, False], "hipathia": ["A", "B"]})
+    >>> preprocess_map(df, "A,B", "in_disease")
+    ['A', 'B']
 
     Notes
     -----
-    This function replaces hyphens and spaces in the index labels of the input data
-    frame with periods and converts the values in the specified circuits column to
-    boolean values. It then returns the resulting data frame.
-
+    This function replaces hyphens and spaces in the index names of the input data frame
+      with periods and returns the resulting list of circuits.
     """
-
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
-    frame[circuits_column] = frame[circuits_column].astype(bool)
-    return frame
+    if disease_seed_genes:
+        disease_seed_genes = frame.columns.intersection(disease_seed_genes)
+        circuits = frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
+    else:
+        frame[circuits_column] = frame[circuits_column].astype(bool)
+        circuits = frame.index[frame[circuits_column]].tolist()
+
+    return circuits
 
 
 def preprocess_genes(frame, genes_column):
@@ -301,9 +305,10 @@ def preprocess_genes(frame, genes_column):
 
     Notes
     -----
-    This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.
-
+    This function selects rows from the input data frame based on the values in the
+    specified genes column and returns the resulting data frame.
     """
+
     frame = frame.loc[frame[genes_column]]
     return frame
 
@@ -330,20 +335,18 @@ def get_disease_data(disease, debug):
 
     # Load data
     experiment_env_path = pathlib.Path(disease)
-    env = dotenv_values(experiment_env_path)
-    genes_column = env["genes_column"]
-    circuits_column = env["circuits_column"]
+    env = read_disease_config(experiment_env_path)
 
     gene_exp = fetch_file(
-        disease, key="gene_exp", env=env, version="latest", debug=debug
+        disease, key="gene_exp", env=env, version="latest"
     )
     pathvals = fetch_file(
-        disease, key="pathvals", env=env, version="latest", debug=debug
+        disease, key="pathvals", env=env, version="latest"
     )
     circuits = fetch_file(
-        disease, key="circuits", env=env, version="latest", debug=debug
+        disease, key="circuits", env=env, version="latest"
     )
-    genes = fetch_file(disease, key="genes", env=env, version="latest", debug=debug)
+    genes = fetch_file(disease, key="genes", env=env, version="latest")
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
 
@@ -355,6 +358,43 @@ def get_disease_data(disease, debug):
     usable_genes = genes.index.intersection(gtex_entrez)
 
     gene_exp = gene_exp[usable_genes]
-    pathvals = pathvals[circuits.index[circuits[circuits_column]]]
+    pathvals = pathvals[circuits]
+
+    print(pathvals.shape)
 
     return gene_exp, pathvals, circuits, genes
+
+
+def get_data(disease, debug):
+    """Load disease data and metadata.
+
+    Parameters
+    ----------
+    disease : path-like
+        Path to disease config file.
+    debug : bool
+        _description_, by default False.
+    scale : bool, optional
+        _description_, by default False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Gene expression data.
+    pandas.DataFrame
+        Circuit activation data (hipathia).
+    pandas.DataFrame
+        Circuit definition binary matrix.
+    pandas.DataFrame
+        KDT definition binary matrix.
+    """
+    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
+
+    print(gene_xpr.shape, pathvals.shape)
+
+    if debug:
+        size = 9
+        gene_xpr = gene_xpr.sample(n=size, random_state=0)
+        pathvals = pathvals.loc[gene_xpr.index, :]
+
+    return gene_xpr, pathvals, circuits, genes

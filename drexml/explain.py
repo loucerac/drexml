@@ -46,7 +46,19 @@ def matcorr(O, P):
 
 
 def compute_shap_values_(x, explainer, check_add, gpu_id=None):
-    """Partial function to compute the shap values."""
+    """
+    Partial function to compute the SHAP values.
+
+    Parameters:
+    - x: The input data for which SHAP values are computed.
+    - explainer: The SHAP explainer object.
+    - check_add: Whether to check additivity of SHAP values.
+    - gpu_id: The ID of the GPU to use (default: None).
+
+    Returns:
+    - shap_values: The computed SHAP values.
+
+    """
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
