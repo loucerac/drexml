@@ -248,17 +248,44 @@ def get_resource_path(fname):
 def convert_names(dataset, keys, axis):
     """
     Convert names in the dataset.
+
+    Parameters
+    ----------
+    dataset : pandas.DataFrame
+        Dataset.
+    keys : list
+        List of keys.
+    axis : list
+        List of axis.
+
+    Returns
     -------
-    Parameters:
-    - dataset: The dataset to convert.
-    - keys: The keys specifying the conversion rules.
-    - axis: The axis along which to perform the conversion.
+    panda.DataFrame
+        Dataset.
 
-    Returns:
-    - dataset: The dataset with converted names.
+    Raises
+    ------
+    NotImplementedError
+        If key is not supported.
 
-    Raises:
-    - NotImplementedError: If an unsupported key is provided.
+    Examples
+    --------
+    >>> dataset = pd.DataFrame({"circuits": ["C1", "C2"], "genes": [1, 2]})
+    >>> keys = ["circuits", "genes"]
+    >>> axis = [0, 1]
+    >>> convert_names(dataset, keys, axis)
+       circuits  genes
+    0        C1      1
+    1        C2      2
+
+    >>> dataset = pd.DataFrame({"circuits": ["C1", "C2"], "genes": [1, 2]})
+    >>> keys = ["circuits", "genes"]
+    >>> axis = [0, 1]
+    >>> convert_names(dataset, keys, axis)
+       circuits  genes
+    0        C1      1
+    1        C2      2
+
     """
     for i, key in enumerate(keys):
         if key == "circuits":
@@ -501,6 +528,18 @@ def read_disease_config(disease):
 
 
 def build_gene_exp_fname(config):
+    """Build gene_exp filename.
+    
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    
+    Returns
+    -------
+    str
+        Filename. 
+    """
 
     return (
         "_".join(
@@ -526,11 +565,7 @@ def build_pathvals_fname(config):
     -------
     str
         Filename.
-    
-    Raises
-    ------
-    ValueError
-        Raise error if format is unsupported.    
+ 
     """
     return (
         "_".join(
