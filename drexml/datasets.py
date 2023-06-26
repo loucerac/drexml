@@ -14,7 +14,7 @@ from drexml.utils import read_disease_config
 RECORD_ID = "6020480"
 
 
-def fetch_file(disease, key, env, version="latest", debug=False):
+def fetch_file(disease, key, env, version="latest"):
     """Retrieve data."""
     print(f"Retrieving {key}")
     experiment_env_path = pathlib.Path(disease)
@@ -347,7 +347,7 @@ def get_disease_data(disease, debug):
     return gene_exp, pathvals, circuits, genes
 
 
-def get_data(disease, debug, scale=False):
+def get_data(disease, debug):
     """Load disease data and metadata.
 
     Parameters
