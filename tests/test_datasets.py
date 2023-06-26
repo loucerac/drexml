@@ -4,8 +4,11 @@ Unit testing for datasets module.
 """
 
 import pytest
+import pandas as pd
+from pandas.errors import ParserError
+from tempfile import mkstemp
 
-from drexml.datasets import get_disease_data
+from drexml.datasets import get_disease_data, load_df
 
 from .test_utils import make_disease_config
 
@@ -30,6 +33,26 @@ def test_get_disease_data(use_seeds, update):
     assert gene_exp.columns.isin(genes.index[genes.drugbank_approved_targets]).all()
 
 
-# @pytest.mark.xfail(raises=(ValueError, FileNotFoundError, UnicodeDecodeError))
-# def test_load_df_fails_tsv():
-#     """Test load_df fails when loading a non TSV or FEATHER file."""
+
+@pytest.mark.xfail(raises=(NotImplementedError,))
+def test_load_df_fails_empty():
+    """Unit test that load_df fails with an empty df."""
+    _, tmp_file = mkstemp()
+    pd.DataFrame().to_csv(tmp_file, sep="\t")
+    load_df(tmp_file)
+
+@pytest.mark.xfail(raises=(NotImplementedError,))
+def test_load_df_fails_tsv():
+    """Unit test that load_df fails with an ill-formed TSV."""
+    _, tmp_file = mkstemp()
+    with open(tmp_file, "w", encoding="utf8") as f:
+        f.write("\t \t")
+        f.write("\t")
+    load_df(tmp_file)
+
+@pytest.mark.xfail(raises=(ParserError, KeyError,))
+def test_load_df_fails_feather():
+    """Unit test that load_df fails when loading a file in feather format."""
+    _, tmp_file = mkstemp()
+    pd.DataFrame().reset_index(names="vader").to_feather(tmp_file)
+    load_df(tmp_file)
