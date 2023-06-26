@@ -310,13 +310,6 @@ def test_read_path_based_fails():
     utils.read_path_based(config, "pathvals", tmp_dir)
 
 
-@pytest.mark.xfail(raises=(ValueError, FileNotFoundError))
-def test_read_path_based_fails():
-    """Unit test that read_path_based raises an error."""
-    tmp_dir = pathlib.Path(tempfile.mkdtemp())
-    file_which_should_not_exist = tmp_dir.joinpath("test.txt")
-    config = {"pathvals": file_which_should_not_exist.as_posix()}
-    utils.read_path_based(config, "pathvals", tmp_dir)
 
 
 @pytest.mark.parametrize(
