@@ -310,8 +310,6 @@ def test_read_path_based_fails():
     utils.read_path_based(config, "pathvals", tmp_dir)
 
 
-
-
 @pytest.mark.parametrize(
     "key_str",
     [

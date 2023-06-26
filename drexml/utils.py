@@ -375,6 +375,7 @@ def read_use_physio(config):
 
     return config
 
+
 def read_path_based(config, key, data_path):
     """Read path based.
 
@@ -418,21 +419,21 @@ def read_path_based(config, key, data_path):
 
 def read_circuits_column(config):
     """Read circuits column.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
+        Raise error if format is unsupported.
     """
     try:
         config["circuits_column"] = str(config["circuits_column"])
@@ -448,7 +449,7 @@ def read_circuits_column(config):
 
 def read_version_based(config, key, version_dict):
     """Read version based.
-    
+
     Parameters
     ----------
     config : dict
@@ -457,18 +458,18 @@ def read_version_based(config, key, version_dict):
         Key in config dict.
     version_dict : dict
         Version dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
+        Raise error if format is unsupported.
     """
-    
+
     try:
         config[key] = str(config[key])
         if config[key] not in version_dict[key]:
@@ -532,16 +533,16 @@ def read_disease_config(disease):
 
 def build_gene_exp_fname(config):
     """Build gene_exp filename.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     str
-        Filename. 
+        Filename.
     """
 
     return (
@@ -558,17 +559,17 @@ def build_gene_exp_fname(config):
 
 def build_pathvals_fname(config):
     """Build pathvals filename.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     str
         Filename.
- 
+
     """
     return (
         "_".join(
@@ -640,30 +641,30 @@ def build_circuits_fname(config):
 
 def update_gene_exp(config):
     """Update gene_exp key from config.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
-    
+        Raise error if format is unsupported.
+
     Notes
     -----
     If gene_exp is not provided, it will be built from the other keys.
-    
+
     If gene_exp is provided, it will be checked if it is a path.
-    
+
     If gene_exp is a path, it will be checked if it is a zenodo resource.
-    
+
     """
     if config["gene_exp"] is None:
         config["gene_exp"] = build_gene_exp_fname(config)
@@ -674,30 +675,30 @@ def update_gene_exp(config):
 
 def update_pathvals(config):
     """Update pathvals key from config.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
-    
+        Raise error if format is unsupported.
+
     Notes
     -----
     If pathvals is not provided, it will be built from the other keys.
-    
+
     If pathvals is provided, it will be checked if it is a path.
-    
+
     If pathvals is a path, it will be checked if it is a zenodo resource.
-    
+
     """
     if config["pathvals"] is None:
         config["pathvals"] = build_pathvals_fname(config)
@@ -708,30 +709,30 @@ def update_pathvals(config):
 
 def update_genes(config):
     """Update genes key from config.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
-    
+        Raise error if format is unsupported.
+
     Notes
     -----
     If genes is not provided, it will be built from the other keys.
-    
+
     If genes is provided, it will be checked if it is a path.
-    
+
     If genes is a path, it will be checked if it is a zenodo resource.
-    
+
     """
     if config["genes"] is None:
         if (
@@ -750,30 +751,30 @@ def update_genes(config):
 
 def update_circuits(config):
     """Update circuits key from config.
-    
+
     Parameters
     ----------
     config : dict
         Config dict.
-    
+
     Returns
     -------
     dict
         Updated config dict.
-    
+
     Raises
     ------
     ValueError
-        Raise error if format is unsupported.    
-    
+        Raise error if format is unsupported.
+
     Notes
     -----
     If circuits is not provided, it will be built from the other keys.
-    
+
     If circuits is provided, it will be checked if it is a path.
-    
+
     If circuits is a path, it will be checked if it is a zenodo resource.
-    
+
     """
 
     if config["circuits"] is None:
