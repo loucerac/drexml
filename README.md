@@ -74,7 +74,7 @@ where:
 
 Note that in all cases you can restrict the circuits to the physiological list by setting `use_physio=true` in the `env` file.
 
-To run the experiment using 10 CPU cores and 0 GPUs, run within an activated environment:
+To run the experiment using 10 CPU cores and 0 GPUs, run the following command within an activated environment:
 
 ```
 drexml run --n-gpus 0 --n-cpus 10 $DISEASE_PATH
