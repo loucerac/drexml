@@ -52,12 +52,11 @@ def make_disease_config(use_seeds=True, update=False, use_physio=True):
 
             if not update:
                 this_file.write(f"{key}=./{file_name}\n")
-            
+
         this_file.write(f"use_physio={use_physio}\n")
 
         if use_seeds:
             this_file.write("seed_genes=2180\n")
-
 
     for _, file_name in DATA_DICT.items():
         shutil.copy(
