@@ -11,25 +11,12 @@ import numpy as np
 import pandas as pd
 import pytest
 import shap
-import utils
 from click.testing import CliRunner
 
+from drexml import utils
 from drexml.cli.cli import main
 from drexml.config import DEFAULT_DICT, VERSION_DICT
-from drexml.utils import (
-    check_cli_arg_is_bool,
-    check_gputree_availability,
-    convert_names,
-    get_number_cuda_devices,
-    get_out_path,
-    get_resource_path,
-    get_stab,
-    get_version,
-    parse_stab,
-    read_disease_config,
-)
-
-from .this_utils import make_disease_config
+from tests.this_utils import make_disease_config
 
 RESOURCE_FNAMES = [
     "circuit_names.tsv.gz",
@@ -42,21 +29,21 @@ RESOURCE_FNAMES = [
 def test_get_resource_path(fname):
     """Test get_resource_path"""
 
-    fpath = get_resource_path(fname)
+    fpath = utils.get_resource_path(fname)
     assert fpath.exists()
 
 
 def test_get_number_cuda_devices():
     """Unit test CUDA devices found if GPUTreeExplainer is avilable."""
-    n_gpus = get_number_cuda_devices()
-    if check_gputree_availability():
+    n_gpus = utils.get_number_cuda_devices()
+    if utils.check_gputree_availability():
         assert n_gpus > 0
 
 
 def test_check_gputree_availability():
     """Unit test CUDA devices found if GPUTreeExplainer is avilable."""
 
-    is_available = check_gputree_availability()
+    is_available = utils.check_gputree_availability()
 
     assert isinstance(is_available, bool)
 
@@ -66,7 +53,7 @@ def test_get_version():
     Unit test version string.
     """
 
-    ver = get_version()
+    ver = utils.get_version()
     assert ver is not None
     assert isinstance(ver, str)
     assert len(ver) > 0
@@ -81,7 +68,7 @@ def test_get_out_path_ok():
 
     path = make_disease_config(use_seeds=True)
 
-    assert get_out_path(path).exists() is True
+    assert utils.get_out_path(path).exists() is True
 
 
 @pytest.mark.xfail(raises=NotImplementedError)
@@ -90,7 +77,7 @@ def test_get_out_path_notok():
     Unit test out path from bad config file.
     """
     path = mkstemp(suffix=".txt", prefix="abc")[1]
-    get_out_path(path)
+    utils.get_out_path(path)
 
 
 def test_read_disease_config_only_seeds():
@@ -101,7 +88,7 @@ def test_read_disease_config_only_seeds():
     path = make_disease_config(use_seeds=True, update=False)
     print(path)
 
-    config = read_disease_config(path)
+    config = utils.read_disease_config(path)
 
     assert len(config["seed_genes"]) == 1
     assert config["seed_genes"][0] == "2180"
@@ -115,7 +102,7 @@ def test_read_disease_config_update_with_seeds():
     path = make_disease_config(use_seeds=True, update=True)
     print(path)
 
-    config = read_disease_config(path)
+    config = utils.read_disease_config(path)
 
     assert len(config["seed_genes"]) == 1
     assert config["seed_genes"][0] == "2180"
@@ -133,7 +120,7 @@ def test_read_disease_config_update_without_seeds():
     path = make_disease_config(use_seeds=False, update=True)
     print(path)
 
-    config = read_disease_config(path)
+    config = utils.read_disease_config(path)
 
     assert config["seed_genes"] is None
     assert config["pathvals"] != DEFAULT_DICT["pathvals"]
@@ -151,7 +138,7 @@ def test_parse_stab_ok(debug_str, mode_str):
     """
 
     args = ["file.py", "./test", "0", "4", "32", debug_str, "1", mode_str]
-    parsed_args = parse_stab(args)
+    parsed_args = utils.parse_stab(args)
 
     assert len(parsed_args) == 7
     data_folder, n_iters, n_gpus, n_cpus, n_splits, debug, add = parsed_args
@@ -187,7 +174,7 @@ def test_check_cli_arg_is_bool_istrue(arg):
     Unit test that check_cli_arg_is_bool returns True when fed with a sys-like argv.
     """
 
-    assert check_cli_arg_is_bool(arg) is True
+    assert utils.check_cli_arg_is_bool(arg) is True
 
 
 @pytest.mark.parametrize("arg", ["0", "False", "false"])
@@ -196,7 +183,7 @@ def test_check_cli_arg_is_bool_isfalse(arg):
     Unit test that check_cli_arg_is_bool returns False when fed with a sys-like argv.
     """
 
-    assert check_cli_arg_is_bool(arg) is False
+    assert utils.check_cli_arg_is_bool(arg) is False
 
 
 def test_check_cli_arg_is_bool_isnotok():
@@ -205,7 +192,7 @@ def test_check_cli_arg_is_bool_isnotok():
     """
 
     with pytest.raises(Exception):
-        check_cli_arg_is_bool(10)
+        utils.check_cli_arg_is_bool(10)
 
 
 def test_get_stab():
@@ -233,7 +220,7 @@ def test_get_stab():
     n_features = 698
     n_targets = 2
 
-    model, stab_cv, features_orig, targets_orig = get_stab(
+    model, stab_cv, features_orig, targets_orig = utils.get_stab(
         data_folder, n_splits, n_cpus, debug, n_iters
     )
 
@@ -253,7 +240,7 @@ def test_convert_names_genes():
     """
     data = pd.DataFrame(np.random.rand(3, 1), columns=["2175"])
 
-    data_out = convert_names(data, keys=("genes",), axis=(1,))
+    data_out = utils.convert_names(data, keys=("genes",), axis=(1,))
     assert data_out.shape == (3, 1)
     assert data_out.columns[0] == "FANCA"
 
@@ -264,7 +251,7 @@ def test_convert_names_circuits():
     """
     data = pd.DataFrame(np.random.rand(3, 1), columns=["P.hsa03320.28"])
 
-    data_out = convert_names(data, keys=("circuits",), axis=(1,))
+    data_out = utils.convert_names(data, keys=("circuits",), axis=(1,))
     assert data_out.shape == (3, 1)
     assert data_out.columns[0] == "PPAR signaling pathway: ACSL1"
 
@@ -274,7 +261,7 @@ def test_convert_names_keynotok():
     """Unit test that convert_names raises an error."""
     data = pd.DataFrame(np.random.rand(3, 1), columns=["P.hsa03320.28"])
 
-    convert_names(data, keys=("vader",), axis=(1,))
+    utils.convert_names(data, keys=("vader",), axis=(1,))
 
 
 @pytest.mark.xfail(raises=ValueError)
@@ -282,7 +269,7 @@ def test_convert_names_axisnotok():
     """Unit test that convert_names raises an error."""
     data = pd.DataFrame(np.random.rand(3, 1), columns=["P.hsa03320.28"])
 
-    convert_names(data, keys=("circuits",), axis=(2,))
+    utils.convert_names(data, keys=("circuits",), axis=(2,))
 
 
 @pytest.mark.parametrize("seeds", ["11.2", "hola, 12"])
