@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; drexml 0.9.10 documentation</title>
+  <title>API Reference &mdash; drexml 0.9.11 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -47,6 +47,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.datasets">datasets</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_data"><code class="docutils literal notranslate"><span class="pre">get_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_disease_data"><code class="docutils literal notranslate"><span class="pre">get_disease_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_index_name_options"><code class="docutils literal notranslate"><span class="pre">get_index_name_options()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_df"><code class="docutils literal notranslate"><span class="pre">load_df()</span></code></a></li>
@@ -58,10 +59,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.models">models</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.models.AutoMORF"><code class="docutils literal notranslate"><span class="pre">AutoMORF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#drexml.models.AutoMORF.fit"><code class="docutils literal notranslate"><span class="pre">AutoMORF.fit()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.models.get_model"><code class="docutils literal notranslate"><span class="pre">get_model()</span></code></a></li>
 </ul>
 </li>
@@ -90,9 +87,15 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.utils">utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.build_circuits_fname"><code class="docutils literal notranslate"><span class="pre">build_circuits_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.build_gene_exp_fname"><code class="docutils literal notranslate"><span class="pre">build_gene_exp_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.build_genes_fname"><code class="docutils literal notranslate"><span class="pre">build_genes_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.build_pathvals_fname"><code class="docutils literal notranslate"><span class="pre">build_pathvals_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.check_cli_arg_is_bool"><code class="docutils literal notranslate"><span class="pre">check_cli_arg_is_bool()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.check_gputree_availability"><code class="docutils literal notranslate"><span class="pre">check_gputree_availability()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.convert_names"><code class="docutils literal notranslate"><span class="pre">convert_names()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_cuda_lib"><code class="docutils literal notranslate"><span class="pre">get_cuda_lib()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_data"><code class="docutils literal notranslate"><span class="pre">get_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_cuda_version"><code class="docutils literal notranslate"><span class="pre">get_cuda_version()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_number_cuda_devices"><code class="docutils literal notranslate"><span class="pre">get_number_cuda_devices()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_number_cuda_devices_"><code class="docutils literal notranslate"><span class="pre">get_number_cuda_devices_()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_out_path"><code class="docutils literal notranslate"><span class="pre">get_out_path()</span></code></a></li>
@@ -100,15 +103,20 @@
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_stab"><code class="docutils literal notranslate"><span class="pre">get_stab()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.parse_stab"><code class="docutils literal notranslate"><span class="pre">parse_stab()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.rename_results"><code class="docutils literal notranslate"><span class="pre">rename_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_circuits_column"><code class="docutils literal notranslate"><span class="pre">read_circuits_column()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_disease_config"><code class="docutils literal notranslate"><span class="pre">read_disease_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_path_based"><code class="docutils literal notranslate"><span class="pre">read_path_based()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_seed_genes"><code class="docutils literal notranslate"><span class="pre">read_seed_genes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_use_physio"><code class="docutils literal notranslate"><span class="pre">read_use_physio()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.read_version_based"><code class="docutils literal notranslate"><span class="pre">read_version_based()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.update_circuits"><code class="docutils literal notranslate"><span class="pre">update_circuits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.update_gene_exp"><code class="docutils literal notranslate"><span class="pre">update_gene_exp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.update_genes"><code class="docutils literal notranslate"><span class="pre">update_genes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.update_pathvals"><code class="docutils literal notranslate"><span class="pre">update_pathvals()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.plotting">plotting</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_metrics"><code class="docutils literal notranslate"><span class="pre">plot_metrics()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_r2_ax"><code class="docutils literal notranslate"><span class="pre">plot_r2_ax()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_stability"><code class="docutils literal notranslate"><span class="pre">plot_stability()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.plot_stability_ax"><code class="docutils literal notranslate"><span class="pre">plot_stability_ax()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drexml.plotting.preprocess_data"><code class="docutils literal notranslate"><span class="pre">preprocess_data()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -152,13 +160,49 @@
 <p>IO module for DREXML.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.fetch_file">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.fetch_file" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.fetch_file" title="Permalink to this definition"></a></dt>
 <dd><p>Retrieve data.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p>disease (str): The name of the disease.</p></li>
+<li><p>key (str): The key associated with the data.</p></li>
+<li><p>env (Union[str, pathlib.Path]): The environment variable or path containing the data.</p></li>
+<li><p>version (str, optional): The version of the data to retrieve (default: “latest”).</p></li>
+<li><p>debug (bool, optional): Whether to enable debug mode (default: False).</p></li>
+</ul>
+<p>Returns:
+- frame (np.ndarray): The preprocessed data frame.</p>
+<p>Raises:
+- ConnectTimeout: If a connection timeout occurs during retrieval.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.get_data">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load disease data and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disease</strong> (<em>path-like</em>) – Path to disease config file.</p></li>
+<li><p><strong>debug</strong> (<em>bool</em>) – _description_, by default False.</p></li>
+<li><p><strong>scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pandas.DataFrame</em> – Gene expression data.</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit activation data (hipathia).</p></li>
+<li><p><em>pandas.DataFrame</em> – Circuit definition binary matrix.</p></li>
+<li><p><em>pandas.DataFrame</em> – KDT definition binary matrix.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.get_disease_data">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">get_disease_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.get_disease_data" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">get_disease_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.get_disease_data" title="Permalink to this definition"></a></dt>
 <dd><p>Get data for a disease.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -248,7 +292,8 @@ list with only one element, “index”.</p>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>
-<p>This function replaces hyphens and spaces in the column names of the input data frame with periods and returns the resulting data frame.</p>
+<p>This function replaces hyphens and spaces in the column names of the input data
+frame with periods and returns the resulting data frame.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -301,7 +346,8 @@ list with only one element, “index”.</p>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>
-<p>This function selects rows from the input data frame based on the values in the specified genes column and returns the resulting data frame.</p>
+<p>This function selects rows from the input data frame based on the values in the
+specified genes column and returns the resulting data frame.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -335,81 +381,44 @@ and returns the resulting data frame.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.preprocess_map">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_column</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_map" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disease_seed_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_physio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_map" title="Permalink to this definition"></a></dt>
 <dd><p>Preprocesses a map data frame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>frame</strong> (<em>pandas.DataFrame</em>) – The map data frame to preprocess.</p></li>
+<li><p><strong>disease_seed_genes</strong> (<em>str</em>) – The comma separated list of disease seed genes.</p></li>
 <li><p><strong>circuits_column</strong> (<em>str</em>) – The name of the column containing circuit information.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The preprocessed map data frame.</p>
+<dd class="field-even"><p>The list of circuits.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pandas.DataFrame</p>
+<dd class="field-odd"><p>list of str</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Activity 1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A-B&quot;</span><span class="p">,</span> <span class="s2">&quot;C-D&quot;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_map</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;Activity 1&quot;</span><span class="p">)</span>
-<span class="go">   .  Activity.1</span>
-<span class="go">A.B          3</span>
-<span class="go">C.D          4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;in_disease&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="s2">&quot;hipathia&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preprocess_map</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;A,B&quot;</span><span class="p">,</span> <span class="s2">&quot;in_disease&quot;</span><span class="p">)</span>
+<span class="go">[&#39;A&#39;, &#39;B&#39;]</span>
 </pre></div>
 </div>
 <p class="rubric">Notes</p>
-<p>This function replaces hyphens and spaces in the index labels of the input data
-frame with periods and converts the values in the specified circuits column to
-boolean values. It then returns the resulting data frame.</p>
+<dl class="simple">
+<dt>This function replaces hyphens and spaces in the index names of the input data frame</dt><dd><p>with periods and returns the resulting list of circuits.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
 <section id="module-drexml.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-drexml.models" title="Permalink to this heading"></a></h2>
 <p>Model definition.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="drexml.models.AutoMORF">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">AutoMORF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_estimators_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'squared_error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_leaf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_weight_fraction_leaf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_leaf_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_decrease</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bootstrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oob_score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warm_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccp_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.AutoMORF" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="drexml.models.AutoMORF.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.AutoMORF.fit" title="Permalink to this definition"></a></dt>
-<dd><p>_summary_</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input samples. Internally, it will be converted to
-<code class="docutils literal notranslate"><span class="pre">dtype=np.float32</span></code> and if a sparse matrix is provided
-to a sparse <code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p></li>
-<li><p><strong>y</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – Target values (strings or integers in classification, real numbers
-in regression)
-For classification, labels must correspond to classes.</p></li>
-<li><p><strong>sample_weight</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em><em>, </em><em>default=None</em>) – Sample weights. If None, then samples are equally weighted. Splits
-that would create child nodes with net zero or negative weight are
-ignored while searching for a split in each node. In the case of
-classification, splits are also ignored if they would result in any
-single class carrying a negative weight in either child node.ptional
-_description_, by default None</p></li>
-<li><p><strong>X_val</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em><em>, </em><em>optional</em>) – feature validation matrix, by default None</p></li>
-<li><p><strong>y_val</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_targets</em><em>)</em><em>, </em><em>optional</em>) – Target validation matrix, by default None</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>self</strong> – Fitted estimator.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>object</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.models.get_model">
-<span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.get_model" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.get_model" title="Permalink to this definition"></a></dt>
 <dd><p>Create a model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -581,10 +590,10 @@ default “r2”</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>[description]</p>
+<dd class="field-even"><p>The feature selection scores.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[type]</p>
+<dd class="field-odd"><p>pandas.Series [n_features]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -613,7 +622,23 @@ default “r2”</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.explain.compute_shap_values_">
 <span class="sig-prename descclassname"><span class="pre">drexml.explain.</span></span><span class="sig-name descname"><span class="pre">compute_shap_values_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.explain.compute_shap_values_" title="Permalink to this definition"></a></dt>
-<dd><p>Partial function to compute the shap values.</p>
+<dd><p>Partial function to compute the SHAP values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em>) – The feature dataset.</p></li>
+<li><p><strong>explainer</strong> (<em>shap.TreeExplainer</em><em> or </em><em>shap.GPUTreeExplainer</em>) – The SHAP explainer.</p></li>
+<li><p><strong>check_add</strong> (<em>bool</em>) – Check if the SHAP values add up to the model output.</p></li>
+<li><p><strong>gpu_id</strong> (<em>int</em>) – The GPU ID.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>shap_values</strong> – The SHAP values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray [n_samples, n_features, n_tasks]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -665,9 +690,137 @@ selection, by default 0.5</p></li>
 <span id="utils"></span><h2>utils<a class="headerlink" href="#module-drexml.utils" title="Permalink to this heading"></a></h2>
 <p>Utilities module.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.build_circuits_fname">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">build_circuits_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.build_circuits_fname" title="Permalink to this definition"></a></dt>
+<dd><p>Build circuits filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.build_gene_exp_fname">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">build_gene_exp_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.build_gene_exp_fname" title="Permalink to this definition"></a></dt>
+<dd><p>Build gene_exp filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.build_genes_fname">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">build_genes_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.build_genes_fname" title="Permalink to this definition"></a></dt>
+<dd><p>Build genes filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.build_pathvals_fname">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">build_pathvals_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.build_pathvals_fname" title="Permalink to this definition"></a></dt>
+<dd><p>Build pathvals filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Filename.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.check_cli_arg_is_bool">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">check_cli_arg_is_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.check_cli_arg_is_bool" title="Permalink to this definition"></a></dt>
+<dd><p>Check if argument is a boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arg</strong> (<em>str</em>) – Argument.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Argument.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="drexml.utils.check_gputree_availability">
 <span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">check_gputree_availability</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.check_gputree_availability" title="Permalink to this definition"></a></dt>
 <dd><p>Check if GPUTree has been corectly compiled.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.convert_names">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">convert_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.convert_names" title="Permalink to this definition"></a></dt>
+<dd><p>Convert names in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>pandas.DataFrame</em>) – Dataset.</p></li>
+<li><p><strong>keys</strong> (<em>list</em>) – List of keys.</p></li>
+<li><p><strong>axis</strong> (<em>list</em>) – List of axis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>panda.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>NotImplementedError</strong> – If key is not supported.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;circuits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="s2">&quot;C2&quot;</span><span class="p">],</span> <span class="s2">&quot;genes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;circuits&quot;</span><span class="p">,</span> <span class="s2">&quot;genes&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_names</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+<span class="go">   circuits  genes</span>
+<span class="go">0        C1      1</span>
+<span class="go">1        C2      2</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;circuits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="s2">&quot;C2&quot;</span><span class="p">],</span> <span class="s2">&quot;genes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;circuits&quot;</span><span class="p">,</span> <span class="s2">&quot;genes&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">convert_names</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+<span class="go">   circuits  genes</span>
+<span class="go">0        C1      1</span>
+<span class="go">1        C2      2</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -677,27 +830,9 @@ selection, by default 0.5</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.get_data">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_data" title="Permalink to this definition"></a></dt>
-<dd><p>Load disease data and metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>disease</strong> (<em>path-like</em>) – Path to disease config file.</p></li>
-<li><p><strong>debug</strong> (<em>bool</em>) – _description_, by default False.</p></li>
-<li><p><strong>scale</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>pandas.DataFrame</em> – Gene expression data.</p></li>
-<li><p><em>pandas.DataFrame</em> – Circuit activation data (hipathia).</p></li>
-<li><p><em>pandas.DataFrame</em> – Circuit definition binary matrix.</p></li>
-<li><p><em>pandas.DataFrame</em> – KDT definition binary matrix.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="drexml.utils.get_cuda_version">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_cuda_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_cuda_version" title="Permalink to this definition"></a></dt>
+<dd><p>Get CUDA version.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -788,9 +923,227 @@ selection, by default 0.5</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="drexml.utils.rename_results">
-<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">rename_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.rename_results" title="Permalink to this definition"></a></dt>
-<dd><p>Translate entrez to symbols, and KEGG circuit IDs to names.</p>
+<dt class="sig sig-object py" id="drexml.utils.read_circuits_column">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_circuits_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_circuits_column" title="Permalink to this definition"></a></dt>
+<dd><p>Read circuits column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.read_disease_config">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_disease_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disease</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_disease_config" title="Permalink to this definition"></a></dt>
+<dd><p>Read disease config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>disease</strong> (<em>str</em>) – Path to disease config file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Config dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.read_path_based">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_path_based</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_path_based" title="Permalink to this definition"></a></dt>
+<dd><p>Read path based.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em>) – Config dict.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Key in config dict.</p></li>
+<li><p><strong>data_path</strong> (<em>path-like</em>) – Storage path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Raise error if key is not present in config dict.</p></li>
+<li><p><strong>FileNotFoundError</strong> – Raise error if path does not exist.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.read_seed_genes">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_seed_genes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_seed_genes" title="Permalink to this definition"></a></dt>
+<dd><p>Read seed genes from config file. It expect a comma-separated list of entrez ids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Parsed config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated conig dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.read_use_physio">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_use_physio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_use_physio" title="Permalink to this definition"></a></dt>
+<dd><p>Read use_physio from config file. It expect a boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Parsed config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.read_version_based">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">read_version_based</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.read_version_based" title="Permalink to this definition"></a></dt>
+<dd><p>Read version based.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em>) – Config dict.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – Key in config dict.</p></li>
+<li><p><strong>version_dict</strong> (<em>dict</em>) – Version dict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.update_circuits">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">update_circuits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.update_circuits" title="Permalink to this definition"></a></dt>
+<dd><p>Update circuits key from config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If circuits is not provided, it will be built from the other keys.</p>
+<p>If circuits is provided, it will be checked if it is a path.</p>
+<p>If circuits is a path, it will be checked if it is a zenodo resource.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.update_gene_exp">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">update_gene_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.update_gene_exp" title="Permalink to this definition"></a></dt>
+<dd><p>Update gene_exp key from config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If gene_exp is not provided, it will be built from the other keys.</p>
+<p>If gene_exp is provided, it will be checked if it is a path.</p>
+<p>If gene_exp is a path, it will be checked if it is a zenodo resource.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.update_genes">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">update_genes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.update_genes" title="Permalink to this definition"></a></dt>
+<dd><p>Update genes key from config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If genes is not provided, it will be built from the other keys.</p>
+<p>If genes is provided, it will be checked if it is a path.</p>
+<p>If genes is a path, it will be checked if it is a zenodo resource.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.update_pathvals">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">update_pathvals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.update_pathvals" title="Permalink to this definition"></a></dt>
+<dd><p>Update pathvals key from config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – Config dict.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated config dict.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raise error if format is unsupported.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If pathvals is not provided, it will be built from the other keys.</p>
+<p>If pathvals is provided, it will be checked if it is a path.</p>
+<p>If pathvals is a path, it will be checked if it is a zenodo resource.</p>
 </dd></dl>
 
 </section>
@@ -800,31 +1153,19 @@ selection, by default 0.5</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.plotting.plot_metrics">
 <span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.735</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_metrics" title="Permalink to this definition"></a></dt>
-<dd><p>Plot stability versus R^2 with 95% CI</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.plotting.plot_r2_ax">
-<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_r2_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_r2_ax" title="Permalink to this definition"></a></dt>
-<dd><p>Plot R2 axis.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.plotting.plot_stability">
-<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_stability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_stability" title="Permalink to this definition"></a></dt>
-<dd><p>Plot the stability results.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.plotting.plot_stability_ax">
-<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_stability_ax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ilow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iup</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.plot_stability_ax" title="Permalink to this definition"></a></dt>
-<dd><p>Plot stability axis.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="drexml.plotting.preprocess_data">
-<span class="sig-prename descclassname"><span class="pre">drexml.plotting.</span></span><span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.plotting.preprocess_data" title="Permalink to this definition"></a></dt>
-<dd><p>Read and preprocess results.</p>
+<dd><p>Read the drexml results TSV file and plot it. The R^2 confidence interval for the
+mean go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras’s
+stability stimate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – Path to the input file.</p></li>
+<li><p><strong>output_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the output folder. If None, the output folder is the same
+as the input folder.</p></li>
+<li><p><strong>width</strong> (<em>float</em><em>, </em><em>optional</em>) – Width of the plot.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
