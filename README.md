@@ -88,7 +88,7 @@ https://doi.org/10.5281/zenodo.6020480
 
 The recommended setup is:
 - setup `pipx`
-- setup `miniconda`
+- setup `miniforge`
 - use `pipx` to install `poetry`
 - use `pipx` to install `nox` and inject `nox-poetry` into `nox`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
