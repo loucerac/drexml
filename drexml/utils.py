@@ -289,7 +289,7 @@ def convert_names(dataset, keys, axis):
     """
     for i, key in enumerate(keys):
         if key == "circuits":
-            fname = "circuit_names.tsv"
+            fname = "circuit_names.tsv.gz"
             index_name = "circuit_id"
             col_name = "circuit_name"
         elif key == "genes":
