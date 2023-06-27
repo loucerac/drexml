@@ -32,15 +32,18 @@ To install the development version use `@develop` instead of `@master`.
 
 ## Run
 
-To run the program for a disease map that uses circuits from the preprocessed `KEGG` pathways and the `KDT` standard list, construct an environment file (e.g. `disease.env`) using the following template:
+To run the program for a disease map that uses circuits from the preprocessed `KEGG` pathways and the `KDT` standard list, construct an environment file (e.g. `disease.env`):
+
+- using the following template if you have a set of seed genes (comma-separated):
 
 ```
-gene_exp=$default$
-pathvals=$default$
+seed_genes=2175,2176,2189
+```
+
+- using the following template if you know which circuits to include (the disease map):
+
+```
 circuits=circuits.tsv.gz
-circuits_column=in_disease
-genes=$default$
-genes_column=approved_targets
 ```
 
 The `TSV` file `circuits.tsv` has the following format (tab delimited):
@@ -67,10 +70,14 @@ P-hsa03320-28	1
 
 where:
 * `index`: Hipathia circuit id
-* `in_disease`: boolean if a given circuit is part of the disease
+* `in_disease`: (boolean) True/1 if a given circuit is part of the disease
+
+Note that in all cases you can restrict the circuits to the physiological list by setting `use_physio=true` in the `env` file.
+
+To run the experiment using 10 CPU cores and 0 GPUs, run the following command within an activated environment:
 
 ```
-conda run -n drexml drexml run --n-gpus 0 --n-cpus 10 $DISEASE_PATH
+drexml run --n-gpus 0 --n-cpus 10 $DISEASE_PATH
 ```
 
 where:
@@ -84,11 +91,12 @@ Note that the first time that the full program is run, it will take longer as it
 
 https://doi.org/10.5281/zenodo.6020480
 
+
 ## Contribute to development
 
 The recommended setup is:
 - setup `pipx`
-- setup `miniconda`
+- setup `miniforge`
 - use `pipx` to install `poetry`
 - use `pipx` to install `nox` and inject `nox-poetry` into `nox`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`

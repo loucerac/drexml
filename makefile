@@ -18,6 +18,10 @@ endif
 	poetry run pytest
 format:
 	$(CONDA_ACTIVATE) ./.venv
+	autoflake  --remove-all-unused-imports --ignore-init-module-imports \
+	--remove-unused-variables -i drexml/*.py
+	autoflake  --remove-all-unused-imports --ignore-init-module-imports \
+	--remove-unused-variables -i tests/*.py
 	poetry run isort drexml tests noxfile.py
 	poetry run black drexml tests noxfile.py
 	(cd docs && poetry run make html)
@@ -27,3 +31,6 @@ ifeq ($(use_gpu),1)
 else
 	nox
 endif
+cover:
+	$(CONDA_ACTIVATE) ./.venv
+	poetry run coverage run -m pytest tests/ -v && poetry run coverage report -m

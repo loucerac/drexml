@@ -23,38 +23,36 @@ with warnings.catch_warnings():
     )
     import shap
 
+from dotenv.main import dotenv_values
 from sklearn.model_selection import ShuffleSplit, train_test_split
-from sklearn.preprocessing import MinMaxScaler
 
-from drexml.datasets import get_disease_data
+from drexml.config import DEFAULT_DICT, VERSION_DICT
 from drexml.models import get_model
 
+DEFAULT_STR = "$default$"
 
-def rename_results(folder):
-    """Translate entrez to symbols, and KEGG circuit IDs to names."""
-    folder = Path(folder)
 
-    for path in folder.rglob("shap_selection*.tsv"):
-        if "symbol" in path.stem:
-            continue
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+def check_cli_arg_is_bool(arg):
+    """Check if argument is a boolean.
 
-    for path in folder.rglob("shap_summary*.tsv"):
-        if "symbol" in path.stem:
-            continue
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits", "genes"], axis=[0, 1])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+    Parameters
+    ----------
+    arg : str
+        Argument.
 
-    for path in folder.rglob("stability_results.tsv"):
-        dataset = pd.read_csv(path, sep="\t", index_col=0)
-        path_out = path.absolute().parent.joinpath(f"{path.stem}_symbol.tsv")
-        dataset_out = convert_names(dataset, ["circuits"], axis=[0])
-        dataset_out.to_csv(path_out, sep="\t", index_label="circuit_name")
+    Returns
+    -------
+    bool
+        Argument.
+    """
+    if arg in ["true", "True", "TRUE", "1"]:
+        arg = True
+    elif arg in ["false", "False", "FALSE", "0"]:
+        arg = False
+    else:
+        raise ValueError("debug must be a boolean")
+
+    return arg
 
 
 def parse_stab(argv):
@@ -84,8 +82,8 @@ def parse_stab(argv):
     data_folder = Path(data_folder)
     n_gpus = int(n_gpus)
     n_cpus = int(n_cpus)
-    debug = bool(int(debug))
-    add = bool(int(add))
+    debug = check_cli_arg_is_bool(debug)
+    add = check_cli_arg_is_bool(add)
 
     if mode == "final":
         n_splits = 1
@@ -166,7 +164,7 @@ def get_out_path(disease):
         print(f"Working with experiment {env_possible.parent.name}")
         out_path = env_possible.parent.joinpath("results")
     else:
-        raise NotImplementedError("Use experiment")
+        raise NotImplementedError("Error loading a .env describing the experiment")
 
     out_path.mkdir(parents=True, exist_ok=True)
     print(f"Storage folder: {out_path}")
@@ -174,50 +172,7 @@ def get_out_path(disease):
     return out_path
 
 
-def get_data(disease, debug, scale=False):
-    """Load disease data and metadata.
-
-    Parameters
-    ----------
-    disease : path-like
-        Path to disease config file.
-    debug : bool
-        _description_, by default False.
-    scale : bool, optional
-        _description_, by default False.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Gene expression data.
-    pandas.DataFrame
-        Circuit activation data (hipathia).
-    pandas.DataFrame
-        Circuit definition binary matrix.
-    pandas.DataFrame
-        KDT definition binary matrix.
-    """
-    gene_xpr, pathvals, circuits, genes = get_disease_data(disease, debug)
-
-    if scale:
-
-        pathvals = pd.DataFrame(
-            MinMaxScaler().fit_transform(pathvals),
-            columns=pathvals.columns,
-            index=pathvals.index,
-        )
-
-    print(gene_xpr.shape, pathvals.shape)
-
-    if debug:
-        size = 9
-        gene_xpr = gene_xpr.sample(n=size)
-        pathvals = pathvals.loc[gene_xpr.index, :]
-
-    return gene_xpr, pathvals, circuits, genes
-
-
-def get_cuda_lib():
+def get_cuda_lib():  # pragma: no cover
     """Get CUDA library name."""
     lib_names = ("libcuda.so", "libcuda.dylib", "cuda.dll")
     for lib_name in lib_names:
@@ -233,7 +188,7 @@ def get_cuda_lib():
     return cuda
 
 
-def get_number_cuda_devices():
+def get_number_cuda_devices():  # pragma: no cover
     """Get number of CUDA devices."""
 
     try:
@@ -246,7 +201,7 @@ def get_number_cuda_devices():
     return n_gpus
 
 
-def get_number_cuda_devices_():
+def get_number_cuda_devices_():  # pragma: no cover
     """Get number of CUDA devices."""
 
     cuda = get_cuda_lib()
@@ -257,7 +212,18 @@ def get_number_cuda_devices_():
     return int(n_gpus.value)
 
 
-def check_gputree_availability():
+def get_cuda_version():  # pragma: no cover
+    """Get CUDA version."""
+    cuda = get_cuda_lib()
+    cuda.cuInit(0)
+    cc_major = ctypes.c_int()
+    cc_minor = ctypes.c_int()
+    cuda.cuDeviceComputeCapability(ctypes.byref(cc_major), ctypes.byref(cc_minor), 0)
+
+    return int(cc_major.value), int(cc_minor.value)
+
+
+def check_gputree_availability():  # pragma: no cover
     """Check if GPUTree has been corectly compiled."""
     try:
         shap.utils.assert_import("cext_gpu")
@@ -280,15 +246,56 @@ def get_resource_path(fname):
 
 
 def convert_names(dataset, keys, axis):
+    """
+    Convert names in the dataset.
+
+    Parameters
+    ----------
+    dataset : pandas.DataFrame
+        Dataset.
+    keys : list
+        List of keys.
+    axis : list
+        List of axis.
+
+    Returns
+    -------
+    panda.DataFrame
+        Dataset.
+
+    Raises
+    ------
+    NotImplementedError
+        If key is not supported.
+
+    Examples
+    --------
+    >>> dataset = pd.DataFrame({"circuits": ["C1", "C2"], "genes": [1, 2]})
+    >>> keys = ["circuits", "genes"]
+    >>> axis = [0, 1]
+    >>> convert_names(dataset, keys, axis)
+       circuits  genes
+    0        C1      1
+    1        C2      2
+
+    >>> dataset = pd.DataFrame({"circuits": ["C1", "C2"], "genes": [1, 2]})
+    >>> keys = ["circuits", "genes"]
+    >>> axis = [0, 1]
+    >>> convert_names(dataset, keys, axis)
+       circuits  genes
+    0        C1      1
+    1        C2      2
+
+    """
     for i, key in enumerate(keys):
         if key == "circuits":
-            fname = "circuit_names.tsv"
-            index_name = "hipathia_id"
-            col_name = "name"
+            fname = "circuit_names.tsv.gz"
+            index_name = "circuit_id"
+            col_name = "circuit_name"
         elif key == "genes":
-            fname = "entrez_sym-table.tsv"
-            index_name = "entrez"
-            col_name = "symbol"
+            fname = "genes_drugbank-v050110_gtex-v8_mygene-v20230220.tsv.gz"
+            index_name = "entrez_id"
+            col_name = "symbol_id"
         else:
             raise NotImplementedError()
 
@@ -305,3 +312,482 @@ def convert_names(dataset, keys, axis):
         dataset = dataset.rename(name_dict, axis=axis[i])
 
     return dataset
+
+
+def read_seed_genes(config):
+    """Read seed genes from config file. It expect a comma-separated list of entrez ids.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated conig dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+    try:
+        if config["seed_genes"] is not None:
+            config["seed_genes"] = str(config["seed_genes"]).split(",")
+            for int_str in config["seed_genes"]:
+                int_str = int_str.strip()
+                if not int_str.isdigit():
+                    raise ValueError(f"{int_str} is not a valid integer.")
+    except ValueError as err:
+        print(err)
+        print("seed_genes should be a comma-separated list of genes.")
+        raise
+
+    return config
+
+
+def read_use_physio(config):
+    """Read use_physio from config file. It expect a boolean.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+
+    try:
+        config["use_physio"] = check_cli_arg_is_bool(config["use_physio"])
+    except ValueError as err:
+        print(err)
+        print("use_physio should be a boolean.")
+        raise
+
+    return config
+
+
+def read_path_based(config, key, data_path):
+    """Read path based.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    key : str
+        Key in config dict.
+    data_path : path-like
+        Storage path.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if key is not present in config dict.
+    FileNotFoundError
+        Raise error if path does not exist.
+    """
+    try:
+        if config[key] is not None:
+            path = data_path.joinpath(config[key])
+            if not path.exists():
+                path = Path(config[key])
+            config[key] = path
+            with open(path, "r", encoding="utf-8") as _:
+                pass
+
+    except (ValueError, FileNotFoundError) as err:
+        print(err)
+        print(f"{key} should be a path.")
+        raise err
+
+    return config
+
+
+def read_circuits_column(config):
+    """Read circuits column.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+    try:
+        config["circuits_column"] = str(config["circuits_column"])
+        if not config["circuits_column"]:
+            raise ValueError(f"{config['circuits_column']} is not alphanumeric.")
+    except ValueError as err:
+        print(err)
+        print("circuits_column should be string-like.")
+        raise
+
+    return config
+
+
+def read_version_based(config, key, version_dict):
+    """Read version based.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+    key : str
+        Key in config dict.
+    version_dict : dict
+        Version dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+
+    try:
+        config[key] = str(config[key])
+        if config[key] not in version_dict[key]:
+            raise ValueError(f"{key} should be one of {version_dict[key]}.")
+    except ValueError as err:
+        print(err)
+        print("{key} should be one of {version_dict[key]}.")
+        raise
+
+    return config
+
+
+def read_disease_config(disease):
+    """Read disease config file.
+
+    Parameters
+    ----------
+    disease : str
+        Path to disease config file.
+
+    Returns
+    -------
+    dict
+        Config dictionary.
+
+    """
+
+    # TODO: when moving to Python >= 3.9 use '|' to update dicts
+    config = dotenv_values(disease)
+    env_parent_path = Path(disease).parent
+
+    for key, _ in DEFAULT_DICT.items():
+        if key not in config:
+            config[key] = DEFAULT_DICT[key]
+
+    config = read_seed_genes(config)
+    config = read_use_physio(config)
+    config = read_path_based(config, key="gene_exp", data_path=env_parent_path)
+    config = read_path_based(config, key="pathvals", data_path=env_parent_path)
+    config = read_path_based(config, key="genes", data_path=env_parent_path)
+    config = read_path_based(config, key="circuits", data_path=env_parent_path)
+    config = read_circuits_column(config)
+
+    config = read_version_based(config, key="GTEX_VERSION", version_dict=VERSION_DICT)
+    config = read_version_based(config, key="MYGENE_VERSION", version_dict=VERSION_DICT)
+    config = read_version_based(
+        config, key="DRUGBANK_VERSION", version_dict=VERSION_DICT
+    )
+    config = read_version_based(
+        config, key="HIPATHIA_VERSION", version_dict=VERSION_DICT
+    )
+    config = read_version_based(config, key="EDGER_VERSION", version_dict=VERSION_DICT)
+
+    config = update_gene_exp(config)
+    config = update_pathvals(config)
+    config = update_genes(config)
+    config = update_circuits(config)
+
+    return config
+
+
+def build_gene_exp_fname(config):
+    """Build gene_exp filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+    """
+
+    return (
+        "_".join(
+            [
+                "gexp",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"edger-{config['EDGER_VERSION']}",
+            ]
+        )
+        + ".feather"
+    )
+
+
+def build_pathvals_fname(config):
+    """Build pathvals filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+
+    """
+    return (
+        "_".join(
+            [
+                "pathvals",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"edger-{config['EDGER_VERSION']}",
+                f"hipathia-{config['HIPATHIA_VERSION']}",
+            ]
+        )
+        + ".feather"
+    )
+
+
+def build_genes_fname(config):
+    """Build genes filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+
+    """
+
+    return (
+        "_".join(
+            [
+                "genes",
+                f"drugbank-{config['DRUGBANK_VERSION']}",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"mygene-{config['MYGENE_VERSION']}",
+            ]
+        )
+        + ".tsv.gz"
+    )
+
+
+def build_circuits_fname(config):
+    """Build circuits filename.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    str
+        Filename.
+
+    """
+
+    return (
+        "_".join(
+            [
+                "circuits2genes",
+                f"gtex-{config['GTEX_VERSION']}",
+                f"hipathia-{config['HIPATHIA_VERSION']}",
+            ]
+        )
+        + ".tsv.gz"
+    )
+
+
+def update_gene_exp(config):
+    """Update gene_exp key from config.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+
+    Notes
+    -----
+    If gene_exp is not provided, it will be built from the other keys.
+
+    If gene_exp is provided, it will be checked if it is a path.
+
+    If gene_exp is a path, it will be checked if it is a zenodo resource.
+
+    """
+    if config["gene_exp"] is None:
+        config["gene_exp"] = build_gene_exp_fname(config)
+        config["gene_exp_zenodo"] = True
+
+    return config
+
+
+def update_pathvals(config):
+    """Update pathvals key from config.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+
+    Notes
+    -----
+    If pathvals is not provided, it will be built from the other keys.
+
+    If pathvals is provided, it will be checked if it is a path.
+
+    If pathvals is a path, it will be checked if it is a zenodo resource.
+
+    """
+    if config["pathvals"] is None:
+        config["pathvals"] = build_pathvals_fname(config)
+        config["pathvals_zenodo"] = True
+
+    return config
+
+
+def update_genes(config):
+    """Update genes key from config.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+
+    Notes
+    -----
+    If genes is not provided, it will be built from the other keys.
+
+    If genes is provided, it will be checked if it is a path.
+
+    If genes is a path, it will be checked if it is a zenodo resource.
+
+    """
+    if config["genes"] is None:
+        if (
+            (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"])
+            or (config["DRUGBANK_VERSION"] != DEFAULT_DICT["DRUGBANK_VERSION"])
+            or (config["MYGENE_VERSION"] != DEFAULT_DICT["MYGENE_VERSION"])
+        ):
+            config["genes_zenodo"] = True
+            config["genes"] = build_genes_fname(config)
+
+    if not config["genes_zenodo"]:
+        config["genes"] = get_resource_path(build_genes_fname(config))
+
+    return config
+
+
+def update_circuits(config):
+    """Update circuits key from config.
+
+    Parameters
+    ----------
+    config : dict
+        Config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+
+    Notes
+    -----
+    If circuits is not provided, it will be built from the other keys.
+
+    If circuits is provided, it will be checked if it is a path.
+
+    If circuits is a path, it will be checked if it is a zenodo resource.
+
+    """
+
+    if config["circuits"] is None:
+        if config["seed_genes"] is None:
+            raise ValueError("Either circuits or seed_genes list is required.")
+        if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
+            config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
+        ):
+            config["circuits"] = build_circuits_fname(config)
+            config["circuits_zenodo"] = True
+        else:
+            config["circuits"] = get_resource_path(
+                "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
+            )
+
+    return config

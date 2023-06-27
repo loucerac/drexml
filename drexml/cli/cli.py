@@ -29,13 +29,13 @@ with warnings.catch_warnings():
         "ignore", module="shap", category=NumbaPendingDeprecationWarning
     )
 
+from drexml.datasets import get_data
 from drexml.plotting import plot_metrics
 from drexml.utils import (
-    get_data,
+    check_gputree_availability,
     get_number_cuda_devices,
     get_out_path,
     get_version,
-    rename_results,
 )
 
 FNAME_DICT = {
@@ -158,8 +158,11 @@ def build_ctx(ctx, step=None):
             ctx_new["mode"] = "final"
 
     if "n_gpus" in ctx_new.keys():
-        if ctx_new["n_gpus"] < 0:
-            ctx_new["n_gpus"] = get_number_cuda_devices()
+        if check_gputree_availability():
+            if ctx_new["n_gpus"] < 0:  # pragma: no cover
+                ctx_new["n_gpus"] = get_number_cuda_devices()
+        else:
+            ctx_new["n_gpus"] = 0  # pragma: no cover
     if "n_cpus" in ctx_new.keys():
         if ctx_new["n_cpus"] < 0:
             ctx_new["n_cpus"] = multiprocessing.cpu_count()
@@ -218,11 +221,12 @@ def main():
 def orchestrate(**kwargs):
     """Orchestrate the drexml procedure. Entry point for multi-disease workflows."""
 
-    print(f"running drexml explainer v {get_version()}")
+    click.echo(f"running drexml explainer v {get_version()}")
     ctx = build_ctx(kwargs)
 
     # Load data
     gene_xpr, pathvals, _, _ = get_data(ctx["disease_path"], ctx["debug"])
+    click.echo(ctx["data_folder"].joinpath("features.jbl"))
     joblib.dump(gene_xpr, ctx["data_folder"].joinpath("features.jbl"))
     joblib.dump(pathvals, ctx["data_folder"].joinpath("target.jbl"))
 
@@ -248,8 +252,6 @@ def stability(**kwargs):
         current_step = "stab-explain"
     elif kwargs["mode"].lower() == "score":
         current_step = "stab-score"
-    else:
-        sys.exit("Unknown stability analysis step.")
 
     click.echo(f"Running drexml {current_step} v {get_version()}")
 
@@ -258,7 +260,7 @@ def stability(**kwargs):
     run_cmd(ctx)
 
     if ctx["mode"].lower() == "score":
-        fnames = ["stability_results.tsv"]
+        fnames = ["stability_results.tsv", "stability_results_symbol.tsv"]
         copy_files(ctx, fnames)
 
 
@@ -277,7 +279,12 @@ def explain(**kwargs):
 
     run_cmd(ctx)
 
-    fnames = ["shap_selection.tsv", "shap_summary.tsv"]
+    fnames = [
+        "shap_selection.tsv",
+        "shap_summary.tsv",
+        "shap_selection_symbol.tsv",
+        "shap_summary_symbol.tsv",
+    ]
     copy_files(ctx, fnames)
 
 
@@ -312,15 +319,5 @@ def plot(ctx, stab_path):
     plot_metrics(stab_path)
 
 
-@main.command()
-@click.argument("results-folder", type=click.Path(exists=True))
-@click.version_option(get_version())
-@click.pass_context
-def rename(ctx, results_folder):
-    """Plot the stability results"""
-
-    rename_results(results_folder)
-
-
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

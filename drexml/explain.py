@@ -46,7 +46,25 @@ def matcorr(O, P):
 
 
 def compute_shap_values_(x, explainer, check_add, gpu_id=None):
-    """Partial function to compute the shap values."""
+    """
+    Partial function to compute the SHAP values.
+
+    Parameters
+    ----------
+    x : ndarray [n_samples, n_features]
+        The feature dataset.
+    explainer : shap.TreeExplainer or shap.GPUTreeExplainer
+        The SHAP explainer.
+    check_add : bool
+        Check if the SHAP values add up to the model output.
+    gpu_id : int
+        The GPU ID.
+
+    Returns
+    -------
+    shap_values : ndarray [n_samples, n_features, n_tasks]
+        The SHAP values.
+    """
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     shap_values = np.array(explainer.shap_values(x, check_additivity=check_add))
 
@@ -199,8 +217,9 @@ def compute_shap_fs(relevances, model=None, X=None, Y=None, q="r2", by_circuit=F
 
     Returns
     -------
-    [type]
-        [description]
+    pandas.Series [n_features]
+        The feature selection scores.
+
     """
     if q == "r2":
         q = get_quantile_by_circuit(model, X, Y)
