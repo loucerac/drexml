@@ -12,12 +12,11 @@ and signaling circuits.
 Installation
 =============
 
-You can install drexml from PyPI using pip:
+You can install drexml using:
 
 .. code::
 
-   pip install git+ssh://git@github.com:loucerac/drexml.git
-
+   pip install git+https://github.com/loucerac/drexml.git@master
 
 
 Getting started

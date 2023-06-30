@@ -23,29 +23,30 @@ def load_physiological_circuits():
     return circuit_names.index[circuit_names["is_physiological"]].tolist()
 
 
-def fetch_file(disease, key, env, version="latest"):
-    """
-    Retrieve data.
+def fetch_file(key, env, version="latest"):
+    """Retrieve file from the environment.
 
-    Parameters:
+    Parameters
+    ----------
+    key : str
+        Key of the file to retrieve.
+    env : dict
+        Environment.
+    version : str
+        Version of the file to retrieve.
 
-    - disease (str): The name of the disease.
-    - key (str): The key associated with the data.
-    - env (Union[str, pathlib.Path]): The environment variable or path containing the data.
-    - version (str, optional): The version of the data to retrieve (default: "latest").
-    - debug (bool, optional): Whether to enable debug mode (default: False).
+    Returns
+    -------
+    pathlib.Path
+        Path to the file.
 
-    Returns:
-    - frame (np.ndarray): The preprocessed data frame.
-
-    Raises:
-    - ConnectTimeout: If a connection timeout occurs during retrieval.
-
+    Raises
+    ------
+    NotImplementedError
+        Not implemented yet.
     """
 
     print(f"Retrieving {key}")
-    experiment_env_path = pathlib.Path(disease)
-    env = read_disease_config(experiment_env_path)
     if env[key + "_zenodo"]:  # pragma: no cover
         if version == "latest":
             try:
@@ -352,10 +353,10 @@ def get_disease_data(disease):
     experiment_env_path = pathlib.Path(disease)
     env = read_disease_config(experiment_env_path)
 
-    gene_exp = fetch_file(disease, key="gene_exp", env=env, version="latest")
-    pathvals = fetch_file(disease, key="pathvals", env=env, version="latest")
-    circuits = fetch_file(disease, key="circuits", env=env, version="latest")
-    genes = fetch_file(disease, key="genes", env=env, version="latest")
+    gene_exp = fetch_file(key="gene_exp", env=env, version="latest")
+    pathvals = fetch_file(key="pathvals", env=env, version="latest")
+    circuits = fetch_file(key="circuits", env=env, version="latest")
+    genes = fetch_file(key="genes", env=env, version="latest")
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
 

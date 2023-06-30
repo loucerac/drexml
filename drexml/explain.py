@@ -12,35 +12,39 @@ from sklearn.metrics import r2_score
 from drexml.pystab import nogueria_test
 
 
-def matcorr(O, P):
+def matcorr(features, targets):
     """Fast correlation matrix computation.
 
     Parameters
     ----------
-    O : ndarray
+    features : ndarray [n_samples, n_features]
         A matrix of observations.
-    P : ndarray
+    targets : ndarray [n_samples, n_tasks]
         A matrix of predictions.
 
     Returns
     -------
     ndarray
-        The cross-correlation matrix.
+        The correlation matrix.
     """
-    n = O.shape[0]
+    n = features.shape[0]
 
-    DO = O - (
-        np.einsum("nt->t", O, optimize="optimal") / np.double(n)
-    )  # compute O - mean(O)
-    DP = P - (
-        np.einsum("nm->m", P, optimize="optimal") / np.double(n)
-    )  # compute P - mean(P)
+    features_center = features - (
+        np.einsum("nt->t", features, optimize="optimal") / np.double(n)
+    )
+    targets_center = targets - (
+        np.einsum("nm->m", targets, optimize="optimal") / np.double(n)
+    )
 
-    cov = np.einsum("nm,nt->mt", DP, DO, optimize="optimal")
+    cov = np.einsum("nm,nt->mt", targets_center, features_center, optimize="optimal")
 
-    varP = np.einsum("nm,nm->m", DP, DP, optimize="optimal")
-    varO = np.einsum("nt,nt->t", DO, DO, optimize="optimal")
-    tmp = np.einsum("m,t->mt", varP, varO, optimize="optimal")
+    targets_var = np.einsum(
+        "nm,nm->m", targets_center, targets_center, optimize="optimal"
+    )
+    features_var = np.einsum(
+        "nt,nt->t", features_center, features_center, optimize="optimal"
+    )
+    tmp = np.einsum("m,t->mt", targets_var, features_var, optimize="optimal")
 
     return cov / np.sqrt(tmp)
 

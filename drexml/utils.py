@@ -50,7 +50,7 @@ def check_cli_arg_is_bool(arg):
     elif arg in ["false", "False", "FALSE", "0"]:
         arg = False
     else:
-        raise ValueError("debug must be a boolean")
+        raise ValueError(f"argument {arg} must be a boolean")
 
     return arg
 
