@@ -200,7 +200,11 @@ def run_cmd(ctx):
     cmd = build_cmd(ctx)
     # Unpythonic, update with dasks's LocalCudaCluster (currently unreliable).
     print(" ".join(cmd))
-    output = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    try:
+        output = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as err:
+        click.echo("Ping stdout output:\n", err.output)
+    
     if ctx["verbosity"]:
         click.echo(output.stderr)
         click.echo(output.stdout)
