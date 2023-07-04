@@ -272,7 +272,7 @@ def test_convert_names_axisnotok():
     utils.convert_names(data, keys=("circuits",), axis=(2,))
 
 
-@pytest.mark.parametrize("seeds", ["11.2", "hola, 12"])
+@pytest.mark.parametrize("seeds", ["11.2", "Vader, 12"])
 @pytest.mark.xfail(raises=ValueError)
 def test_read_seed_genes_fails(seeds):
     """Unit test that read_seed_genes raises an error."""
@@ -280,13 +280,29 @@ def test_read_seed_genes_fails(seeds):
     utils.read_seed_genes(config)
 
 
-@pytest.mark.parametrize("value", ["hola"])
+@pytest.mark.parametrize("value", ["Vader"])
 @pytest.mark.xfail(raises=ValueError)
 def test_read_use_physio_fails(value):
     """Unit test that read_use_physio raises an error."""
     config = {"use_physio": value}
     utils.read_use_physio(config)
 
+
+@pytest.mark.parametrize("value", ["Vader"])
+@pytest.mark.xfail(raises=ValueError)
+def test_read_activity_normalizer(value):
+    """Unit test that read_use_physio raises an error."""
+    config = {"activity_normalizer": value}
+    utils.read_activity_normalizer(config)
+
+def test_build_pathvals_fname():
+    """Test that  build_pathvals-fname produces a valid string.
+    """
+
+    config = DEFAULT_DICT.copy()
+    config["activity_normalizer"] = True
+    fname = utils.build_pathvals_fname(config)
+    assert "norm" in fname
 
 @pytest.mark.xfail(raises=(ValueError, FileNotFoundError))
 def test_read_path_based_fails():
