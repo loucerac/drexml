@@ -396,13 +396,16 @@ def read_activity_normalizer(config):
     """
 
     try:
-        config["activity_normalizer"] = check_cli_arg_is_bool(config["activity_normalizer"])
+        config["activity_normalizer"] = check_cli_arg_is_bool(
+            config["activity_normalizer"]
+        )
     except ValueError as err:
         print(err)
         print("activity_normalizer should be a boolean.")
         raise
 
     return config
+
 
 def read_path_based(config, key, data_path):
     """Read path based.

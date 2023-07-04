@@ -295,14 +295,15 @@ def test_read_activity_normalizer(value):
     config = {"activity_normalizer": value}
     utils.read_activity_normalizer(config)
 
+
 def test_build_pathvals_fname():
-    """Test that  build_pathvals-fname produces a valid string.
-    """
+    """Test that  build_pathvals-fname produces a valid string."""
 
     config = DEFAULT_DICT.copy()
     config["activity_normalizer"] = True
     fname = utils.build_pathvals_fname(config)
     assert "norm" in fname
+
 
 @pytest.mark.xfail(raises=(ValueError, FileNotFoundError))
 def test_read_path_based_fails():
