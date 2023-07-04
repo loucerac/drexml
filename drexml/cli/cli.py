@@ -202,7 +202,7 @@ def run_cmd(ctx):
     print(" ".join(cmd))
     try:
         output = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    except subprocess.CalledProcessError as err:
+    except subprocess.CalledProcessError as err: # pragma: no cover
         click.echo("Ping stdout output:\n", err.output)
     
     if ctx["verbosity"]:
