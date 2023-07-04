@@ -348,7 +348,7 @@ def read_seed_genes(config):
 
 
 def read_use_physio(config):
-    """Read use_physio from config file. It expect a boolean.
+    """Read use_physio from config file. It expects a boolean.
 
     Parameters
     ----------
@@ -375,6 +375,34 @@ def read_use_physio(config):
 
     return config
 
+
+def read_activity_normalizer(config):
+    """Read activity_normalizer from config file. It expects a boolean.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+
+    try:
+        config["activity_normalizer"] = check_cli_arg_is_bool(config["activity_normalizer"])
+    except ValueError as err:
+        print(err)
+        print("activity_normalizer should be a boolean.")
+        raise
+
+    return config
 
 def read_path_based(config, key, data_path):
     """Read path based.
@@ -507,6 +535,7 @@ def read_disease_config(disease):
 
     config = read_seed_genes(config)
     config = read_use_physio(config)
+    config = read_activity_normalizer(config)
     config = read_path_based(config, key="gene_exp", data_path=env_parent_path)
     config = read_path_based(config, key="pathvals", data_path=env_parent_path)
     config = read_path_based(config, key="genes", data_path=env_parent_path)
@@ -571,13 +600,20 @@ def build_pathvals_fname(config):
         Filename.
 
     """
+    if config["activity_normalizer"]:
+        hipathia_str = f"hipathia-norm-{config['HIPATHIA_VERSION']}"
+    else:
+        hipathia_str = f"hipathia-{config['HIPATHIA_VERSION']}"
+
+    print(hipathia_str)
+
     return (
         "_".join(
             [
                 "pathvals",
                 f"gtex-{config['GTEX_VERSION']}",
                 f"edger-{config['EDGER_VERSION']}",
-                f"hipathia-{config['HIPATHIA_VERSION']}",
+                hipathia_str,
             ]
         )
         + ".feather"
