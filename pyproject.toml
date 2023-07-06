@@ -22,7 +22,6 @@ zenodo-client = "^0.2.0"
 pyarrow = "^8.0.0"
 shap = {git = "https://github.com/slundberg/shap", rev = "v0.41.0"}
 matplotlib = "~3.6"
-statsmodels = "^0.13"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
