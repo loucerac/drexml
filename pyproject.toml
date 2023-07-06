@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drexml"
-version = "0.9.12"
+version = "0.9.13"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 authors = [
     "Carlos Loucera <carlos.loucera@juntadeandalucia.es>",
@@ -8,6 +8,7 @@ authors = [
     "Maria Pena-Chilet <maria.pena.chilet.ext@juntadeandalucia.es.com>"
     ]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8, <3.11"
@@ -20,7 +21,7 @@ python-dotenv = "^0.20.0"
 click = "^8"
 zenodo-client = "^0.2.0"
 pyarrow = "^8.0.0"
-shap = {git = "https://github.com/slundberg/shap", rev = "v0.41.0"}
+shap = "0.41.0"
 matplotlib = "~3.6"
 
 [tool.poetry.dev-dependencies]
