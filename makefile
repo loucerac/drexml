@@ -17,7 +17,7 @@ endif
 	
 	PDM_NO_BINARY=shap pdm install
 	pdm run pytest
-	python -c 'import shap; shap.utils.assert_import("cext_gpu"); print(shap.__version__)'
+	python -c 'import shap; shap.utils.assert_import("cext_gpu")'
 format:
 	$(CONDA_ACTIVATE) ./.venv
 	autoflake  --remove-all-unused-imports --ignore-init-module-imports \
@@ -49,3 +49,11 @@ endif
 
 	PDM_NO_BINARY=shap pdm install	
 	pdm publish --repository testpypi
+	wait
+	sleep 60
+	pip install --no-cache-dir --no-binary=shap  -i https://test.pypi.org/simple/ \
+	drexml==0.11.2 --extra-index-url=https://pypi.org/simple
+ifeq ($(use_gpu),1)
+	python -c 'import shap; shap.utils.assert_import("cext_gpu")'
+endif
+	python -c 'import drexml'
