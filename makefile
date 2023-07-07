@@ -16,7 +16,7 @@ endif
 	$(CONDA_ACTIVATE) ./.venv
 	
 	PDM_NO_BINARY=shap pdm install
-	PDM_NO_BINARY=shap pdm run pytest
+	pdm run pytest
 	python -c 'import shap; shap.utils.assert_import("cext_gpu"); print(shap.__version__)'
 format:
 	$(CONDA_ACTIVATE) ./.venv
