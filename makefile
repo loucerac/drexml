@@ -34,3 +34,6 @@ endif
 cover:
 	$(CONDA_ACTIVATE) ./.venv
 	poetry run coverage run -m pytest tests/ -v && poetry run coverage report -m
+build:
+	rm -rf ./.venv
+	poetry publish --build -r test-pypi
