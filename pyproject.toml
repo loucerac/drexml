@@ -1,8 +1,8 @@
 [project]
 authors = [
-    {name = "Carlos Loucera", email = "carlos.loucera@juntadeandalucia.es"},
-    {name = "Marina Esteban-Medina", email = "marina.esteban@juntadeandalucia.es"},
-    {name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com"},
+    { name = "Carlos Loucera", email = "carlos.loucera@juntadeandalucia.es" },
+    { name = "Marina Esteban-Medina", email = "marina.esteban@juntadeandalucia.es" },
+    { name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com" },
 ]
 requires-python = ">=3.8,<3.11"
 dependencies = [
@@ -19,10 +19,21 @@ dependencies = [
     "matplotlib~=3.6",
 ]
 name = "drexml"
-version = "0.10.1"
+version = "0.11.0"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 readme = "README.md"
-license = {text = "MIT"}
+
+[project.license]
+text = "MIT"
+
+[project.group.dev.dependencies.coverage]
+extras = [
+    "toml",
+]
+version = "^7.2.7"
+
+[project.scripts]
+drexml = "drexml.cli.cli:main"
 
 [tool.pdm.dev-dependencies]
 dev = [
@@ -36,21 +47,6 @@ dev = [
     "flake8<5.0.0,>=4.0.1",
     "flake8-black<1.0.0,>=0.3.3",
 ]
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-
-[project.group.dev.dependencies.coverage]
-extras = [
-    "toml",
-]
-version = "^7.2.7"
-
-[project.scripts]
-drexml = "drexml.cli.cli:main"
-
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -68,8 +64,18 @@ profile = "black"
 [tool.black]
 line-length = 88
 
-
 [tool.coverage.run]
-omit = [".*", "*/site-packages/*", "./tests/*"]
+omit = [
+    ".*",
+    "*/site-packages/*",
+    "./tests/*",
+]
+
 [tool.coverage.report]
 fail_under = 100
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
