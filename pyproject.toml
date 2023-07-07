@@ -14,8 +14,8 @@ dependencies = [
     "shap==0.42.0",
     "matplotlib>=3.7.2",
     "python-dotenv>=1.0.0",
-    "zenodo-client<=2",
     "pyarrow>=12.0.1",
+    "zenodo-client<0.3",
 ]
 name = "drexml"
 version = "0.11.2"

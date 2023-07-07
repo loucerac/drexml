@@ -24,8 +24,8 @@ format:
 	--remove-unused-variables -i drexml/*.py
 	autoflake  --remove-all-unused-imports --ignore-init-module-imports \
 	--remove-unused-variables -i tests/*.py
-	poetry run isort drexml tests noxfile.py
-	poetry run black drexml tests noxfile.py
+	pdm run isort drexml tests noxfile.py
+	pdm run black drexml tests noxfile.py
 	(cd docs && poetry run make html)
 test:
 ifeq ($(use_gpu),1)
@@ -35,7 +35,7 @@ else
 endif
 cover:
 	$(CONDA_ACTIVATE) ./.venv
-	poetry run coverage run -m pytest tests/ -v && poetry run coverage report -m
+	pdm run coverage run -m pytest tests/ -v && poetry run coverage report -m
 build:
 	rm -rf dist
 	rm -rf ./.venv
@@ -45,5 +45,7 @@ ifeq ($(use_gpu),1)
 else
 	conda create -y -p ./.venv --override-channels -c conda-forge python=3.10
 endif
-	poetry install	
-	poetry publish --build -r test-pypi
+	$(CONDA_ACTIVATE) ./.venv
+
+	PDM_NO_BINARY=shap pdm install	
+	pdm publish --repository testpypi
