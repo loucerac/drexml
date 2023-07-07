@@ -25,5 +25,5 @@ def tests(session):
                 "--override-channels",
             )
 
-    session.install("pytest", ".")
+    session.run_always("poetry", "install", external=True)
     session.run("pytest")

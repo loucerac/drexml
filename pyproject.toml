@@ -21,7 +21,7 @@ python-dotenv = "^0.20.0"
 click = "^8"
 zenodo-client = "^0.2.0"
 pyarrow = "^8.0.0"
-shap = "0.41.0"
+shap = "0.42.0"
 matplotlib = "~3.6"
 
 [tool.poetry.dev-dependencies]
