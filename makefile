@@ -14,8 +14,10 @@ else
 	conda create -y -p ./.venv --override-channels -c conda-forge python=3.10
 endif
 	$(CONDA_ACTIVATE) ./.venv
-	poetry install
-	poetry run pytest
+	
+	PDM_NO_BINARY=shap pdm install
+	PDM_NO_BINARY=shap pdm run pytest
+	python -c 'import shap; shap.utils.assert_import("cext_gpu"); print(shap.__version__)'
 format:
 	$(CONDA_ACTIVATE) ./.venv
 	autoflake  --remove-all-unused-imports --ignore-init-module-imports \

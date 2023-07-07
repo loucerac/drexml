@@ -1,49 +1,56 @@
-[tool.poetry]
+[project]
+authors = [
+    {name = "Carlos Loucera", email = "carlos.loucera@juntadeandalucia.es"},
+    {name = "Marina Esteban-Medina", email = "marina.esteban@juntadeandalucia.es"},
+    {name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com"},
+]
+requires-python = ">=3.8,<3.11"
+dependencies = [
+    "scikit-learn==1.1.1",
+    "numpy<1.22",
+    "scipy<2.0.0,>=1.8.1",
+    "pandas<2.0.0,>=1.4.2",
+    "seaborn<1.0.0,>=0.11.2",
+    "python-dotenv<1.0.0,>=0.20.0",
+    "click<9,>=8",
+    "zenodo-client<1.0.0,>=0.2.0",
+    "pyarrow<9.0.0,>=8.0.0",
+    "shap==0.42.0",
+    "matplotlib~=3.6",
+]
 name = "drexml"
 version = "0.10.1"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
-authors = [
-    "Carlos Loucera <carlos.loucera@juntadeandalucia.es>",
-    "Marina Esteban-Medina <marina.esteban@juntadeandalucia.es>",
-    "Maria Pena-Chilet <maria.pena.chilet.ext@juntadeandalucia.es.com>"
-    ]
-license = "MIT"
 readme = "README.md"
+license = {text = "MIT"}
 
-[tool.poetry.dependencies]
-python = ">=3.8, <3.11"
-scikit-learn = "1.1.1"
-numpy = "<1.22"
-scipy = "^1.8.1"
-pandas = "^1.4.2"
-seaborn = "^0.11.2"
-python-dotenv = "^0.20.0"
-click = "^8"
-zenodo-client = "^0.2.0"
-pyarrow = "^8.0.0"
-shap = "0.42.0"
-matplotlib = "~3.6"
-
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-isort = "^5.10.1"
-pylint = "^2.14.0"
-pytest = "^7.1.2"
-Sphinx = "^5.0.1"
-sphinx-click = "^4.1.0"
-sphinx-rtd-theme = "^1.0.0"
-flake8 = "^4.0.1"
-flake8-black = "^0.3.3"
-
-[tool.poetry.group.dev.dependencies]
-coverage = {extras = ["toml"], version = "^7.2.7"}
+[tool.pdm.dev-dependencies]
+dev = [
+    "black<23.0.0,>=22.3.0",
+    "isort<6.0.0,>=5.10.1",
+    "pylint<3.0.0,>=2.14.0",
+    "pytest<8.0.0,>=7.1.2",
+    "Sphinx<6.0.0,>=5.0.1",
+    "sphinx-click<5.0.0,>=4.1.0",
+    "sphinx-rtd-theme<2.0.0,>=1.0.0",
+    "flake8<5.0.0,>=4.0.1",
+    "flake8-black<1.0.0,>=0.3.3",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
-[tool.poetry.scripts]
-drexml = 'drexml.cli.cli:main'
+
+[project.group.dev.dependencies.coverage]
+extras = [
+    "toml",
+]
+version = "^7.2.7"
+
+[project.scripts]
+drexml = "drexml.cli.cli:main"
+
 
 [tool.pytest.ini_options]
 minversion = "6.0"
