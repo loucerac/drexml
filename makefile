@@ -35,6 +35,7 @@ cover:
 	$(CONDA_ACTIVATE) ./.venv
 	poetry run coverage run -m pytest tests/ -v && poetry run coverage report -m
 build:
+	rm -rf dist
 	rm -rf ./.venv
 ifeq ($(use_gpu),1)
 	conda create -y -p ./.venv --override-channels -c "nvidia/label/cuda-11.8.0" \
