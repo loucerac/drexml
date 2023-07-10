@@ -10,25 +10,25 @@ To install the `drexml` package use the following:
 
 ```
 conda create -n drexml python=3.10
-conda run -n drexml pip install git+https://github.com/loucerac/drexml.git@master
+conda activate drexml
+pip install drexml
 ```
 
-If a CUDA~11 compatible device is available use:
+If a CUDA~10.2/11.x (< 12) compatible device is available use:
 
 ```
 conda create -n drexml --override-channels -c "nvidia/label/cuda-11.8.0" -c conda-forge cuda cuda-nvcc cuda-toolkit gxx=11.2 python=3.10
-conda run -n drexml pip install git+https://github.com/loucerac/drexml.git@master
+conda activate drexml
+pip install --no-cache-dir --no-binary=shap drexml
 ```
 
 To install `drexml` in an existing environment, activate it and use:
 
 ```
-pip install git+https://github.com/loucerac/drexml.git@master
+pip install drexml
 ```
 
 Note that by default the `setup` will try to compile the `CUDA` modules, if not possible it will use the `CPU` modules.
-
-To install the development version use `@develop` instead of `@master`.
 
 ## Run
 
@@ -100,8 +100,9 @@ The recommended setup is:
 
 - setup `pipx`
 - setup `miniforge`
-- use `pipx` to install `poetry`
-- use `pipx` to install `nox` and inject `nox-poetry` into `nox`
+- use `pipx` to install `pdm`
+- use `pipx` to inject pd-bump into `pdm`
+- use `pipx` to install `nox`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
 
 ## Documentation
