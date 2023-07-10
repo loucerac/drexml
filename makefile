@@ -35,7 +35,7 @@ else
 endif
 cover:
 	$(CONDA_ACTIVATE) ./.venv
-	pdm run coverage run -m pytest tests/ -v && poetry run coverage report -m
+	pdm run coverage run -m pytest tests/ -v && pdm run coverage report -m
 build:
 	rm -rf dist
 	rm -rf ./.venv
