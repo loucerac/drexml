@@ -26,7 +26,7 @@ format:
 	--remove-unused-variables -i tests/*.py
 	pdm run isort drexml tests noxfile.py
 	pdm run black drexml tests noxfile.py
-	(cd docs && poetry run make html)
+	(cd docs && pdm run make html)
 test:
 ifeq ($(use_gpu),1)
 	nox -- "gpu"
