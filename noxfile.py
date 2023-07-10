@@ -24,13 +24,9 @@ def tests(session):
                 "--override-channels",
             )
 
-
-            pdm_env = {
-                "PDM_IGNORE_SAVED_PYTHON" : "1",
-                    "PDM_NO_BINARY" : "shap"
-                }
+            pdm_env = {"PDM_IGNORE_SAVED_PYTHON": "1", "PDM_NO_BINARY": "shap"}
         else:
-            pdm_env = {"PDM_IGNORE_SAVED_PYTHON" : "1"}
+            pdm_env = {"PDM_IGNORE_SAVED_PYTHON": "1"}
 
     session.run("pdm", "install", "-vd", external=True, env=pdm_env)
     session.run("pytest")
