@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Test suite.
+Nox test suite.
 """
 
 import nox
-from nox_poetry import session
 
 
-@session(venv_backend="conda")
+@nox.session(venv_backend="mamba")
 @nox.parametrize("python", ["3.10", "3.9", "3.8"])
 def tests(session):
     """Test with conda."""
@@ -25,5 +24,13 @@ def tests(session):
                 "--override-channels",
             )
 
-    session.run_always("poetry", "install", external=True)
+
+            pdm_env = {
+                "PDM_IGNORE_SAVED_PYTHON" : "1",
+                    "PDM_NO_BINARY" : "shap"
+                }
+        else:
+            pdm_env = {"PDM_IGNORE_SAVED_PYTHON" : "1"}
+
+    session.run("pdm", "install", "-vd", external=True, env=pdm_env)
     session.run("pytest")
