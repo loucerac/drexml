@@ -15,6 +15,7 @@ DEFAULT_DICT = {
     "circuits_zenodo": False,
     "genes": None,
     "genes_zenodo": False,
+    "activity_normalizer": "false",
     "circuits_column": "in_disease",
     "genes_column": "drugbank_approved_targets",
     "GTEX_VERSION": "v8",

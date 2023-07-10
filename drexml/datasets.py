@@ -52,13 +52,12 @@ def fetch_file(key, env, version="latest"):
             try:
                 zenodo = Zenodo()
                 path = zenodo.download_latest(RECORD_ID, env[key], force=False)
-            except (ConnectTimeout) as err:
+            except ConnectTimeout as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(
                     ".data", "zenodo", RECORD_ID, "20230612"
                 )
     else:
-
         path = env[key]
 
     print(key, path)

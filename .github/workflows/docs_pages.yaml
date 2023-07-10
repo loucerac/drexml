@@ -1,42 +1,44 @@
 name: Docs2Pages
 on:
-  pull_request:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 permissions:
   contents: write
 jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
-      with:
-        fetch-depth: 0
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install and configure Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
-    - name: Install package
-      run: poetry install
-    - name: Build documentation
-      run: |
-        mkdir gh-pages
-        touch gh-pages/.nojekyll
-        cd docs/
-        poetry run make html
-        cp -r build/* ../gh-pages/        
-        cd ../gh-pages/ 
-        cp -r html/* .
-        rm -rf html/
-    - name: Deploy documentation
-      uses: JamesIves/github-pages-deploy-action@4.1.4
-      with:
-        branch: gh-pages
-        folder: gh-pages
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - uses: pdm-project/setup-pdm@v3
+        with:
+          prerelease: false
+          enable-pep582: false
+          allow-python-prereleases: false
+
+      - name: Install package
+        run: pdm install
+
+      - name: Build documentation
+        run: |
+          mkdir gh-pages
+          touch gh-pages/.nojekyll
+          cd docs/
+          pdm run make html
+          cp -r build/* ../gh-pages/        
+          cd ../gh-pages/ 
+          cp -r html/* .
+          rm -rf html/
+      - name: Deploy documentation
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: gh-pages

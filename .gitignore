@@ -289,3 +289,4 @@ scripts/automorf.ipynb
 debug.ipynb
 
 dask-worker-space/
+.pdm-python
