@@ -1,8 +1,9 @@
 name: Docs2Pages
 on:
-  pull_request:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 permissions:
   contents: write
 jobs:
@@ -31,7 +32,7 @@ jobs:
           mkdir gh-pages
           touch gh-pages/.nojekyll
           cd docs/
-          poetry run make html
+          pdm run make html
           cp -r build/* ../gh-pages/        
           cd ../gh-pages/ 
           cp -r html/* .
