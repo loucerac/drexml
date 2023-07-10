@@ -99,7 +99,6 @@ if __name__ == "__main__":
         print(f"{add=}")
 
         def runner(model, bkg, new, check_add, use_gpu):
-
             gpu_id = queue.get()
             if use_gpu:
                 explainer = shap.GPUTreeExplainer(model, bkg)
