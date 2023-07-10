@@ -6,7 +6,7 @@ Nox test suite.
 import nox
 
 
-@nox.session(venv_backend="mamba")
+@nox.session(venv_backend="conda")
 @nox.parametrize("python", ["3.10", "3.9", "3.8"])
 def tests(session):
     """Test with conda."""
