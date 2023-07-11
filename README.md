@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439)
+[![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439) [![PyPI version](https://badge.fury.io/py/drexml.svg)](https://badge.fury.io/py/drexml)
 
 # Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction
 
