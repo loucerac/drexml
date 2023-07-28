@@ -14,7 +14,7 @@ def process_data(data_folder, stability_threshold = 0.6):
     stability_threshold (float): The stability threshold to be set (we recommend using a value between 0.4-0.7)
  
     Returns:
-    The final dataframe is saved as a .tsv file.
+    None. The final dataframe is saved as a .tsv file.
     """
     # Read the .tsv files into a DataFrames
     shap_values = pd.read_csv(f"{data_folder}/shap_summary_symbol.tsv", sep='\t', index_col=0)
