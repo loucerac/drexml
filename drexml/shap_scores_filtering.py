@@ -20,14 +20,14 @@ def process_data(data_folder, stability_threshold=0.6):
     """
 
     # Read the .tsv files into a DataFrames (circuits X genes)
-    shap_values = pd.read_csv(f"{data_folder}/shap_summary.tsv", sep="\t", index_col=0)
+    shap_values = pd.read_csv(f"{data_folder}/shap_summary_symbol.tsv", sep="\t", index_col=0)
     shap_selection = pd.read_csv(
-        f"{data_folder}/shap_selection.tsv", sep="\t", index_col=0
+        f"{data_folder}/shap_selection_symbol.tsv", sep="\t", index_col=0
     )
 
     # Read the .tsv files into a DataFrames (circuits X metrics)
     stability = pd.read_csv(
-        f"{data_folder}/stability_results.tsv", sep="\t", index_col=0
+        f"{data_folder}/stability_results_symbol.tsv", sep="\t", index_col=0
     )
 
     shap_selection = shap_selection.loc[:, shap_selection.any()]
