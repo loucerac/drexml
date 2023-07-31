@@ -10,8 +10,8 @@ import urllib.request
 import dotenv
 import numpy as np
 import pandas as pd
-from scipy import stats
 from statsmodels.stats.multitest import multipletests
+
 
 def fdr(pvalues):
     """
@@ -44,28 +44,30 @@ def main(db_path, atc_path):
 
     project_root = pathlib.Path(dotenv.find_dotenv()).absolute().parent
     data_folder = project_root.joinpath("data")
-    raw_folder = data_folder.joinpath("raw")
+    data_folder.joinpath("raw")
     final_folder = data_folder.joinpath("final")
     results_folder = project_root.joinpath("results")
     tables_folder = results_folder.joinpath("tables")
     tables_folder.mkdir(parents=True, exist_ok=True)
 
     atc_url = "https://raw.githubusercontent.com/fabkury/atcd/master/WHO%20ATC-DDD%202021-12-03.csv"
-    
+
     # If ATC codes file doesn't exist, download it from the internet
     if not atc_path.exists():
-        with urllib.request.urlopen(atc_url) as response, open(atc_path, "wb") as out_file:
+        with urllib.request.urlopen(atc_url) as response, open(
+            atc_path, "wb"
+        ) as out_file:
             shutil.copyfileobj(response, out_file)
 
     atc_code_name = pd.read_csv(atc_path, usecols=["atc_code", "atc_name"])
 
     # Read data files
     shap_selection_df = pd.read_csv(
-        results_folder.joinpath("ml", "shap_selection_symbol.tsv"), sep="\t", index_col=0
+        results_folder.joinpath("ml", "shap_selection_symbol.tsv"),
+        sep="\t",
+        index_col=0,
     )
-    drugbank_df = pd.read_csv(
-        final_folder.joinpath(db_path), sep="\t"
-    ).assign(
+    drugbank_df = pd.read_csv(final_folder.joinpath(db_path), sep="\t").assign(
         is_selected=lambda x: x.symbol_id.isin(
             shap_selection_df.columns[shap_selection_df.any()]
         )
@@ -73,7 +75,6 @@ def main(db_path, atc_path):
 
     atc_level_to_len = {1: 1, 2: 3, 3: 4, 4: 5}
 
-    results = []
     ora_min_len = 3
 
     # Apply over-representation analysis on selected drugs at different ATC levels
@@ -101,8 +102,6 @@ def main(db_path, atc_path):
         background = tmp_df.drugbank_id.unique()
         drugs_selected = tmp_df.drugbank_id[tmp_df.is_selected].unique()
 
-        ora_dict = {}
-
         # Apply ORA
         for atc_code in atc_dict.keys():
             drug_list_in_atc = np.unique(atc_dict[atc_code])
@@ -110,8 +109,8 @@ def main(db_path, atc_path):
             if n_drug_list_in_atc < ora_min_len:
                 print(f"Ignore ATC codes with less than {ora_min_len} drugs")
             else:
-                selected_drugs_in_atc = np.intersect1d(drugs_selected, drug_list_in_atc)
-                selected_drugs_notin_atc = np.setdiff1d(drugs_selected, drug_list_in_atc)
+                np.intersect1d(drugs_selected, drug_list_in_atc)
+                np.setdiff1d(drugs_selected, drug_list_in_atc)
 
                 drugs_in_atc_not_selected = np.intersect1d(
                     drug_list_in_atc, np.setdiff1d(background, drugs_selected)
@@ -119,5 +118,3 @@ def main(db_path, atc_path):
                 drugs_notin_atc_not_selected = np.setdiff1d(
                     np.setdiff1d(background, drugs_selected), drug_list_in_atc
                 )
-
-                contingency_table = np
