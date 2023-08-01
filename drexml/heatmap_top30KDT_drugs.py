@@ -8,12 +8,12 @@ import pandas as pd
 import seaborn as sns
 
 
-def create_heatmap_drugsCircuit_top10KDTs(
+def create_heatmap_drugsCircuit_top30KDTs(
     data_folder, filtered_file_name, assets_folder
 ):
     """
     This function reads the filtered matrix of shap scores (columns=drug-targets, rows = disease-circuits) and the drug-target-effects data,
-    filters the top 10 best-scored drug-targets from SHAP and creates a heatmap with the drugs from the top 10 scored targets and the circuits.
+    filters the top 30 best-scored drug-targets from SHAP and creates a heatmap with the drugs from the top 10 scored targets and the circuits.
     If the number of circuits is greater than 50, the circuits are grouped by their pathways (the first part of the circuit name before ": ").
 
     Args:
@@ -32,7 +32,7 @@ def create_heatmap_drugsCircuit_top10KDTs(
     mean_scores = df.abs().mean()
 
     # Get the top 10 genes by mean score
-    top_10_genes = mean_scores.nlargest(10)
+    top_10_genes = mean_scores.nlargest(30)
 
     # Read the drugs data
     df_drugs = pd.read_csv(
