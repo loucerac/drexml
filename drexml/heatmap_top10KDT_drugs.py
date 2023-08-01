@@ -93,7 +93,7 @@ def create_heatmap_drugsCircuit_top10KDTs(
         print(
             "The number of circuits is less than or equal to 50. The heatmap will be created using circuits."
         )
-        plt.figure(figsize=(25, 10))
+        plt.figure(figsize=(40,20))
         sns.set(font_scale=2)  # Adjust the font size if necessary
         plt.ylabel("Circuit")
 
@@ -104,4 +104,5 @@ def create_heatmap_drugsCircuit_top10KDTs(
     )
     plt.xlabel("Drug")
     plt.savefig(f"{data_folder}/heatmap_top10KDTdrugs_circuit.pdf", dpi=300)
+    plt.tight_layout()
     plt.show()
