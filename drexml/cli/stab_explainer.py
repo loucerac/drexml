@@ -165,7 +165,7 @@ if __name__ == "__main__":
         print(f"Shap summary results saved to: {shap_summary_fpath}")
 
         shap_summary_renamed = convert_names(
-            shap_relevances.set_index(shap_relevances.columns[0]),
+            shap_relevances,
             ["circuits", "genes"],
             axis=[0, 1],
         )
@@ -184,7 +184,7 @@ if __name__ == "__main__":
         print(f"Shap selection results saved to: {fs_fpath}")
 
         fs_renamed = convert_names(
-            filt_i.set_index(filt_i.columns[0]), ["circuits", "genes"], axis=[0, 1]
+            filt_i, ["circuits", "genes"], axis=[0, 1]
         )
         fs_renamed.to_csv(
             fs_fpath.absolute().parent.joinpath(f"{fs_fpath.stem}_symbol.tsv"),
