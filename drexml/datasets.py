@@ -16,7 +16,7 @@ RECORD_ID = "6020480"
 
 
 def load_disgenet():
-    """Download if necessary and load the Disgenet curated list of gene-disease 
+    """Download if necessary and load the Disgenet curated list of gene-disease
     associations.
 
     Returns
@@ -54,8 +54,8 @@ def load_disgenet():
 
 
 def get_gene_disease_associations(disease_id):
-    """Retrieve the list of genes associated to a disese according to 
-    the Disgenet curated list of gene-disease associations.
+    """Retrieve the list of genes associated to a disese according to the Disgenet
+    curated list of gene-disease associations.
 
     Parameters
     ----------
@@ -66,7 +66,6 @@ def get_gene_disease_associations(disease_id):
     -------
     list
         List of gene IDs.
-
     """
     disgenet = load_disgenet()
     return disgenet.loc[disgenet == disease_id].entrez_id.astype(str).unique().tolist()
