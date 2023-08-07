@@ -72,6 +72,14 @@ def get_gene_disease_associations(disease_id):
 
 
 def load_physiological_circuits():
+    """Load the list of physiological circuits.
+
+    Returns
+    -------
+    list
+        List of physiological circuit IDs.
+
+    """
     fpath = get_resource_path("circuit_names.tsv.gz")
     circuit_names = pd.read_csv(fpath, sep="\t").set_index("circuit_id")
     circuit_names.index = circuit_names.index.str.replace("-", ".").str.replace(
