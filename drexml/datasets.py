@@ -16,6 +16,15 @@ RECORD_ID = "6020480"
 
 
 def load_disgenet():
+    """Download if necessary and load the Disgenet curated list of gene-disease 
+    associations.
+
+    Returns
+    -------
+    pd.DataFrame
+        Disgenet curated dataset of gene-disease associations.
+    """
+
     url = "/".join(
         [
             "https:/",
