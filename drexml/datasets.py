@@ -53,6 +53,25 @@ def load_disgenet():
     return disgenet
 
 
+def get_gene_disease_associations(disease_id):
+    """Retrieve the list of genes associated to a disese according to 
+    the Disgenet curated list of gene-disease associations.
+
+    Parameters
+    ----------
+    disease_id : str
+        Disease ID.
+
+    Returns
+    -------
+    list
+        List of gene IDs.
+
+    """
+    disgenet = load_disgenet()
+    return disgenet.loc[disgenet == disease_id].entrez_id.astype(str).unique().tolist()
+
+
 def load_physiological_circuits():
     fpath = get_resource_path("circuit_names.tsv.gz")
     circuit_names = pd.read_csv(fpath, sep="\t").set_index("circuit_id")
