@@ -8,10 +8,40 @@ import pandas as pd
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
+import pystow
 
 from drexml.utils import get_resource_path, read_disease_config
 
 RECORD_ID = "6020480"
+
+
+def load_disgenet():
+    url = "/".join(
+        [
+            "https:/",
+            "www.disgenet.org",
+            "static",
+            "disgenet_ap1",
+            "files",
+            "downloads",
+            "curated_gene_disease_associations.tsv.gz",
+        ]
+    )
+
+    disgenet: pd.DataFrame = pystow.ensure_csv(
+        "drexml", "datasets", url=url, read_csv_kwargs={"sep": "\t"}
+    )
+
+    disgenet = disgenet.rename(
+        columns={
+            "geneId": "entrez_id",
+            "diseaseId": "disease_id",
+            "diseaseName": "disease_name",
+            "score": "dga_score",
+        }
+    ).loc[:, ["disease_name", "disease_id", "entrez_id", "dga_score"]]
+
+    return disgenet
 
 
 def load_physiological_circuits():
