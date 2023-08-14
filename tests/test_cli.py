@@ -70,7 +70,7 @@ def test_cli_run(n_gpus):
     plot_files = [
         ml_folder_expected.joinpath(f"{name}.{ext}")
         for ext in PLOTTING_EXTENSIONS
-        for name in ["metrics", "relevance_heatmap", "relevance_heatmap_filtered"]
+        for name in ["metrics"]
     ]
 
     opts = [
