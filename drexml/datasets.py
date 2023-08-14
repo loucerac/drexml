@@ -5,10 +5,10 @@ IO module for DREXML.
 import pathlib
 
 import pandas as pd
+import pystow
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
-import pystow
 
 from drexml.utils import get_resource_path, read_disease_config
 
