@@ -5,25 +5,33 @@ Unit testing for utils module.
 import pathlib
 import tempfile
 
-from drexml.plotting import plot_metrics
+from drexml.plotting import RepurposingResult
 
 from .this_utils import THIS_DIR
 
 PLOTTING_EXTENSIONS = ["pdf", "png"]
 
 
+def setup_results():
+    """
+    Setup results for testing.
+    """
+    stab_path = pathlib.Path(THIS_DIR, "stability_results.tsv")
+    score_path = pathlib.Path(THIS_DIR, "shap_summary.tsv")
+    sel_path = pathlib.Path(THIS_DIR, "shap_selection.tsv")
+
+    return RepurposingResult(sel_mat=sel_path, score_mat=score_path, stab_mat=stab_path)
+
+
 def test_plot_metrics():
     """
     Test plotting metrics.
     """
-    fpath = pathlib.Path(THIS_DIR, "stability_results.tsv")
     tmp_folder = pathlib.Path(tempfile.mkdtemp())
+    results = setup_results()
 
-    plot_files = [
-        tmp_folder.joinpath(f"{x.stem}.{ext}")
-        for ext in PLOTTING_EXTENSIONS
-        for x in [fpath]
-    ]
+    results.plot_metrics(output_folder=tmp_folder)
 
-    plot_metrics(input_path=fpath, output_folder=tmp_folder)
+    plot_files = [tmp_folder.joinpath(f"metrics.{ext}") for ext in PLOTTING_EXTENSIONS]
+
     assert all([x.exists() for x in plot_files])

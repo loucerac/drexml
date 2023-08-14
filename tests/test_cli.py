@@ -68,15 +68,17 @@ def test_cli_run(n_gpus):
     assert all([x.exists() for x in renamed_files])
 
     plot_files = [
-        ml_folder_expected.joinpath(f"{x.stem}_symbol.{ext}")
+        ml_folder_expected.joinpath(f"{name}.{ext}")
         for ext in PLOTTING_EXTENSIONS
-        for x in exist_files
-        if "stability" in x.stem
+        for name in ["metrics", "relevance_heatmap", "relevance_heatmap_filtered"]
     ]
 
     opts = [
         "plot",
+        ml_folder_expected.joinpath("shap_selection_symbol.tsv").as_posix(),
+        ml_folder_expected.joinpath("shap_summary_symbol.tsv").as_posix(),
         ml_folder_expected.joinpath("stability_results_symbol.tsv").as_posix(),
+        ml_folder_expected.as_posix(),
     ]
     click.echo(" ".join(opts))
     runner = CliRunner()
