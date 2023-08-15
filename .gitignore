@@ -291,4 +291,4 @@ debug.ipynb
 
 dask-worker-space/
 .pdm-python
-examples/fanconi_anemia/tmp/
+examples/fanconi_anemia/results/tmp/
