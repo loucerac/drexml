@@ -20,7 +20,9 @@ def process_data(data_folder, stability_threshold=0.6):
     """
 
     # Read the .tsv files into a DataFrames (circuits X genes)
-    shap_values = pd.read_csv(f"{data_folder}/shap_summary_symbol.tsv", sep="\t", index_col=0)
+    shap_values = pd.read_csv(
+        f"{data_folder}/shap_summary_symbol.tsv", sep="\t", index_col=0
+    )
     shap_selection = pd.read_csv(
         f"{data_folder}/shap_selection_symbol.tsv", sep="\t", index_col=0
     )
