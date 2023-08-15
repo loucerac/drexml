@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Reference &mdash; drexml 0.11.7+editable documentation</title>
+  <title>CLI Reference &mdash; drexml 0.11.8+editable documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -200,10 +200,16 @@
 <section id="cli-plot">
 <h4>plot<a class="headerlink" href="#cli-plot" title="Permalink to this heading"></a></h4>
 <p>Plot the stability results</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>STAB_PATH
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cli<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>SEL_PATH<span class="w"> </span>SCORE_PATH<span class="w"> </span>STABILITY_PATH<span class="w"> </span>OUTPUT_FOLDER
 </pre></div>
 </div>
 <p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-gene">
+<span class="sig-name descname"><span class="pre">--gene</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;gene&gt;</span></span><a class="headerlink" href="#cmdoption-cli-plot-gene" title="Permalink to this definition"></a></dt>
+<dd><p>Gene (KDT) Symbol to plot its repurposing profile.</p>
+</dd></dl>
+
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-cli-plot-version">
 <span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-version" title="Permalink to this definition"></a></dt>
@@ -212,8 +218,26 @@
 
 <p class="rubric">Arguments</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-STAB_PATH">
-<span id="cmdoption-cli-plot-arg-stab-path"></span><span class="sig-name descname"><span class="pre">STAB_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-STAB_PATH" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-SEL_PATH">
+<span id="cmdoption-cli-plot-arg-sel-path"></span><span class="sig-name descname"><span class="pre">SEL_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-SEL_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-SCORE_PATH">
+<span id="cmdoption-cli-plot-arg-score-path"></span><span class="sig-name descname"><span class="pre">SCORE_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-SCORE_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-STABILITY_PATH">
+<span id="cmdoption-cli-plot-arg-stability-path"></span><span class="sig-name descname"><span class="pre">STABILITY_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-STABILITY_PATH" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-cli-plot-arg-OUTPUT_FOLDER">
+<span id="cmdoption-cli-plot-arg-output-folder"></span><span class="sig-name descname"><span class="pre">OUTPUT_FOLDER</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-cli-plot-arg-OUTPUT_FOLDER" title="Permalink to this definition"></a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 

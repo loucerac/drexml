@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; drexml 0.11.7+editable documentation</title>
+  <title>Index &mdash; drexml 0.11.8+editable documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -88,6 +88,7 @@
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -118,6 +119,13 @@
         <li><a href="cli-reference.html#cmdoption-cli-run-debug">cli-run command line option</a>
 </li>
         <li><a href="cli-reference.html#cmdoption-cli-stability-debug">cli-stability command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --gene
+
+      <ul>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-gene">cli-plot command line option</a>
 </li>
       </ul></li>
       <li>
@@ -160,6 +168,8 @@
         <li><a href="cli-reference.html#cmdoption-cli-stability-n-iters">cli-stability command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --no-add
 
@@ -169,8 +179,6 @@
         <li><a href="cli-reference.html#cmdoption-cli-run-add">cli-run command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --no-debug
 
@@ -318,11 +326,21 @@
     cli-plot command line option
 
       <ul>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-gene">--gene</a>
+</li>
         <li><a href="cli-reference.html#cmdoption-cli-plot-version">--version</a>
 </li>
-        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-STAB_PATH">STAB_PATH</a>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-OUTPUT_FOLDER">OUTPUT_FOLDER</a>
+</li>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-SCORE_PATH">SCORE_PATH</a>
+</li>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-SEL_PATH">SEL_PATH</a>
+</li>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-STABILITY_PATH">STABILITY_PATH</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli-run command line option
 
@@ -350,8 +368,6 @@
         <li><a href="cli-reference.html#cmdoption-cli-run-arg-DISEASE_PATH">DISEASE_PATH</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     cli-stability command line option
 
@@ -474,6 +490,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#drexml.datasets.fetch_file">fetch_file() (in module drexml.datasets)</a>
 </li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.filter_scores">filter_scores() (drexml.plotting.RepurposingResult method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -487,6 +505,8 @@
       <li><a href="api_reference.html#drexml.datasets.get_data">get_data() (in module drexml.datasets)</a>
 </li>
       <li><a href="api_reference.html#drexml.datasets.get_disease_data">get_disease_data() (in module drexml.datasets)</a>
+</li>
+      <li><a href="api_reference.html#drexml.datasets.get_gda">get_gda() (in module drexml.datasets)</a>
 </li>
       <li><a href="api_reference.html#drexml.datasets.get_index_name_options">get_index_name_options() (in module drexml.datasets)</a>
 </li>
@@ -506,6 +526,8 @@
 </li>
       <li><a href="api_reference.html#drexml.utils.get_stab">get_stab() (in module drexml.utils)</a>
 </li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.get_stable_circuits">get_stable_circuits() (drexml.plotting.RepurposingResult method)</a>
+</li>
       <li><a href="api_reference.html#drexml.utils.get_version">get_version() (in module drexml.utils)</a>
 </li>
   </ul></td>
@@ -516,8 +538,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#drexml.datasets.load_df">load_df() (in module drexml.datasets)</a>
 </li>
+      <li><a href="api_reference.html#drexml.datasets.load_disgenet">load_disgenet() (in module drexml.datasets)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#drexml.datasets.load_physiological_circuits">load_physiological_circuits() (in module drexml.datasets)</a>
+</li>
       <li><a href="api_reference.html#drexml.pystab.NogueiraTest.lower">lower (drexml.pystab.NogueiraTest attribute)</a>
 </li>
   </ul></td>
@@ -560,17 +586,34 @@
   </ul></td>
 </tr></table>
 
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    OUTPUT_FOLDER
+
+      <ul>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-OUTPUT_FOLDER">cli-plot command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#drexml.utils.parse_stab">parse_stab() (in module drexml.utils)</a>
 </li>
-      <li><a href="api_reference.html#drexml.plotting.plot_metrics">plot_metrics() (in module drexml.plotting)</a>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.plot_gene_profile">plot_gene_profile() (drexml.plotting.RepurposingResult method)</a>
 </li>
-      <li><a href="api_reference.html#drexml.datasets.preprocess_activities">preprocess_activities() (in module drexml.datasets)</a>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.plot_metrics">plot_metrics() (drexml.plotting.RepurposingResult method)</a>
+</li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.plot_relevance_heatmap">plot_relevance_heatmap() (drexml.plotting.RepurposingResult method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#drexml.datasets.preprocess_activities">preprocess_activities() (in module drexml.datasets)</a>
+</li>
       <li><a href="api_reference.html#drexml.datasets.preprocess_frame">preprocess_frame() (in module drexml.datasets)</a>
 </li>
       <li><a href="api_reference.html#drexml.datasets.preprocess_genes">preprocess_genes() (in module drexml.datasets)</a>
@@ -591,6 +634,8 @@
 </li>
       <li><a href="api_reference.html#drexml.utils.read_disease_config">read_disease_config() (in module drexml.utils)</a>
 </li>
+      <li><a href="api_reference.html#drexml.utils.read_disease_id">read_disease_id() (in module drexml.utils)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#drexml.utils.read_path_based">read_path_based() (in module drexml.utils)</a>
@@ -601,17 +646,41 @@
 </li>
       <li><a href="api_reference.html#drexml.utils.read_version_based">read_version_based() (in module drexml.utils)</a>
 </li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult">RepurposingResult (class in drexml.plotting)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.score_mat">score_mat (drexml.plotting.RepurposingResult attribute)</a>
+</li>
       <li>
-    STAB_PATH
+    SCORE_PATH
 
       <ul>
-        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-STAB_PATH">cli-plot command line option</a>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-SCORE_PATH">cli-plot command line option</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.sel_mat">sel_mat (drexml.plotting.RepurposingResult attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    SEL_PATH
+
+      <ul>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-SEL_PATH">cli-plot command line option</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference.html#drexml.plotting.RepurposingResult.stab_mat">stab_mat (drexml.plotting.RepurposingResult attribute)</a>
+</li>
+      <li>
+    STABILITY_PATH
+
+      <ul>
+        <li><a href="cli-reference.html#cmdoption-cli-plot-arg-STABILITY_PATH">cli-plot command line option</a>
 </li>
       </ul></li>
   </ul></td>
