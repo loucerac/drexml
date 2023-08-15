@@ -78,7 +78,9 @@ class RepurposingResult:
 
         return scores_filt
 
-    def plot_relevance_heatmap(self, remove_unstable=True, output_folder=None): # pragma: no cover
+    def plot_relevance_heatmap(
+        self, remove_unstable=True, output_folder=None
+    ):  # pragma: no cover
         """
         Plot the relevance heatmap of the scores.
 
@@ -173,7 +175,7 @@ class RepurposingResult:
                 output_folder.joinpath(f"{fname}.png"), dpi=300, bbox_inches="tight"
             )
             plt.savefig(output_folder.joinpath(f"{fname}.pdf"), bbox_inches="tight")
-        else: # pragma: no cover
+        else:  # pragma: no cover
             plt.show()
 
     def plot_metrics(self, width=2.735, output_folder=None):
@@ -252,5 +254,5 @@ class RepurposingResult:
             )
             plt.savefig(output_folder.joinpath(f"{fname}.pdf"), bbox_inches="tight")
 
-        else: # pragma: no cover
+        else:  # pragma: no cover
             plt.show()

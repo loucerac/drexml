@@ -49,7 +49,9 @@ def test_plot_gene():
     this_gene = "3066"
     results.plot_gene_profile(output_folder=tmp_folder, gene=this_gene)
 
-    plot_files = [tmp_folder.joinpath(f"profile_{this_gene}.{ext}") for ext in PLOTTING_EXTENSIONS]
+    plot_files = [
+        tmp_folder.joinpath(f"profile_{this_gene}.{ext}") for ext in PLOTTING_EXTENSIONS
+    ]
 
     assert all([x.exists() for x in plot_files])
 
@@ -59,7 +61,7 @@ def test_plot_gene_fails():
     """
     Test that plot raises an error when a gene is not part of the relevance matrix.
     """
-    
+
     tmp_folder = pathlib.Path(tempfile.mkdtemp())
     results = setup_results()
 
