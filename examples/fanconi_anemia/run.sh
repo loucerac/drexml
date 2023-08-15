@@ -13,3 +13,16 @@ ${CONDA_RUN} drexml run --n-gpus 0 experiment.env > results/drexml.out 2> result
 rm -rf results/tmp
 
 # plot
+
+${CONDA_RUN} drexml plot \
+ results/shap_selection_symbol.tsv \
+ results/shap_summary_symbol.tsv \
+ results/stability_results_symbol.tsv \
+ results/
+
+${CONDA_RUN} drexml plot \
+ results/shap_selection_symbol.tsv \
+ results/shap_summary_symbol.tsv \
+ results/stability_results_symbol.tsv \
+ results/ \
+ --gene EGFRlot
