@@ -332,7 +332,8 @@ def plot(ctx, sel_path, score_path, stability_path, output_folder, gene):
         sel_mat=sel_path, score_mat=score_path, stab_mat=stability_path
     )
 
-    if gene:
+    # Tests already covered in plotting.
+    if gene: # pragma: no cover
         try:
             results.plot_gene_profile(gene=gene, output_folder=output_folder)
         except KeyError as kerr:
