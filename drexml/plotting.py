@@ -141,13 +141,13 @@ class RepurposingResult:
 
         """
 
-        sns.set_context("paper", font_scale=1)
-        signal = self.score_mat[gene]
+        scores = self.filter_scores(remove_unstable=False)
+        signal = scores[gene]
         signal = signal[signal.abs() > 0].sort_values(ascending=False)
 
+        sns.set_context("paper", font_scale=1)
         width = 1
         height = (signal.size * 1.1) / 4
-
         plt.figure(figsize=(width, height))
         ax = sns.heatmap(
             signal.to_frame(),
@@ -158,7 +158,6 @@ class RepurposingResult:
             yticklabels=True,
             xticklabels=True,
         )
-
         ax.set_ylabel("")
 
         for tick_label in ax.get_yticklabels():
