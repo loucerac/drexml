@@ -53,7 +53,7 @@ def load_disgenet():
     return disgenet
 
 
-def get_gene_disease_associations(disease_id):
+def get_gene_disease_associations(disease_id, k_top=40):
     """Retrieve the list of genes associated to a disese according to the Disgenet
     curated list of gene-disease associations.
 
@@ -62,13 +62,19 @@ def get_gene_disease_associations(disease_id):
     disease_id : str
         Disease ID.
 
+    k_top: int
+        Retrieve at most k_top genes based on the GDA score.
+
     Returns
     -------
     list
         List of gene IDs.
     """
     disgenet = load_disgenet()
-    return disgenet.loc[disgenet == disease_id].entrez_id.astype(str).unique().tolist()
+    disgenet = disgenet.loc[disgenet == disease_id]
+    disgenet = disgenet.nlargest(k_top, "dga_score")
+
+    return disgenet.entrez_id.astype(str).unique().tolist()
 
 
 def load_physiological_circuits():
