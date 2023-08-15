@@ -341,7 +341,7 @@ def test_read_circuits_column_fail():
 @pytest.mark.xfail(raises=(ValueError,))
 def test_update_circuits_fail():
     """Unit test that read_circuits_column raises an error."""
-    config = {"circuits": None, "seed_genes": None}
+    config = {"circuits": None, "seed_genes": None, "disease_id": None}
     utils.update_circuits(config)
 
 

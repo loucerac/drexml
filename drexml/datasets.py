@@ -5,6 +5,7 @@ IO module for DREXML.
 import pathlib
 
 import pandas as pd
+import pystow
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
 from zenodo_client import Zenodo
@@ -14,7 +15,77 @@ from drexml.utils import get_resource_path, read_disease_config
 RECORD_ID = "6020480"
 
 
+def load_disgenet():
+    """Download if necessary and load the Disgenet curated list of gene-disease
+    associations.
+
+    Returns
+    -------
+    pd.DataFrame
+        Disgenet curated dataset of gene-disease associations.
+    """
+
+    url = "/".join(
+        [
+            "https:/",
+            "www.disgenet.org",
+            "static",
+            "disgenet_ap1",
+            "files",
+            "downloads",
+            "curated_gene_disease_associations.tsv.gz",
+        ]
+    )
+
+    disgenet: pd.DataFrame = pystow.ensure_csv(
+        "drexml", "datasets", url=url, read_csv_kwargs={"sep": "\t"}
+    )
+
+    disgenet = disgenet.rename(
+        columns={
+            "geneId": "entrez_id",
+            "diseaseId": "disease_id",
+            "diseaseName": "disease_name",
+            "score": "dga_score",
+        }
+    ).loc[:, ["disease_name", "disease_id", "entrez_id", "dga_score"]]
+
+    return disgenet
+
+
+def get_gda(disease_id, k_top=40):
+    """Retrieve the list of genes associated to a disese according to the Disgenet
+    curated list of gene-disease associations.
+
+    Parameters
+    ----------
+    disease_id : str
+        Disease ID.
+
+    k_top: int
+        Retrieve at most k_top genes based on the GDA score.
+
+    Returns
+    -------
+    list
+        List of gene IDs.
+    """
+    disgenet = load_disgenet()
+    disgenet = disgenet.loc[disgenet["disease_id"] == disease_id]
+    disgenet = disgenet.nlargest(k_top, "dga_score")
+
+    return disgenet.entrez_id.astype(str).unique().tolist()
+
+
 def load_physiological_circuits():
+    """Load the list of physiological circuits.
+
+    Returns
+    -------
+    list
+        List of physiological circuit IDs.
+
+    """
     fpath = get_resource_path("circuit_names.tsv.gz")
     circuit_names = pd.read_csv(fpath, sep="\t").set_index("circuit_id")
     circuit_names.index = circuit_names.index.str.replace("-", ".").str.replace(
@@ -174,9 +245,12 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
-        return preprocess_map(
-            res, env["seed_genes"], env["circuits_column"], env["use_physio"]
-        )
+        gene_list = []
+        if env["seed_genes"]:
+            gene_list += env["seed_genes"]
+        if env["disease_id"]:
+            gene_list += [str(gene) for gene in get_gda(env["disease_id"])]
+        return preprocess_map(res, gene_list, env["circuits_column"], env["use_physio"])
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -279,6 +353,7 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
     """
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     if disease_seed_genes:
+        print(disease_seed_genes)
         disease_seed_genes = frame.columns.intersection(disease_seed_genes)
         circuits = frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
     else:

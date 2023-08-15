@@ -314,6 +314,35 @@ def convert_names(dataset, keys, axis):
     return dataset
 
 
+def read_disease_id(config):
+    """Read disease id from config file. It expects a disease id using the UMLS.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed config dict.
+
+    Returns
+    -------
+    dict
+        Updated config dict.
+
+    Raises
+    ------
+    ValueError
+        Raise error if format is unsupported.
+    """
+    try:
+        if config["disease_id"] is not None:
+            config["disease_id"] = str(config["disease_id"])
+    except ValueError as err:
+        print(err)
+        print("seed_genes should be a comma-separated list of genes.")
+        raise
+
+    return config
+
+
 def read_seed_genes(config):
     """Read seed genes from config file. It expect a comma-separated list of entrez ids.
 
@@ -537,6 +566,7 @@ def read_disease_config(disease):
             config[key] = DEFAULT_DICT[key]
 
     config = read_seed_genes(config)
+    config = read_disease_id(config)
     config = read_use_physio(config)
     config = read_activity_normalizer(config)
     config = read_path_based(config, key="gene_exp", data_path=env_parent_path)
@@ -817,8 +847,8 @@ def update_circuits(config):
     """
 
     if config["circuits"] is None:
-        if config["seed_genes"] is None:
-            raise ValueError("Either circuits or seed_genes list is required.")
+        if config["seed_genes"] is None and config["disease_id"] is None:
+            raise ValueError("Provide on of circuits, disease_id or gene_seeds.")
         if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
             config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
         ):

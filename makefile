@@ -18,6 +18,7 @@ endif
 	PDM_NO_BINARY=shap pdm install
 	pdm run pytest
 	python -c 'import shap; shap.utils.assert_import("cext_gpu")'
+
 format:
 	$(CONDA_ACTIVATE) ./.venv
 	autoflake  --remove-all-unused-imports --ignore-init-module-imports \
@@ -27,15 +28,18 @@ format:
 	pdm run isort drexml tests noxfile.py
 	pdm run black drexml tests noxfile.py
 	(cd docs && pdm run make html)
+
 test:
 ifeq ($(use_gpu),1)
 	nox -- "gpu"
 else
 	nox
 endif
+
 cover:
 	$(CONDA_ACTIVATE) ./.venv
 	pdm run coverage run -m pytest tests/ -v && pdm run coverage report -m
+
 build:
 	rm -rf dist
 	rm -rf ./.venv
