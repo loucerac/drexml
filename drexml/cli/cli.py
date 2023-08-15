@@ -318,24 +318,46 @@ def run(ctx, **kwargs):
 @click.argument("score-path", type=click.Path(exists=True))
 @click.argument("stability-path", type=click.Path(exists=True))
 @click.argument("output-folder", type=click.Path(exists=True))
+@click.option(
+    "--gene",
+    type=str,
+    help="Gene (KDT) Symbol to plot its repurposing profile.",
+)
 @click.version_option(get_version())
 @click.pass_context
-def plot(ctx, sel_path, score_path, stability_path, output_folder):
+def plot(ctx, sel_path, score_path, stability_path, output_folder, gene):
     """Plot the stability results"""
 
     results = RepurposingResult(
         sel_mat=sel_path, score_mat=score_path, stab_mat=stability_path
     )
 
-    results.plot_metrics(output_folder=output_folder)
-    for use_filter in [True, False]:
+    if gene:
         try:
-            results.plot_relevance_heatmap(
-                remove_unstable=use_filter, output_folder=output_folder
-            )
+            results.plot_gene_profile(gene=gene, output_folder=output_folder)
+        except KeyError as kerr:
+            print(kerr)
+            click.echo(f"Gene {gene} not in relevance matrix.")
+        except Exception as e:
+            print(e)
+
+    else:
+        try:
+            results.plot_metrics(output_folder=output_folder)
         except Exception as e:  # pragma: no cover
             print(e)
-            click.echo(f"skipping relevance heatmap for filter set to: {use_filter}")
+            click.echo("skipping metrics plot.")
+
+        for use_filter in [True, False]:
+            try:
+                results.plot_relevance_heatmap(
+                    remove_unstable=use_filter, output_folder=output_folder
+                )
+            except Exception as e:  # pragma: no cover
+                print(e)
+                click.echo(
+                    f"skipping relevance heatmap for filter set to: {use_filter}"
+                )
 
 
 if __name__ == "__main__":
