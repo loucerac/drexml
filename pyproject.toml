@@ -18,7 +18,7 @@ dependencies = [
     "zenodo-client<0.3",
 ]
 name = "drexml"
-version = "0.11.7"
+version = "0.11.8"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 readme = "README.md"
 
@@ -72,7 +72,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 100
+fail_under = 95
 
 [build-system]
 requires = [

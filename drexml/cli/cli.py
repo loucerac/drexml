@@ -30,7 +30,7 @@ with warnings.catch_warnings():
     )
 
 from drexml.datasets import get_data
-from drexml.plotting import plot_metrics
+from drexml.plotting import RepurposingResult
 from drexml.utils import (
     check_gputree_availability,
     get_number_cuda_devices,
@@ -314,13 +314,51 @@ def run(ctx, **kwargs):
 
 
 @main.command()
-@click.argument("stab-path", type=click.Path(exists=True))
+@click.argument("sel-path", type=click.Path(exists=True))
+@click.argument("score-path", type=click.Path(exists=True))
+@click.argument("stability-path", type=click.Path(exists=True))
+@click.argument("output-folder", type=click.Path(exists=True))
+@click.option(
+    "--gene",
+    type=str,
+    help="Gene (KDT) Symbol to plot its repurposing profile.",
+)
 @click.version_option(get_version())
 @click.pass_context
-def plot(ctx, stab_path):
+def plot(ctx, sel_path, score_path, stability_path, output_folder, gene):
     """Plot the stability results"""
 
-    plot_metrics(stab_path)
+    results = RepurposingResult(
+        sel_mat=sel_path, score_mat=score_path, stab_mat=stability_path
+    )
+
+    # Tests already covered in plotting.
+    if gene:  # pragma: no cover
+        try:
+            results.plot_gene_profile(gene=gene, output_folder=output_folder)
+        except KeyError as kerr:
+            print(kerr)
+            click.echo(f"Gene {gene} not in relevance matrix.")
+        except Exception as e:
+            print(e)
+
+    else:
+        try:
+            results.plot_metrics(output_folder=output_folder)
+        except Exception as e:  # pragma: no cover
+            print(e)
+            click.echo("skipping metrics plot.")
+
+        for use_filter in [True, False]:
+            try:
+                results.plot_relevance_heatmap(
+                    remove_unstable=use_filter, output_folder=output_folder
+                )
+            except Exception as e:  # pragma: no cover
+                print(e)
+                click.echo(
+                    f"skipping relevance heatmap for filter set to: {use_filter}"
+                )
 
 
 if __name__ == "__main__":
