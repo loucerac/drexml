@@ -17,9 +17,9 @@ class RepurposingResult:
     Class for storing the results of the DREXML analysis.
     """
 
-    sel_mat: pd.DataFrame | pathlib.Path | str = pd.DataFrame
-    score_mat: pd.DataFrame | pathlib.Path | str = pd.DataFrame
-    stab_mat: pd.DataFrame | pathlib.Path | str = pd.DataFrame
+    sel_mat: "pd.DataFrame | pathlib.Path | str" = pd.DataFrame
+    score_mat: "pd.DataFrame | pathlib.Path | str" = pd.DataFrame
+    stab_mat: "pd.DataFrame | pathlib.Path | str" = pd.DataFrame
 
     # stable_circuits: list = field(init=False)
 
