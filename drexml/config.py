@@ -6,6 +6,7 @@ Config module.
 
 DEFAULT_DICT = {
     "seed_genes": None,
+    "disease_id": None,
     "use_physio": "true",
     "gene_exp": None,
     "gene_exp_zenodo": False,
