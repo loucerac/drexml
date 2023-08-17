@@ -6,9 +6,13 @@ import pathlib
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.colors import BoundaryNorm
 from sklearn.preprocessing import maxabs_scale
+
+sns.set(font="monospace")
 
 
 @dataclass(frozen=False)
@@ -22,6 +26,13 @@ class RepurposingResult:
     stab_mat: "pd.DataFrame | pathlib.Path | str" = pd.DataFrame
 
     # stable_circuits: list = field(init=False)
+
+    cbar_palette = sns.color_palette("vlag", 7)
+    cbar_norm = BoundaryNorm(
+        [-0.66, -0.33, -np.finfo(float).eps, np.finfo(float).eps, 0.33, 0.66],
+        7,
+        extend="both",
+    )
 
     def __post_init__(self):
         if isinstance(self.sel_mat, (str, pathlib.Path)):
@@ -68,13 +79,15 @@ class RepurposingResult:
             Filtered scores.
         """
         scores_filt = self.score_mat.multiply(self.sel_mat)
-        scores_filt = scores_filt.transform(maxabs_scale)
         if remove_unstable:
             scores_filt = scores_filt.loc[
                 scores_filt.index.intersection(self.stable_circuits)
             ]
         scores_filt = scores_filt.loc[scores_filt.abs().sum(axis=1) > 0]
         scores_filt = scores_filt.loc[:, scores_filt.abs().sum(axis=0) > 0]
+
+        scores_filt = scores_filt.transform(maxabs_scale, axis=1)
+        # scores_filt /= scores_filt.abs().values.max()
 
         return scores_filt
 
@@ -91,7 +104,7 @@ class RepurposingResult:
         output_folder : str, optional
             Output folder, by default None
 
-        Returns
+        Return
         -------
         None.
 
@@ -99,18 +112,61 @@ class RepurposingResult:
         sns.set_context("paper", font_scale=0.6)
         scores_filt = self.filter_scores(remove_unstable=remove_unstable)
 
-        cbar_specs = {"orientation": "horizontal", "label": "Relevance"}
-        sns.clustermap(
-            scores_filt,
-            cmap=sns.color_palette("vlag", as_cmap=True),
-            cbar_kws=cbar_specs,
-            cbar_pos=(0.02, 0.89, 0.1, 0.025),
-            row_cluster=True,
-            vmin=-1,
-            vmax=1,
-            yticklabels=True,
-            xticklabels=True,
-        )
+        if scores_filt.shape[0] > 1:
+            cluster_rows = True
+            height = 10
+            width = 10
+            cbar_specs = {"label": "Relevance"}
+
+            pgrid = sns.clustermap(
+                scores_filt,
+                cmap=self.cbar_palette,
+                norm=self.cbar_norm,
+                cbar_kws=cbar_specs,
+                # cbar_pos=cbar_pos,
+                row_cluster=cluster_rows,
+                vmin=-1,
+                vmax=1,
+                yticklabels=True,
+                xticklabels=True,
+                figsize=(width, height),
+            )
+            pgrid.ax_heatmap.set_ylabel("")
+            pgrid.ax_heatmap.set_xlabel("")
+            cbar = pgrid.ax_heatmap.collections[0].colorbar
+        else:
+            cluster_rows = False
+            # cbar_pos = (0.5, 0.89, 0.1, 0.025)
+            height = 1
+            width = (scores_filt.shape[1] * 1.1) / 4
+            cbar_specs = {"label": "Relevance"}
+            signal = scores_filt.iloc[0]
+            signal = signal[signal.abs() > 0].sort_values(ascending=False)
+
+            sns.set_context("paper", font_scale=1)
+            height = 0.8
+            width = (signal.size * 1.1) / 4
+
+            plt.figure(figsize=(width, height))
+            ax = sns.heatmap(
+                signal.to_frame().T,
+                cbar_kws={"label": "Relevance"},
+                cmap=self.cbar_palette,
+                norm=self.cbar_norm,
+                vmin=-1,
+                vmax=1,
+                yticklabels=False,
+                xticklabels=True,
+            )
+            ax.set_ylabel("")
+            ax.set_title(signal.name)
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+
+            cbar = ax.collections[0].colorbar
+
+        cbar.ax.tick_params(size=0)
+        cbar.set_ticks([-0.495, -0.15, 0, 0.15, 0.495])
+        cbar.set_ticklabels(["Mid -", "Low -", "Even", "Low +", "Mid +"])
 
         if output_folder is not None:
             output_folder = pathlib.Path(output_folder)
@@ -156,13 +212,19 @@ class RepurposingResult:
         ax = sns.heatmap(
             signal.to_frame(),
             cbar_kws={"label": "Relevance"},
-            cmap=sns.color_palette("vlag", as_cmap=True),
+            cmap=self.cbar_palette,
+            norm=self.cbar_norm,
             vmin=-1,
             vmax=1,
             yticklabels=True,
             xticklabels=True,
         )
         ax.set_ylabel("")
+
+        cbar = ax.collections[0].colorbar
+        cbar.ax.tick_params(size=0)
+        cbar.set_ticks([-0.495, -0.15, 0, 0.15, 0.495])
+        cbar.set_ticklabels(["Mid -", "Low -", "Even", "Low +", "Mid +"])
 
         for tick_label in ax.get_yticklabels():
             if tick_label.get_text() not in self.stable_circuits:

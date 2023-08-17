@@ -273,6 +273,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# USER
 notebooks/sandbox_20190416/hypmorf_fanconi_02_from_targets_to_pathways_global_explained_relevance\.tsv
 notebooks/sandbox_gpu/*.jbl
 notebooks/sandbox_gpu/*.txt
@@ -290,3 +291,5 @@ debug.ipynb
 
 dask-worker-space/
 .pdm-python
+examples/fanconi_anemia/results/tmp/
+examples/codeocean/results/tmp/
