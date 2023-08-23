@@ -15,14 +15,14 @@ rm -rf results/tmp
 # plot
 
 ${CONDA_RUN} drexml plot \
- results/shap_selection_symbol.tsv \
- results/shap_summary_symbol.tsv \
- results/stability_results_symbol.tsv \
+ results/shap_selection_symbol.tsv.gz \
+ results/shap_summary_symbol.tsv.gz \
+ results/stability_results_symbol.tsv.gz \
  results/
 
 ${CONDA_RUN} drexml plot \
- results/shap_selection_symbol.tsv \
- results/shap_summary_symbol.tsv \
- results/stability_results_symbol.tsv \
+ results/shap_selection_symbol.tsv.gz \
+ results/shap_summary_symbol.tsv.gz \
+ results/stability_results_symbol.tsv.gz \
  results/ \
- --gene EGFRlot
+ --gene EGFR
