@@ -40,6 +40,12 @@ To run the program for a disease map that uses circuits from the preprocessed `K
 seed_genes=2175,2176,2189
 ```
 
+- using the following template if you want to use the DisGeNET [1] curated gene-disease associations as seeds.
+
+```
+disease_id="C0015625"
+```
+
 - using the following template if you know which circuits to include (the disease map):
 
 ```
@@ -110,3 +116,7 @@ The recommended setup is:
 The documentation can be found here:
 
 https://loucerac.github.io/drexml/
+
+
+## References
+[1] Janet Piñero, Juan Manuel Ramírez-Anguita, Josep Saüch-Pitarch, Francesco Ronzano, Emilio Centeno, Ferran Sanz, Laura I Furlong. The DisGeNET knowledge platform for disease genomics: 2019 update. Nucl. Acids Res. (2019) doi:10.1093/nar/gkz1021
