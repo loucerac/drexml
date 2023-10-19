@@ -8,9 +8,8 @@ import pandas as pd
 import pystow
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
-from zenodo_client import Zenodo
 
-from drexml.utils import get_resource_path, read_disease_config
+from drexml.utils import ensure_zenodo, get_resource_path, read_disease_config
 
 RECORD_ID = "6020480"
 
@@ -24,11 +23,8 @@ def load_drugbank():
         Drugbank table.
     """
 
-    zenodo = Zenodo()
     # TODO: read versions using config
-    path = zenodo.download_latest(
-        RECORD_ID, "drugbank-v050110_gtex-V8_mygene-20230220.tsv.gz", force=False
-    )
+    path = ensure_zenodo("drugbank-v050110_gtex-V8_mygene-20230220.tsv.gz")
 
     return pd.read_csv(path, sep="\t")
 
@@ -42,10 +38,9 @@ def load_atc():
         ATC table.
     """
 
-    zenodo = Zenodo()
     # TODO: read versions using config
 
-    atc_path = zenodo.download_latest(RECORD_ID, "atc.csv.gz", force=False)
+    atc_path = ensure_zenodo("atc.csv.gz")
 
     return pd.read_csv(atc_path, usecols=["atc_code", "atc_name"])
 
@@ -156,8 +151,7 @@ def fetch_file(key, env, version="latest"):
     if env[key + "_zenodo"]:  # pragma: no cover
         if version == "latest":
             try:
-                zenodo = Zenodo()
-                path = zenodo.download_latest(RECORD_ID, env[key], force=False)
+                path = ensure_zenodo(env[key])
             except ConnectTimeout as err:
                 print(err)
                 path = pathlib.Path.home().joinpath(

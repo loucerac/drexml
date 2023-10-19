@@ -11,10 +11,9 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
-
-import requests
 import pystow
+import requests
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
@@ -865,22 +864,18 @@ def update_circuits(config):
     return config
 
 
+def get_latest_record(record_id):
 
-def get_latest_record(record_id="6020480"):
-
-    x = requests.get(f"https://zenodo.org/records/{record_id}")
-    return x.url.split("/")[-1]
-
+    url = requests.get(f"https://zenodo.org/records/{record_id}", timeout=10).url
+    return url.split("/")[-1]
 
 
-def get_url_from_zenodo(name, out=None):
+def ensure_zenodo(name, record_id="6020480"):
 
-    record_id = get_latest_record()
+    record_id = get_latest_record(record_id)
 
     url = f"https://zenodo.org/records/{record_id}/files/{name}?download=1"
 
-    path = pystow.ensure(
-            "drexml", "datasets", record_id, url=url
-         )
+    path = pystow.ensure("drexml", "datasets", record_id, url=url)
 
     return path
