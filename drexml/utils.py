@@ -865,12 +865,40 @@ def update_circuits(config):
 
 
 def get_latest_record(record_id):
+    """Get latest zenodo record ID from a given deposition identifier
+
+    Parameters
+    ----------
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    str
+        latest record ID
+    
+    """
 
     url = requests.get(f"https://zenodo.org/records/{record_id}", timeout=10).url
     return url.split("/")[-1]
 
 
 def ensure_zenodo(name, record_id="6020480"):
+    """Ensure file availability and download it from zenodo
+
+    Parameters
+    ----------
+    name : str
+        file name
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    path : path-like
+        PosixPath to downloaded file
+
+    """
 
     record_id = get_latest_record(record_id)
 
