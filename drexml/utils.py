@@ -11,6 +11,8 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+import pystow
+import requests
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 
 with warnings.catch_warnings():
@@ -860,3 +862,48 @@ def update_circuits(config):
             )
 
     return config
+
+
+def get_latest_record(record_id):
+    """Get latest zenodo record ID from a given deposition identifier
+
+    Parameters
+    ----------
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    str
+        latest record ID
+    
+    """
+
+    url = requests.get(f"https://zenodo.org/records/{record_id}", timeout=10).url
+    return url.split("/")[-1]
+
+
+def ensure_zenodo(name, record_id="6020480"):
+    """Ensure file availability and download it from zenodo
+
+    Parameters
+    ----------
+    name : str
+        file name
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    path : path-like
+        PosixPath to downloaded file
+
+    """
+
+    record_id = get_latest_record(record_id)
+
+    url = f"https://zenodo.org/records/{record_id}/files/{name}?download=1"
+
+    path = pystow.ensure("drexml", "datasets", record_id, url=url)
+
+    return path
