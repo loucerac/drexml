@@ -13,6 +13,8 @@ import pytest
 import shap
 from click.testing import CliRunner
 
+import os
+
 from drexml import utils
 from drexml.cli.cli import main
 from drexml.config import DEFAULT_DICT, VERSION_DICT
@@ -373,3 +375,20 @@ def test_update_genes_during_update():
 
     config = utils.update_genes(config)
     assert (vers in config["genes"]) is True
+
+
+def test_get_latest_record():
+    """Unit test that get_latest_record returns a string of indices"""
+
+    record_id = "6020480"
+    record = utils.get_latest_record(record_id)
+
+    assert record.isdigit()
+
+
+def test_ensure_zenodo():
+    """Unit test that ensure_zenodo returns a valid directory path"""
+
+    file = "pathvals.tsv.gz"
+    path = ensure_zenodo(file)
+    assert isinstance(path, pathlib.PosixPath)
