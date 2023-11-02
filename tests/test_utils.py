@@ -390,5 +390,6 @@ def test_ensure_zenodo():
     """Unit test that ensure_zenodo returns a valid directory path"""
 
     file = "pathvals.tsv.gz"
-    path = ensure_zenodo(file)
+    path = utils.ensure_zenodo(file)
+
     assert isinstance(path, pathlib.PosixPath)
