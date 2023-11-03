@@ -1,4 +1,4 @@
 !*.png
-*.pdf
+!*.pdf
 *.tsv
 tmp/
