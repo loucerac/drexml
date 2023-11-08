@@ -108,7 +108,7 @@ def create_heatmap_KDTsCir_annot(data_folder, assets_folder, filtered_file_name)
         "Inhibitor": "magenta",
         "Activator": "cyan",
         "Ligand": "yellow",
-        "other": "grey",
+        "Other": "grey",
         "Modulator": "orange"
     }
     drug_action_colors_list = [drug_action_colors[action] for action in annots["drug_action"]]
