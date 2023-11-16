@@ -60,15 +60,17 @@ Input
 The disease definition file is the main point of entry to interact with the software. Here, variables are defined pertaining to the disease map and activity matrix, as well as to the KDTs explored. 
 
 Main variables pertaining to the construction of the disease map and activity matrix are:
-- seed_genes: list of Entrez identifiers of genes suspected to be involved in the disease. The algorithm returns KEGG subpathways which contain at least on of these genes as the disease map.
-- disease_id: UMLS CUI disease identifiers. The algorithm returns genes associated to this disease using the curated DISGENET database and returns the KEGG subpathways which contain at least one of these genes as the disease map. 
-- circuits: list of circuits to map or a path to a TSV file containing these circuits.
+
+- seed_genes: list of Entrez identifiers of genes suspected to be involved in the disease. The algorithm returns KEGG subpathways which contain at least on of these genes as the disease map
+- disease_id: UMLS CUI disease identifiers. The algorithm returns genes associated to this disease using the curated DISGENET database and returns the KEGG subpathways which contain at least one of these genes as the disease map
+- circuits: list of circuits to map or a path to a TSV file containing these circuits
 
 Note that users can use different signal transduction algorithms and/or different KDT transcriptomic profiles to explore. These must be given as TSV files by providing a path to the activity matrix through the "pathvals" variable and to the KDTs through the "gene_exp" variable. 
 
 Output
 ======
 Software outputs are stored as TSV files:
+
 - shap_summary_symbol.tsv: final relevance matrix (SHAP values attributed to KDTs)
 - shap_selection_symbol.tsv: binary matrix indicating the KDTs have been selected for a given circuit or not
 - stability_results_symbol.tsv: R2 and stability estimates of circuits along with their confidence intervals
