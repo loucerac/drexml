@@ -107,8 +107,10 @@ The recommended setup is:
 - setup `pipx`
 - setup `miniforge`
 - use `pipx` to install `pdm`
-- use `pipx` to inject pd-bump into `pdm`
+- ensure that `pdm` is version >=2.1, otherwise update with `pipx`
+- use `pipx` to inject pdm-bump into `pdm`
 - use `pipx` to install `nox`
+- run `pdm config venv.backend conda`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
 
 ## Documentation
