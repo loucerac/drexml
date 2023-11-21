@@ -17,7 +17,10 @@ endif
 	
 	PDM_NO_BINARY=shap pdm install
 	pdm run pytest
+
+ifeq ($(use_gpu),1)
 	python -c 'import shap; shap.utils.assert_import("cext_gpu")'
+endif
 
 format:
 	$(CONDA_ACTIVATE) ./.venv
@@ -56,7 +59,7 @@ endif
 	wait
 	sleep 60
 	pip install --no-cache-dir --no-binary=shap  -i https://test.pypi.org/simple/ \
-	drexml==0.11.2 --extra-index-url=https://pypi.org/simple
+	drexml --extra-index-url=https://pypi.org/simple
 ifeq ($(use_gpu),1)
 	python -c 'import shap; shap.utils.assert_import("cext_gpu")'
 endif
