@@ -203,7 +203,7 @@ def create_heatmap_KDTsCir_annot(data_folder, assets_folder, filtered_file_name)
     legend.get_frame().set_facecolor('white')
 
     # Add a title to the entire figure
-    plt.suptitle('Heatmap of Disease Map and relevant Drug-targets', fontsize=80, y=1.05)
+    # plt.suptitle('Heatmap of Disease Map and relevant Drug-targets', fontsize=80, y=1.05)
   
     # Save the plot
     plt.savefig(f"{data_folder}/heatmap_circuits_KDT_drugeff.pdf", dpi=300, bbox_inches='tight')
@@ -303,7 +303,7 @@ def create_boxplots(data_folder, filtered_file_name):
     boxplot.tick_params(axis='y', labelsize=22)
     
     plt.xticks(rotation=40, ha = "right")
-    plt.title("Boxplots of SHAP-Scores", fontsize=50, y=1.05)
+    # plt.title("Boxplots of SHAP-Scores", fontsize=50, y=1.05)
     plt.ylabel('SHAP Scores', fontsize=35)
     plt.xlabel('Drug-target', fontsize=35)
     plt.tight_layout()
@@ -403,7 +403,7 @@ def create_heatmap_drugsCircuit_top30KDTs(data_folder, filtered_file_name, asset
     cbar.tick_params(labelsize= 38)  # Set a larger font size for the ticks
 
     
-    plt.suptitle('Mean scores of the drugs from the top 30 best-scored drug-targets over the Disease Map ', fontsize=50, y=1.05)
+    # plt.suptitle('Mean scores of the drugs from the top 30 best-scored drug-targets over the Disease Map ', fontsize=50, y=1.05)
     # plt.tight_layout()
     plt.savefig(f"{data_folder}/heatmap_top30KDTdrugs_circuit.pdf", dpi=300, bbox_inches='tight')
     plt.show()
