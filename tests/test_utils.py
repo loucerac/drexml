@@ -13,8 +13,6 @@ import pytest
 import shap
 from click.testing import CliRunner
 
-import os
-
 from drexml import utils
 from drexml.cli.cli import main
 from drexml.config import DEFAULT_DICT, VERSION_DICT

@@ -876,7 +876,7 @@ def get_latest_record(record_id):
     -------
     str
         latest record ID
-    
+
     """
 
     url = requests.get(f"https://zenodo.org/records/{record_id}", timeout=10).url
