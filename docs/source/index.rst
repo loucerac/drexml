@@ -16,7 +16,7 @@ You can install drexml using:
 
 .. code::
 
-   pip install git+https://github.com/loucerac/drexml.git@master
+   pip install drexml
 
 
 Getting started
@@ -50,6 +50,7 @@ For more information, check the :ref:`api-reference`.
 Highlights
 ==========
 
+- Contextualize the pharmacological landscape of a mechanistically characterized disease.
 - Obtain a list of KDTs which show a considerable influence over a given disease map
 - Quick visualization of the knowledge: generation of figures and tables of results
 
@@ -62,9 +63,9 @@ Main variables pertaining to the construction of the disease map and activity ma
 
 - seed_genes: list of Entrez identifiers of genes suspected to be involved in the disease. The algorithm returns KEGG subpathways which contain at least on of these genes as the disease map
 - disease_id: UMLS CUI disease identifiers. The algorithm returns genes associated to this disease using the curated DISGENET database and returns the KEGG subpathways which contain at least one of these genes as the disease map
-- circuits: list of circuits to map or a path to a TSV file containing these circuits
+- circuits: .tsv file with a list of circuits composing the target disease map, identified by their KEGG ID.
 
-Note that users can use different signal transduction algorithms and/or different KDT transcriptomic profiles to explore. These must be given as TSV files by providing a path to the activity matrix through the "pathvals" variable and to the KDTs through the "gene_exp" variable. 
+The path to each of these three files must be defined in the environment file (e.g. disease.env). Note that users can use different signal transduction algorithms and/or different KDT transcriptomic profiles to explore. These must be given as TSV files by providing a path to the activity matrix through the "pathvals" variable and to the KDTs through the "gene_exp" variable. 
 
 Output
 ======
