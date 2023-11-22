@@ -393,7 +393,7 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
 
     # remove duplicated
     circuit_list = list(set(circuit_list))
-        
+
     if use_physio:
         physio_lst = load_physiological_circuits()
         circuit_list = [c for c in circuit_list if c in physio_lst]
