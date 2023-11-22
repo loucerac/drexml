@@ -384,12 +384,17 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     circuit_list = []
     if disease_seed_genes:
+        print("genes")
         print(disease_seed_genes)
         disease_seed_genes = frame.columns.intersection(disease_seed_genes)
         circuit_list += frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
+        print("by genes")
+        print(circuit_list)
     if circuits_column in frame:
         frame[circuits_column] = frame[circuits_column].astype(bool)
         circuit_list += frame.index[frame[circuits_column]].tolist()
+        print("by hip")
+        print(circuit_list)
 
     # remove duplicated
     circuit_list = list(set(circuit_list))

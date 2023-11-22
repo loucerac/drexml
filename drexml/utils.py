@@ -851,6 +851,8 @@ def update_circuits(config):
     if config["circuits"] is None:
         if config["seed_genes"] is None and config["disease_id"] is None:
             raise ValueError("Provide on of circuits, disease_id or gene_seeds.")
+        
+    # build circuits_dict    
         if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
             config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
         ):
