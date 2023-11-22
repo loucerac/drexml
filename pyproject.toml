@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drexml"
-version = "0.9.9"
+version = "0.9.9-fix"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 authors = [
     "Carlos Loucera <carlos.loucera@juntadeandalucia.es>",
@@ -12,7 +12,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = ">=3.8, <3.11"
 scikit-learn = "1.1.1"
-numpy = "<1.22"
+numpy = "1.22.3"
 scipy = "^1.8.1"
 pandas = "^1.4.2"
 seaborn = "^0.11.2"
