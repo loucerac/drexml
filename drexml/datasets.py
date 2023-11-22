@@ -274,6 +274,7 @@ def preprocess_frame(res, env, key):
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
+        # build the disease map
         gene_list = []
         if env["seed_genes"]:
             gene_list += env["seed_genes"]
@@ -381,19 +382,23 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
       with periods and returns the resulting list of circuits.
     """
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
+    circuit_list = []
     if disease_seed_genes:
         print(disease_seed_genes)
         disease_seed_genes = frame.columns.intersection(disease_seed_genes)
-        circuits = frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
-    else:
+        circuit_list += frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
+    if circuits_column in frame:
         frame[circuits_column] = frame[circuits_column].astype(bool)
-        circuits = frame.index[frame[circuits_column]].tolist()
+        circuit_list += frame.index[frame[circuits_column]].tolist()
 
+    # remove duplicated
+    circuit_list = list(set(circuit_list))
+        
     if use_physio:
         physio_lst = load_physiological_circuits()
-        circuits = [c for c in circuits if c in physio_lst]
+        circuit_list = [c for c in circuit_list if c in physio_lst]
 
-    return circuits
+    return circuit_list
 
 
 def preprocess_genes(frame, genes_column):
