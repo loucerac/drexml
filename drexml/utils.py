@@ -848,7 +848,7 @@ def update_circuits(config):
 
     """
 
-    # build circuits_dict    
+    # build circuits_dict
     def build_circuits_dict_path(config, key):
         if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
             config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
@@ -861,7 +861,6 @@ def update_circuits(config):
             )
 
         return config
-
 
     if config["circuits"] is None:
         if config["seed_genes"] is None and config["disease_id"] is None:
