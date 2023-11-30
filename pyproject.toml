@@ -19,7 +19,7 @@ dependencies = [
     "pystow>=0.5.0",
 ]
 name = "drexml"
-version = "0.13.0"
+version = "1.0.0"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 readme = "README.md"
 
