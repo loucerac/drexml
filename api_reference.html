@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; drexml 0.12.0+editable documentation</title>
+  <title>API Reference &mdash; drexml 1.0.0+editable documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CLI Reference" href="cli-reference.html" />
-    <link rel="prev" title="DRExM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning" href="index.html" /> 
+    <link rel="next" title="Authors and contributors" href="authors-reference.html" />
+    <link rel="prev" title="CLI Reference" href="cli-reference.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,7 +43,10 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="cli-reference.html">CLI Reference</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.datasets">datasets</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
@@ -51,8 +54,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_disease_data"><code class="docutils literal notranslate"><span class="pre">get_disease_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_gda"><code class="docutils literal notranslate"><span class="pre">get_gda()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.get_index_name_options"><code class="docutils literal notranslate"><span class="pre">get_index_name_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_atc"><code class="docutils literal notranslate"><span class="pre">load_atc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_df"><code class="docutils literal notranslate"><span class="pre">load_df()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_disgenet"><code class="docutils literal notranslate"><span class="pre">load_disgenet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_drugbank"><code class="docutils literal notranslate"><span class="pre">load_drugbank()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.load_physiological_circuits"><code class="docutils literal notranslate"><span class="pre">load_physiological_circuits()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_activities"><code class="docutils literal notranslate"><span class="pre">preprocess_activities()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.datasets.preprocess_frame"><code class="docutils literal notranslate"><span class="pre">preprocess_frame()</span></code></a></li>
@@ -97,8 +102,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.check_cli_arg_is_bool"><code class="docutils literal notranslate"><span class="pre">check_cli_arg_is_bool()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.check_gputree_availability"><code class="docutils literal notranslate"><span class="pre">check_gputree_availability()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.convert_names"><code class="docutils literal notranslate"><span class="pre">convert_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.ensure_zenodo"><code class="docutils literal notranslate"><span class="pre">ensure_zenodo()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_cuda_lib"><code class="docutils literal notranslate"><span class="pre">get_cuda_lib()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_cuda_version"><code class="docutils literal notranslate"><span class="pre">get_cuda_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_latest_record"><code class="docutils literal notranslate"><span class="pre">get_latest_record()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_number_cuda_devices"><code class="docutils literal notranslate"><span class="pre">get_number_cuda_devices()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_number_cuda_devices_"><code class="docutils literal notranslate"><span class="pre">get_number_cuda_devices_()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.utils.get_out_path"><code class="docutils literal notranslate"><span class="pre">get_out_path()</span></code></a></li>
@@ -290,6 +297,20 @@ list with only one element, “index”.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.load_atc">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_atc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_atc" title="Permalink to this definition"></a></dt>
+<dd><p>Load the ATC table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ATC table.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.load_df">
 <span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_df" title="Permalink to this definition"></a></dt>
 <dd><p>Load dataframe from file. At the moment: stv, tsv crompressed or feather.</p>
@@ -317,6 +338,20 @@ associations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Disgenet curated dataset of gene-disease associations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.datasets.load_drugbank">
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">load_drugbank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.load_drugbank" title="Permalink to this definition"></a></dt>
+<dd><p>Download if necessary and load the drugbank table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Drugbank table.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>pd.DataFrame</p>
@@ -452,7 +487,7 @@ and returns the resulting data frame.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="drexml.datasets.preprocess_map">
-<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disease_seed_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_physio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_map" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">drexml.datasets.</span></span><span class="sig-name descname"><span class="pre">preprocess_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disease_seed_genes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_physio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circuits_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.datasets.preprocess_map" title="Permalink to this definition"></a></dt>
 <dd><p>Preprocesses a map data frame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -895,6 +930,26 @@ selection, by default 0.5</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.ensure_zenodo">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">ensure_zenodo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'6020480'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.ensure_zenodo" title="Permalink to this definition"></a></dt>
+<dd><p>Ensure file availability and download it from zenodo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – file name</p></li>
+<li><p><strong>record_id</strong> (<em>str</em>) – deposition identifier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>path</strong> – PosixPath to downloaded file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>path-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="drexml.utils.get_cuda_lib">
 <span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_cuda_lib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_cuda_lib" title="Permalink to this definition"></a></dt>
 <dd><p>Get CUDA library name.</p>
@@ -904,6 +959,23 @@ selection, by default 0.5</p></li>
 <dt class="sig sig-object py" id="drexml.utils.get_cuda_version">
 <span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_cuda_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_cuda_version" title="Permalink to this definition"></a></dt>
 <dd><p>Get CUDA version.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.utils.get_latest_record">
+<span class="sig-prename descclassname"><span class="pre">drexml.utils.</span></span><span class="sig-name descname"><span class="pre">get_latest_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drexml.utils.get_latest_record" title="Permalink to this definition"></a></dt>
+<dd><p>Get latest zenodo record ID from a given deposition identifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record_id</strong> (<em>str</em>) – deposition identifier</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>latest record ID</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1377,8 +1449,8 @@ as the input folder.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="DRExM³L Drug REpurposing using Mechanistic Models of signal transduction and eXplainable Machine Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cli-reference.html" class="btn btn-neutral float-right" title="CLI Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli-reference.html" class="btn btn-neutral float-left" title="CLI Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="authors-reference.html" class="btn btn-neutral float-right" title="Authors and contributors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
