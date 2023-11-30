@@ -261,25 +261,37 @@ def preprocess_frame(res, env, key):
         The preprocessed data frame.
     """
 
-    if key is not None:
-        index_name_options = get_index_name_options(key)
+    def preprocess_frame_(res, key):
+        if key is not None:
+            index_name_options = get_index_name_options(key)
 
-    for name in index_name_options:
-        if name in res.columns:
-            res = res.set_index(name, drop=True)
-    res.index = res.index.astype(str)
+        for name in index_name_options:
+            if name in res.columns:
+                res = res.set_index(name, drop=True)
+        res.index = res.index.astype(str)
+
+        return res
+
+    res = preprocess_frame_(res, key)
 
     if key == "gene_exp":
         return preprocess_gexp(res)
     elif key == "pathvals":
         return preprocess_activities(res)
     elif key == "circuits":
+        # build the disease map
         gene_list = []
         if env["seed_genes"]:
             gene_list += env["seed_genes"]
         if env["disease_id"]:
             gene_list += [str(gene) for gene in get_gda(env["disease_id"])]
-        return preprocess_map(res, gene_list, env["circuits_column"], env["use_physio"])
+        print("key dict")
+        print(env["circuits_dict"])
+        circuits_dict = load_df(env["circuits_dict"])
+        circuits_dict = preprocess_frame_(circuits_dict, key)
+        return preprocess_map(
+            res, gene_list, env["circuits_column"], env["use_physio"], circuits_dict
+        )
     elif key == "genes":
         return preprocess_genes(res, env["genes_column"])
 
@@ -350,7 +362,9 @@ def preprocess_activities(frame):
     return frame
 
 
-def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
+def preprocess_map(
+    frame, disease_seed_genes, circuits_column, use_physio, circuits_dict=None
+):
     """
     Preprocesses a map data frame.
 
@@ -381,19 +395,35 @@ def preprocess_map(frame, disease_seed_genes, circuits_column, use_physio):
       with periods and returns the resulting list of circuits.
     """
     frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
+    circuit_list = []
     if disease_seed_genes:
+        print("cdict")
+        print(circuits_dict)
+        print("genes")
         print(disease_seed_genes)
-        disease_seed_genes = frame.columns.intersection(disease_seed_genes)
-        circuits = frame.index[frame[disease_seed_genes].any(axis=1)].tolist()
-    else:
+        circuits_dict.index = circuits_dict.index.str.replace("-", ".").str.replace(
+            " ", "."
+        )
+        disease_seed_genes = circuits_dict.columns.intersection(disease_seed_genes)
+        circuit_list += circuits_dict.index[
+            circuits_dict[disease_seed_genes].any(axis=1)
+        ].tolist()
+        print("by genes")
+        print(circuit_list)
+    if circuits_column in frame:
         frame[circuits_column] = frame[circuits_column].astype(bool)
-        circuits = frame.index[frame[circuits_column]].tolist()
+        circuit_list += frame.index[frame[circuits_column]].tolist()
+        print("by hip")
+        print(circuit_list)
+
+    # remove duplicated
+    circuit_list = list(set(circuit_list))
 
     if use_physio:
         physio_lst = load_physiological_circuits()
-        circuits = [c for c in circuits if c in physio_lst]
+        circuit_list = [c for c in circuit_list if c in physio_lst]
 
-    return circuits
+    return circuit_list
 
 
 def preprocess_genes(frame, genes_column):
