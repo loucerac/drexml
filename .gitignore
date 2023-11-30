@@ -293,3 +293,4 @@ dask-worker-space/
 .pdm-python
 examples/fanconi_anemia/results/tmp/
 examples/codeocean/results/tmp/
+debug/

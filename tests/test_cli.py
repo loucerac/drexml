@@ -19,9 +19,19 @@ N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 
 def check_new_versus_all(name, tmp_fodler):
-    old_df = pd.read_csv(THIS_DIR.joinpath(name), sep="\t", index_col=0)
-    new_df = pd.read_csv(tmp_fodler.joinpath(name), sep="\t", index_col=0)
-
+    old_df = (
+        pd.read_csv(THIS_DIR.joinpath(name), sep="\t", index_col=0)
+        .sort_index(axis=1)
+        .sort_index(axis=0)
+    )
+    print(old_df)
+    new_df = (
+        pd.read_csv(tmp_fodler.joinpath(name), sep="\t", index_col=0)
+        .sort_index(axis=1)
+        .sort_index(axis=0)
+    )
+    print("new")
+    print(new_df)
     return np.allclose(old_df, new_df, equal_nan=True)
 
 

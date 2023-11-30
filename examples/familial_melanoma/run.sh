@@ -11,6 +11,8 @@ ${CONDA_RUN} pip install drexml
 # run drexml using all CPUs and no GPUs
 ${CONDA_RUN} drexml run --n-gpus 0 experiment.env > results/drexml.out 2> results/drexml.err
 rm -rf results/tmp
+gzip results/*symbol.tsv
+rm -f results/*.tsv
 
 # plot
 
@@ -19,10 +21,3 @@ ${CONDA_RUN} drexml plot \
  results/shap_summary_symbol.tsv.gz \
  results/stability_results_symbol.tsv.gz \
  results/
-
-${CONDA_RUN} drexml plot \
- results/shap_selection_symbol.tsv.gz \
- results/shap_summary_symbol.tsv.gz \
- results/stability_results_symbol.tsv.gz \
- results/ \
- --gene EGFR

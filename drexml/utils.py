@@ -11,6 +11,8 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+import pystow
+import requests
 from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 
 with warnings.catch_warnings():
@@ -846,17 +848,70 @@ def update_circuits(config):
 
     """
 
-    if config["circuits"] is None:
-        if config["seed_genes"] is None and config["disease_id"] is None:
-            raise ValueError("Provide on of circuits, disease_id or gene_seeds.")
+    # build circuits_dict
+    def build_circuits_dict_path(config, key):
         if (config["GTEX_VERSION"] != DEFAULT_DICT["GTEX_VERSION"]) or (
             config["HIPATHIA_VERSION"] != DEFAULT_DICT["HIPATHIA_VERSION"]
         ):
-            config["circuits"] = build_circuits_fname(config)
+            config[key] = build_circuits_fname(config)
             config["circuits_zenodo"] = True
         else:
-            config["circuits"] = get_resource_path(
+            config[key] = get_resource_path(
                 "circuits2genes_gtex-v8_hipathia-v2-14-0.tsv.gz"
             )
 
+        return config
+
+    if config["circuits"] is None:
+        if config["seed_genes"] is None and config["disease_id"] is None:
+            raise ValueError("Provide on of circuits, disease_id or gene_seeds.")
+        config = build_circuits_dict_path(config, key="circuits")
+
+    config = build_circuits_dict_path(config, key="circuits_dict")
+
     return config
+
+
+def get_latest_record(record_id):
+    """Get latest zenodo record ID from a given deposition identifier
+
+    Parameters
+    ----------
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    str
+        latest record ID
+
+    """
+
+    url = requests.get(f"https://zenodo.org/records/{record_id}", timeout=10).url
+    return url.split("/")[-1]
+
+
+def ensure_zenodo(name, record_id="6020480"):
+    """Ensure file availability and download it from zenodo
+
+    Parameters
+    ----------
+    name : str
+        file name
+    record_id : str
+        deposition identifier
+
+    Returns
+    -------
+    path : path-like
+        PosixPath to downloaded file
+
+    """
+
+    record_id = get_latest_record(record_id)
+
+    url = f"https://zenodo.org/records/{record_id}/files/{name}?download=1"
+
+    path = pystow.ensure("drexml", "datasets", record_id, url=url)
+
+    return path
