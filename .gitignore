@@ -294,3 +294,4 @@ dask-worker-space/
 examples/fanconi_anemia/results/tmp/
 examples/codeocean/results/tmp/
 debug/
+.debug/
