@@ -47,7 +47,11 @@ if __name__ == "__main__":
         if not filt_i.any():
             estimator_ = clone(estimator)
             estimator_.fit(features_learn, targets_learn)
-            filt_i[estimator_.feature_importances_.argmax()] = True
+            if hasattr(estimator_, "feature_importances_"):
+                fimp = estimator_.feature_importances_
+            elif hasattr(estimator_, "best_estimator_"):
+                fimp = estimator_.best_estimator_.feature_importances_
+            filt_i[fimp.argmax()] = True
 
         features_train_filt = features_train.loc[:, filt_i]
         features_test_filt = features_test.loc[:, filt_i]
