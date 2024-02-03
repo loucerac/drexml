@@ -7,7 +7,7 @@ Model definition.
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingRandomSearchCV
+from sklearn.model_selection import HalvingRandomSearchCV, RandomizedSearchCV
 
 
 def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
@@ -60,12 +60,21 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
         # hyper-parameter opimization
         model = HalvingRandomSearchCV(
             RandomForestRegressor(),
-            get_rf_space(),
+            param_distributions=get_rf_space(),
             resource="n_estimators",
             max_resources=n_iters,
             random_state=this_seed,
             cv=2,
             refit=True,
+        )
+
+        model = RandomizedSearchCV(
+            estimator=RandomForestRegressor(random_state=42),
+            param_distributions=get_rf_space(),
+            n_iter=n_iters,
+            random_state=this_seed,
+            cv=2,
+            refit=True
         )
 
     print(f"Predicting {n_targets} circuits with {n_features} KDTs")

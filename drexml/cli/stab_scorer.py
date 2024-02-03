@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 from sklearn.base import clone
 from sklearn.metrics import r2_score
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.ensemble import RandomForestRegressor
+
 
 from drexml.explain import build_stability_dict
 from drexml.pystab import nogueria_test
@@ -57,9 +60,13 @@ if __name__ == "__main__":
         features_test_filt = features_test.loc[:, filt_i]
 
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
-            estimator_filt = clone(estimator)
+            if isinstance(estimator, RandomForestRegressor):
+                estimator_filt = clone(estimator)
+                estimator_filt.max_features = 1.0
+            elif isinstance(estimator, RandomizedSearchCV):
+                estimator_filt = clone(estimator)
+                #estimator_filt.set_params(**{"max_features": 1.0, "random_state": 42})
             # sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
-            estimator_filt.max_features = 1.0
             estimator_filt.fit(features_train_filt, targets_train)
             targets_test_filt_preds = estimator_filt.predict(features_test_filt)
 
