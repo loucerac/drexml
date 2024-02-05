@@ -465,8 +465,12 @@ def read_path_based(config, key, data_path):
     try:
         if config[key] is not None:
             path = data_path.joinpath(config[key])
+            print("here")
             if not path.exists():
-                path = Path(config[key])
+                print("inside")
+                print(config[key])
+                path = Path(config[key]).expanduser()
+            print(path)
             config[key] = path
             with open(path, "r", encoding="utf-8") as _:
                 pass
@@ -813,6 +817,10 @@ def update_genes(config):
         ):
             config["genes_zenodo"] = True
             config["genes"] = build_genes_fname(config)
+    else:
+        if config["genes"].exists():
+            config["genes_zenodo"] = False
+            return config
 
     if not config["genes_zenodo"]:
         config["genes"] = get_resource_path(build_genes_fname(config))

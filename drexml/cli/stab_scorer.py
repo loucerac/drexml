@@ -9,7 +9,10 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.base import clone
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
+from sklearn.experimental import enable_halving_search_cv
+from sklearn.model_selection import RandomizedSearchCV, HalvingRandomSearchCV
 
 from drexml.explain import build_stability_dict
 from drexml.pystab import nogueria_test
@@ -47,15 +50,23 @@ if __name__ == "__main__":
         if not filt_i.any():
             estimator_ = clone(estimator)
             estimator_.fit(features_learn, targets_learn)
-            filt_i[estimator_.feature_importances_.argmax()] = True
+            if hasattr(estimator_, "feature_importances_"):
+                fimp = estimator_.feature_importances_
+            elif hasattr(estimator_, "best_estimator_"):
+                fimp = estimator_.best_estimator_.feature_importances_
+            filt_i[fimp.argmax()] = True
 
         features_train_filt = features_train.loc[:, filt_i]
         features_test_filt = features_test.loc[:, filt_i]
 
         with joblib.parallel_backend("loky", n_jobs=n_cpus):
-            estimator_filt = clone(estimator)
+            if isinstance(estimator, RandomForestRegressor):
+                estimator_filt = clone(estimator)
+                estimator_filt.max_features = 1.0
+            elif isinstance(estimator, (RandomizedSearchCV, HalvingRandomSearchCV)):
+                estimator_filt = clone(estimator)
+                # estimator_filt.set_params(**{"max_features": 1.0, "random_state": 42})
             # sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
-            estimator_filt.max_features = 1.0
             estimator_filt.fit(features_train_filt, targets_train)
             targets_test_filt_preds = estimator_filt.predict(features_test_filt)
 

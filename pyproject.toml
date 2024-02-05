@@ -3,6 +3,8 @@ authors = [
     { name = "Carlos Loucera", email = "carlos.loucera@juntadeandalucia.es" },
     { name = "Marina Esteban-Medina", email = "marina.esteban@juntadeandalucia.es" },
     { name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com" },
+    { name = "Víctor Manuel de la Oliva Roque", email = "victorm.oliva@juntadeandalucia.es" },
+    { name = "Sara Herráiz-Gil ", email = "sherraiz@ing.uc3m.es" },
 ]
 requires-python = ">=3.8,<3.11"
 dependencies = [
@@ -19,7 +21,7 @@ dependencies = [
     "pystow>=0.5.0",
 ]
 name = "drexml"
-version = "1.0.0"
+version = "1.0.3"
 description = "(DRExM³L) Drug REpurposing using and eXplainable Machine Learning and Mechanistic Models of signal transduction\""
 readme = "README.md"
 
