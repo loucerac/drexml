@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; drexml 1.0.0+editable documentation</title>
+  <title>API Reference &mdash; drexml 1.0.3+editable documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -68,6 +68,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.models">models</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#drexml.models.get_model"><code class="docutils literal notranslate"><span class="pre">get_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drexml.models.get_rf_space"><code class="docutils literal notranslate"><span class="pre">get_rf_space()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-drexml.pystab">pystab</a><ul>
@@ -543,6 +544,13 @@ and returns the resulting data frame.</p>
 <dd class="field-odd"><p>sklearn.ensemble.RandomForestRegressor</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drexml.models.get_rf_space">
+<span class="sig-prename descclassname"><span class="pre">drexml.models.</span></span><span class="sig-name descname"><span class="pre">get_rf_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drexml.models.get_rf_space" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve minimal hyperparameter space for a Ranndom Forest whose number of base
+learners are going to be used as an expandable resource while optimizing.</p>
 </dd></dl>
 
 </section>
