@@ -18,25 +18,28 @@ PLOTTING_EXTENSIONS = ["pdf", "png"]
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 
-def check_new_versus_all(name, tmp_fodler):
+def check_new_versus_all(name, tmp_fodler, n_iters):
+    if n_iters > 0:
+        name_old = name.split(".")[0] + "_optim.tsv"
+    else:
+        name_old = name
+
     old_df = (
-        pd.read_csv(THIS_DIR.joinpath(name), sep="\t", index_col=0)
+        pd.read_csv(THIS_DIR.joinpath(name_old), sep="\t", index_col=0)
         .sort_index(axis=1)
         .sort_index(axis=0)
     )
-    print(old_df)
     new_df = (
         pd.read_csv(tmp_fodler.joinpath(name), sep="\t", index_col=0)
         .sort_index(axis=1)
         .sort_index(axis=0)
     )
-    print("new")
-    print(new_df)
     return np.allclose(old_df, new_df, equal_nan=True)
 
 
 @pytest.mark.parametrize("n_gpus", N_GPU_LST)
-def test_cli_run(n_gpus):
+@pytest.mark.parametrize("n_iters", [0, 500])
+def test_cli_run(n_gpus, n_iters):
     """Unit tests for CLI app."""
 
     click.echo("Running CLI tests for DREXML.")
@@ -49,6 +52,7 @@ def test_cli_run(n_gpus):
         "--verbosity",
         "--debug",
         f"--n-gpus {n_gpus}",
+        f"--n-iters {n_iters}",
         f"{disease_path.as_posix()}",
     ]
     click.echo(" ".join(opts))
@@ -62,7 +66,8 @@ def test_cli_run(n_gpus):
     assert all([x.exists() for x in exist_files])
 
     numeric_checks = [
-        check_new_versus_all(fname, ml_folder_expected) for fname in expected_files
+        check_new_versus_all(fname, ml_folder_expected, n_iters)
+        for fname in expected_files
     ]
     assert all(numeric_checks)
 

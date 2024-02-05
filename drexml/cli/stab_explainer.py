@@ -100,6 +100,10 @@ if __name__ == "__main__":
 
         def runner(model, bkg, new, check_add, use_gpu):
             gpu_id = queue.get()
+            if hasattr(model, "best_estimator_"):
+                # retrieve RF model if HP-optim has been carried out.
+                model = model.best_estimator_
+
             if use_gpu:
                 explainer = shap.GPUTreeExplainer(model, bkg)
             else:

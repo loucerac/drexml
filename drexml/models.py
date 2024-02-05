@@ -3,8 +3,11 @@
 Model definition.
 """
 
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.experimental import enable_halving_search_cv  # noqa
+from sklearn.model_selection import HalvingRandomSearchCV
 
 
 def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
@@ -53,9 +56,39 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
         random_state=this_seed,
     )
 
-    if n_iters != 0:
-        raise NotImplementedError("Hyperparameter optimization disabled since v0.2 .")
+    if n_iters > 0:
+        # hyper-parameter opimization
+
+        model = HalvingRandomSearchCV(
+            estimator=RandomForestRegressor(random_state=42),
+            param_distributions=get_rf_space(),
+            resource="n_estimators",
+            max_resources=n_iters,
+            random_state=this_seed,
+            cv=2,
+            refit=True,
+            n_jobs=n_jobs,
+        )
+
+        # model = RandomizedSearchCV(
+        #     estimator=RandomForestRegressor(random_state=42),
+        #     param_distributions=get_rf_space(),
+        #     n_iter=n_iters,
+        #     random_state=this_seed,
+        #     cv=2,
+        #     refit=True,
+        # )
 
     print(f"Predicting {n_targets} circuits with {n_features} KDTs")
 
     return model
+
+
+def get_rf_space():
+    """Retrieve minimal hyperparameter space for a Ranndom Forest whose number of base
+    learners are going to be used as an expandable resource while optimizing."""
+
+    return {
+        "max_depth": np.arange(2, 9, 1),
+        "max_features": np.arange(0.1, 0.6, 0.1),
+    }
