@@ -2,7 +2,7 @@
 authors = [
     { name = "Carlos Loucera", email = "carlos.loucera@juntadeandalucia.es" },
     { name = "Marina Esteban-Medina", email = "marina.esteban@juntadeandalucia.es" },
-    { name = "Maria Pena-Chilet", email = "@juntadeandalucia.es.com" },
+    { name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com" },
     { name = "Víctor Manuel de la Oliva Roque", email = "victorm.oliva@juntadeandalucia.es" },
     { name = "Sara Herráiz-Gil ", email = "sherraiz@ing.uc3m.es" },
 ]
