@@ -6,6 +6,10 @@ import warnings
 
 import numpy as np
 import pytest
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.experimental import enable_halving_search_cv  # noqa
+from sklearn.model_selection import HalvingRandomSearchCV, RandomizedSearchCV
+from sklearn.pipeline import Pipeline
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
@@ -36,8 +40,24 @@ def test_model_hp(debug):
     assert model.max_features == max_features_expected
 
 
-@pytest.mark.xfail(raises=(NotImplementedError,))
-def test_get_model_fails():
+@pytest.mark.parametrize(
+    "n_iters, expected",
+    [(0, RandomForestRegressor), (100, (HalvingRandomSearchCV, RandomizedSearchCV))],
+)
+@pytest.mark.parametrize("use_imputer", [True, False])
+def test_get_model(n_iters, expected, use_imputer):
     """Test that get_model fails when triyng to perform HP opt."""
 
-    get_model(n_features=1, n_targets=1, n_jobs=1, debug=False, n_iters=100)
+    model = get_model(
+        n_features=1,
+        n_targets=1,
+        n_jobs=1,
+        debug=False,
+        n_iters=n_iters,
+        use_imputer=use_imputer,
+    )
+
+    if use_imputer:
+        assert isinstance(model, Pipeline)
+    else:
+        assert isinstance(model, expected)

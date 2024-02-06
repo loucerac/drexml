@@ -23,9 +23,10 @@ with warnings.catch_warnings():
     import shap
 
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 
 from drexml.explain import compute_shap_fs, compute_shap_relevance, compute_shap_values_
-from drexml.models import get_model
+from drexml.models import extract_estimator, get_model
 from drexml.utils import convert_names, parse_stab
 
 if __name__ == "__main__":
@@ -83,10 +84,15 @@ if __name__ == "__main__":
 
         if n_splits == 1:
             print(f"fit final model {i_split=} {n_splits=}")
+            use_imputer = features.isna().any(axis=None)
             this_model = get_model(
-                features.shape[1], targets.shape[1], n_cpus, debug, n_iters
+                features.shape[1], targets.shape[1], n_cpus, debug, n_iters, use_imputer
             )
-            this_model.set_params(n_jobs=n_cpus, random_state=this_seed)
+            if isinstance(this_model, Pipeline):
+                # set final estimator params if pipeline
+                this_model[-1].set_params(n_jobs=n_cpus, random_state=this_seed)
+            else:
+                this_model.set_params(n_jobs=n_cpus, random_state=this_seed)
             this_model.fit(features_learn, targets_learn)
         else:
             model_fname = f"model_{i_split}.jbl"
@@ -100,9 +106,6 @@ if __name__ == "__main__":
 
         def runner(model, bkg, new, check_add, use_gpu):
             gpu_id = queue.get()
-            if hasattr(model, "best_estimator_"):
-                # retrieve RF model if HP-optim has been carried out.
-                model = model.best_estimator_
 
             if use_gpu:
                 explainer = shap.GPUTreeExplainer(model, bkg)
@@ -123,10 +126,12 @@ if __name__ == "__main__":
         else:
             features_bkg = features_learn
 
+        estimator = extract_estimator(this_model)
+
         with joblib.parallel_backend("multiprocessing", n_jobs=n_devices):
             shap_values = joblib.Parallel()(
                 joblib.delayed(runner)(
-                    model=this_model,
+                    model=estimator,
                     bkg=features_bkg,
                     new=gb,
                     check_add=add,

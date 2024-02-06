@@ -109,7 +109,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     debug : bool
         Debug flag, by default False.
     n_iters : int
-        Number of hyperparemeter optimization iterations.
+        Number of hyperparameter optimization iterations.
 
     Returns
     -------
@@ -124,6 +124,8 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     """
     features_orig_fpath = data_folder.joinpath("features.jbl")
     features_orig = joblib.load(features_orig_fpath)
+
+    use_imputer = features_orig.isna().any(axis=None)
 
     targets_orig_fpath = data_folder.joinpath("target.jbl")
     targets_orig = joblib.load(targets_orig_fpath)
@@ -141,7 +143,9 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     n_features = features_orig.shape[1]
     n_targets = targets_orig.shape[1]
 
-    model = get_model(n_features, n_targets, n_cpus, debug, n_iters)
+    model = get_model(
+        n_features, n_targets, n_cpus, debug, n_iters, use_imputer=use_imputer
+    )
 
     return model, stab_cv, features_orig, targets_orig
 
@@ -226,7 +230,7 @@ def get_cuda_version():  # pragma: no cover
 
 
 def check_gputree_availability():  # pragma: no cover
-    """Check if GPUTree has been corectly compiled."""
+    """Check if GPUTree has been correctly compiled."""
     try:
         shap.utils.assert_import("cext_gpu")
         return True
@@ -356,7 +360,7 @@ def read_seed_genes(config):
     Returns
     -------
     dict
-        Updated conig dict.
+        Updated config dict.
 
     Raises
     ------

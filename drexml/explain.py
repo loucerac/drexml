@@ -177,13 +177,13 @@ def get_quantile_by_circuit(model, X, Y, threshold=0.5):
     Parameters
     ----------
     model : sklearn.base.BaseEstimator
-        Fited model.
+        Fitted model.
     X : pandas.DataFrame [n_samples, n_features]
         The feature dataset to explain.
     Y : pandas.DataFrame [n_samples, n_tasks]
         The task dataset to explain.
     threshold : float, optional
-        Theshold to use to dicriminate ill-conditioned circuits when performing feature
+        Threshold to use to discriminate ill-conditioned circuits when performing feature
         selection, by default 0.5
 
     Returns
