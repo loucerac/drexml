@@ -10,9 +10,10 @@ import numpy as np
 import pandas as pd
 from sklearn.base import clone
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score
 from sklearn.experimental import enable_halving_search_cv
-from sklearn.model_selection import RandomizedSearchCV, HalvingRandomSearchCV
+from sklearn.metrics import r2_score
+from sklearn.model_selection import HalvingRandomSearchCV, RandomizedSearchCV
+from sklearn.pipeline import Pipeline
 
 from drexml.explain import build_stability_dict
 from drexml.pystab import nogueria_test
@@ -54,6 +55,11 @@ if __name__ == "__main__":
                 fimp = estimator_.feature_importances_
             elif hasattr(estimator_, "best_estimator_"):
                 fimp = estimator_.best_estimator_.feature_importances_
+            elif hasattr(estimator_, "named_steps"):
+                if hasattr(estimator_[-1], "best_estimator_"):
+                    fimp = estimator_[-1].best_estimator_.feature_importances_
+                else:
+                    fimp = estimator_[-1].feature_importances_
             filt_i[fimp.argmax()] = True
 
         features_train_filt = features_train.loc[:, filt_i]
@@ -65,6 +71,11 @@ if __name__ == "__main__":
                 estimator_filt.max_features = 1.0
             elif isinstance(estimator, (RandomizedSearchCV, HalvingRandomSearchCV)):
                 estimator_filt = clone(estimator)
+            elif isinstance(estimator, Pipeline):
+                estimator_filt = clone(estimator)
+                if isinstance(estimator[-1], RandomForestRegressor):
+                    estimator_filt[-1].max_features = 1.0
+
                 # estimator_filt.set_params(**{"max_features": 1.0, "random_state": 42})
             # sub_model.set_params(**{"max_depth": 32, "max_features": filt_i.sum()})
             estimator_filt.fit(features_train_filt, targets_train)

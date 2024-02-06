@@ -244,7 +244,7 @@ class RepurposingResult:
         """
         Read the drexml results TSV file and plot it. The R^2 confidence interval for the
         mean go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
-        stability stimate.
+        stability estimate.
 
         Parameters
         ----------

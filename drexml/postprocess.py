@@ -47,7 +47,7 @@ def fdr(pvalues):
 
 
 def test_ora_drugs_from_files(shap_sel_path, results_path, db_path=None, atc_path=None):
-    """Helper function fo over representation analysis of ATC classifiction across
+    """Helper function fo over representation analysis of ATC classification across
       levels for SHAP selected drugs.
 
     Parameters
@@ -88,7 +88,7 @@ def test_ora_drugs_from_files(shap_sel_path, results_path, db_path=None, atc_pat
 
 
 def test_ora_drugs_from_frames(shap_selection_df, drugbank_df, atc_df):
-    """Over representation analysis of ATC classifiction across levels for SHAP selected drugs.
+    """Over representation analysis of ATC classification across levels for SHAP selected drugs.
 
     Parameters
     ----------

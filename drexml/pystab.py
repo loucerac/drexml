@@ -18,9 +18,9 @@ NogueiraTest = namedtuple(
 
 def nogueria_test(pop_mat, alpha=0.05, as_dict=False):
     """Let X be a feature space of dimension `n_features` and `pop_mat` a binary matrix
-    of dimension `(n_samples, n_festures)` representing `n_samples` runs of a feature
+    of dimension `(n_samples, n_features)` representing `n_samples` runs of a feature
     selection algorithm over X (with respect to a response). This function computes the
-    Nogueira stability estimate, error, variance and confindece interval.
+    Nogueira stability estimate, error, variance and confidence interval.
 
     Parameters
     ----------

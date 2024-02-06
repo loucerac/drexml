@@ -84,7 +84,7 @@ def load_disgenet():
 
 
 def get_gda(disease_id, k_top=40):
-    """Retrieve the list of genes associated to a disese according to the Disgenet
+    """Retrieve the list of genes associated to a disease according to the Disgenet
     curated list of gene-disease associations.
 
     Parameters
@@ -169,7 +169,7 @@ def fetch_file(key, env, version="latest"):
 
 
 def load_df(path, key=None):
-    """Load dataframe from file. At the moment: stv, tsv crompressed or feather.
+    """Load dataframe from file. At the moment: stv, tsv compressed or feather.
 
     Parameters
     ----------
@@ -244,7 +244,7 @@ def get_index_name_options(key):
 
 def preprocess_frame(res, env, key):
     """
-    Preprocesses the input data frame.
+    Preprocess the input data frame.
 
     Parameters
     ----------
@@ -298,7 +298,7 @@ def preprocess_frame(res, env, key):
 
 def preprocess_gexp(frame):
     """
-    Preprocesses a gene expression data frame.
+    Preprocess a gene expression data frame.
 
     Parameters
     ----------
@@ -331,7 +331,7 @@ def preprocess_gexp(frame):
 
 def preprocess_activities(frame):
     """
-    Preprocesses an activities data frame.
+    Preprocess an activities data frame.
 
     Parameters
     ----------
@@ -366,7 +366,7 @@ def preprocess_map(
     frame, disease_seed_genes, circuits_column, use_physio, circuits_dict=None
 ):
     """
-    Preprocesses a map data frame.
+    Preprocess a map data frame.
 
     Parameters
     ----------
@@ -428,7 +428,7 @@ def preprocess_map(
 
 def preprocess_genes(frame, genes_column):
     """
-    Preprocesses a gene expression data frame.
+    Preprocess a gene expression data frame.
 
     Parameters
     ----------
