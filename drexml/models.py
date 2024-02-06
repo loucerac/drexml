@@ -18,7 +18,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0, use_imputer=False
     Parameters
     ----------
     n_features : int
-        Number of features (KDTs).
+        Number of features (KDTs / gene input targets).
     n_targets : int
         Number of targets (circuits).
     n_jobs : int
@@ -26,7 +26,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0, use_imputer=False
     debug : bool
         Debug flag.
     n_iters : int, optional
-        Number of iterations for hyperparatemer optimization, by default 0.
+        Number of iterations for hyperparameter optimization, by default 0.
     use_imputer : bool, optional
         Flag to fit an imputer, by default False.
 
@@ -92,7 +92,7 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0, use_imputer=False
 
 
 def get_rf_space():
-    """Retrieve minimal hyperparameter space for a Ranndom Forest whose number of base
+    """Retrieve minimal hyperparameter space for a Random Forest whose number of base
     learners are going to be used as an expandable resource while optimizing."""
 
     return {
@@ -107,12 +107,12 @@ def extract_estimator(model):
     Parameters
     ----------
     model : sklearn Pipeline, Estimator, Optimizer
-        Fitted mdoel.
+        Fitted model.
 
     Returns
     -------
     sklearn Estimator
-        The fianl estimator.
+        The final estimator.
     """
     if isinstance(model, Pipeline):
         estimator = model[-1]

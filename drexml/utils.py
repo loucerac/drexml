@@ -109,7 +109,7 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     debug : bool
         Debug flag, by default False.
     n_iters : int
-        Number of hyperparemeter optimization iterations.
+        Number of hyperparameter optimization iterations.
 
     Returns
     -------
@@ -230,7 +230,7 @@ def get_cuda_version():  # pragma: no cover
 
 
 def check_gputree_availability():  # pragma: no cover
-    """Check if GPUTree has been corectly compiled."""
+    """Check if GPUTree has been correctly compiled."""
     try:
         shap.utils.assert_import("cext_gpu")
         return True
@@ -360,7 +360,7 @@ def read_seed_genes(config):
     Returns
     -------
     dict
-        Updated conig dict.
+        Updated config dict.
 
     Raises
     ------
