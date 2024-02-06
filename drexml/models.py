@@ -7,10 +7,12 @@ Model definition.
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.experimental import enable_halving_search_cv  # noqa
-from sklearn.model_selection import HalvingRandomSearchCV
+from sklearn.impute import KNNImputer
+from sklearn.model_selection import HalvingRandomSearchCV, RandomizedSearchCV
+from sklearn.pipeline import Pipeline, make_pipeline
 
 
-def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
+def get_model(n_features, n_targets, n_jobs, debug, n_iters=0, use_imputer=False):
     """Create a model.
 
     Parameters
@@ -24,7 +26,9 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
     debug : bool
         Debug flag.
     n_iters : int, optional
-        Number of ietrations for hyperparatemer optimization, by default None
+        Number of iterations for hyperparatemer optimization, by default 0.
+    use_imputer : bool, optional
+        Flag to fit an imputer, by default False.
 
     Returns
     -------
@@ -79,6 +83,9 @@ def get_model(n_features, n_targets, n_jobs, debug, n_iters=0):
         #     refit=True,
         # )
 
+    if use_imputer:
+        model = make_pipeline(KNNImputer(), model)
+
     print(f"Predicting {n_targets} circuits with {n_features} KDTs")
 
     return model
@@ -92,3 +99,28 @@ def get_rf_space():
         "max_depth": np.arange(2, 9, 1),
         "max_features": np.arange(0.1, 0.6, 0.1),
     }
+
+
+def extract_estimator(model):
+    """Extract the final estimator from a sklearn pipeline.
+
+    Parameters
+    ----------
+    model : sklearn Pipeline, Estimator, Optimizer
+        Fitted mdoel.
+
+    Returns
+    -------
+    sklearn Estimator
+        The fianl estimator.
+    """
+    if isinstance(model, Pipeline):
+        estimator = model[-1]
+    elif isinstance(model, (HalvingRandomSearchCV, RandomizedSearchCV)):
+        estimator = model.best_estimator_
+    elif isinstance(model, RandomForestRegressor):
+        estimator = model
+    else:
+        raise NotImplementedError("Model no yet implemented.")
+
+    return estimator

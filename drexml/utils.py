@@ -125,6 +125,8 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     features_orig_fpath = data_folder.joinpath("features.jbl")
     features_orig = joblib.load(features_orig_fpath)
 
+    use_imputer = features_orig.isna().any(axis=None)
+
     targets_orig_fpath = data_folder.joinpath("target.jbl")
     targets_orig = joblib.load(targets_orig_fpath)
 
@@ -141,7 +143,9 @@ def get_stab(data_folder, n_splits, n_cpus, debug, n_iters):
     n_features = features_orig.shape[1]
     n_targets = targets_orig.shape[1]
 
-    model = get_model(n_features, n_targets, n_cpus, debug, n_iters)
+    model = get_model(
+        n_features, n_targets, n_cpus, debug, n_iters, use_imputer=use_imputer
+    )
 
     return model, stab_cv, features_orig, targets_orig
 

@@ -39,12 +39,13 @@ def check_new_versus_all(name, tmp_fodler, n_iters):
 
 @pytest.mark.parametrize("n_gpus", N_GPU_LST)
 @pytest.mark.parametrize("n_iters", [0, 500])
-def test_cli_run(n_gpus, n_iters):
+@pytest.mark.parametrize("impute", [True, False])
+def test_cli_run(n_gpus, n_iters, impute):
     """Unit tests for CLI app."""
 
     click.echo("Running CLI tests for DREXML.")
 
-    disease_path = make_disease_config(use_seeds=True, update=False)
+    disease_path = make_disease_config(use_seeds=True, update=False, impute=impute)
     ml_folder_expected = disease_path.parent.joinpath("results")
 
     opts = [
