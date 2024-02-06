@@ -84,8 +84,9 @@ if __name__ == "__main__":
 
         if n_splits == 1:
             print(f"fit final model {i_split=} {n_splits=}")
+            use_imputer = features.isna().any(axis=None)
             this_model = get_model(
-                features.shape[1], targets.shape[1], n_cpus, debug, n_iters
+                features.shape[1], targets.shape[1], n_cpus, debug, n_iters, use_imputer
             )
             if isinstance(this_model, Pipeline):
                 # set final estimator params if pipeline

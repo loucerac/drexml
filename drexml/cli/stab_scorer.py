@@ -55,7 +55,10 @@ if __name__ == "__main__":
             elif hasattr(estimator_, "best_estimator_"):
                 fimp = estimator_.best_estimator_.feature_importances_
             elif hasattr(estimator_, "named_steps"):
-                fimp = estimator_[-1].feature_importances_
+                if hasattr(estimator_[-1], "best_estimator_"):
+                    fimp = estimator_[-1].best_estimator_.feature_importances_
+                else:
+                    fimp = estimator_[-1].feature_importances_
             filt_i[fimp.argmax()] = True
 
         features_train_filt = features_train.loc[:, filt_i]

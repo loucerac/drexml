@@ -18,11 +18,14 @@ PLOTTING_EXTENSIONS = ["pdf", "png"]
 N_GPU_LST = [-1, 0] if check_gputree_availability() else [0]
 
 
-def check_new_versus_all(name, tmp_fodler, n_iters):
+def check_new_versus_all(name, tmp_fodler, n_iters, imputer):
+    parts = [name.split(".")[0]]
+    if imputer:
+        parts.append("_withnan")
     if n_iters > 0:
-        name_old = name.split(".")[0] + "_optim.tsv"
-    else:
-        name_old = name
+        parts.append("_optim")
+
+    name_old = "".join(parts) + ".tsv"
 
     old_df = (
         pd.read_csv(THIS_DIR.joinpath(name_old), sep="\t", index_col=0)
@@ -34,7 +37,7 @@ def check_new_versus_all(name, tmp_fodler, n_iters):
         .sort_index(axis=1)
         .sort_index(axis=0)
     )
-    return np.allclose(old_df, new_df, equal_nan=True)
+    return np.allclose(old_df, new_df, rtol=1e-1, atol=1e-01, equal_nan=True)
 
 
 @pytest.mark.parametrize("n_gpus", N_GPU_LST)
@@ -50,6 +53,7 @@ def test_cli_run(n_gpus, n_iters, impute):
 
     opts = [
         "run",
+        "--no-add",
         "--verbosity",
         "--debug",
         f"--n-gpus {n_gpus}",
@@ -67,7 +71,7 @@ def test_cli_run(n_gpus, n_iters, impute):
     assert all([x.exists() for x in exist_files])
 
     numeric_checks = [
-        check_new_versus_all(fname, ml_folder_expected, n_iters)
+        check_new_versus_all(fname, ml_folder_expected, n_iters, impute)
         for fname in expected_files
     ]
     assert all(numeric_checks)

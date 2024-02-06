@@ -116,6 +116,8 @@ def extract_estimator(model):
     """
     if isinstance(model, Pipeline):
         estimator = model[-1]
+        if isinstance(estimator, (HalvingRandomSearchCV, RandomizedSearchCV)):
+            estimator = estimator.best_estimator_
     elif isinstance(model, (HalvingRandomSearchCV, RandomizedSearchCV)):
         estimator = model.best_estimator_
     elif isinstance(model, RandomForestRegressor):
