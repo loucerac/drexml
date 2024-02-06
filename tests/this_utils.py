@@ -24,7 +24,6 @@ DATA_DICT_WITHNAN = {
 }
 
 
-
 def read_test_circuits():
     """Read test circuits."""
     return pd.read_csv(THIS_DIR.joinpath("circuits.tsv.gz"), sep="\t", index_col=0)
@@ -50,7 +49,7 @@ def make_disease_config(use_seeds=True, update=False, use_physio=True, impute=Fa
     else:
         experiment_name = "experiment.env"
         data_dict = DATA_DICT_NONAN
-    
+
     disease_path_out = tmp_dir.joinpath(experiment_name)
     with open(disease_path_out, mode="w", encoding="utf8") as this_file:
         pass
