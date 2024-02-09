@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo $BASEDIR
 set -a            
 source .env
 set +a
@@ -19,8 +21,8 @@ else
 	python=3.10 python-dotenv jupyterlab hyperfine
 fi
 
-# install latest stable version fo drexml
-CONDA_RUN="conda run --live-stream --no-capture-output -p ./.venv"
+# install latest stable version of drexml
+CONDA_RUN="conda run --live-stream --no-capture-output -p ${BASEDIR}/.venv"
 ${CONDA_RUN} pip install -I --force-reinstall --no-cache-dir --no-binary=shap drexml==1.0.4
 
 if [ $USE_GPU == 1 ]; then
@@ -29,8 +31,10 @@ fi
 
 ${CONDA_RUN} python 01_build_benchmark.py
 
-${CONDA_RUN} hyperfine --runs 5 --shell=bash --export-csv disease_001.csv 'drexml run ./examples/disease_001/disease.env'
-
-# run drexml using all CPUs and no GPUs
-#${CONDA_RUN} drexml run --n-gpus 0 experiment.env > results/drexml.out 2> results/drexml.err
-#rm -rf results/tmp
+declare -a map_size_lst=( 1 25 50 75 100)
+for i in "${map_size_lst[@]}"; do
+	this_i=$(printf "%03d\n" "$i")
+	( cd ./experiments/disease_${this_i} \
+	&& \
+	${CONDA_RUN} hyperfine --runs 10 --shell=bash --export-csv disease_${this_i}.csv 'drexml run disease.env' )
+done
