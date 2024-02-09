@@ -29,7 +29,7 @@ fi
 
 ${CONDA_RUN} python 01_build_benchmark.py
 
-${CONDA_RUN} hyperfine --shell=bash --export-csv disease_001.csv 'drexml run ./examples/disease_001/disease.env'
+${CONDA_RUN} hyperfine --runs 5 --shell=bash --export-csv disease_001.csv 'drexml run ./examples/disease_001/disease.env'
 
 # run drexml using all CPUs and no GPUs
 #${CONDA_RUN} drexml run --n-gpus 0 experiment.env > results/drexml.out 2> results/drexml.err
