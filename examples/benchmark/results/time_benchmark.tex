@@ -1,0 +1,21 @@
+\begin{table}
+\centering
+\caption{Clock time benchmarking results (in seconds) for the \texttt{drexml} 
+    package on varying disease map sizes (number of circuits) and hardware 
+    configurations (CPU/GPU).
+}
+\label{tab:time}
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{\textbf{mean}} & \multicolumn{2}{c}{\textbf{stddev}} \\
+Device & \textbf{CPU} & \textbf{GPU} & \textbf{CPU} & \textbf{GPU} \\
+Map size &  &  &  &  \\
+\midrule
+1 & 756.09 & 799.64 & 2.10 & 2.14 \\
+25 & 5015.78 & 3692.54 & 28.54 & 8.38 \\
+50 & 11384.62 & 7456.56 & 63.46 & 14.10 \\
+75 & 16514.22 & 11050.92 & 60.96 & 17.46 \\
+100 & 21658.04 & 14736.68 & 70.05 & 19.63 \\
+\bottomrule
+\end{tabular}
+\end{table}
