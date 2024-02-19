@@ -29,4 +29,4 @@ if [ $USE_GPU == 1 ]; then
 	${CONDA_RUN} python -c 'import shap; shap.utils.assert_import("cext_gpu")'
 fi
 
-${CONDA_RUN} python 01_build_benchmark.py
+#${CONDA_RUN} python 01_build_benchmark.py
