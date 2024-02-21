@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo $BASEDIR
-set -a            
-source .env
-set +a
+USE_GPU="$1"
 
-conda deactivate
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 mkdir -p results
 
@@ -28,5 +24,3 @@ ${CONDA_RUN} pip install -I --force-reinstall --no-cache-dir --no-binary=shap dr
 if [ $USE_GPU == 1 ]; then
 	${CONDA_RUN} python -c 'import shap; shap.utils.assert_import("cext_gpu")'
 fi
-
-#${CONDA_RUN} python 01_build_benchmark.py
