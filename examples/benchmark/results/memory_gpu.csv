@@ -1,0 +1,6 @@
+map_size,max_memory_cpu,max_memory_gpu
+100, 18.5 G, 5.4 G
+75, 16.5 G, 4.2 G
+50, 14.18 G, 3.91 G
+25, 10.9 G, 1.82 G
+1, 6.76 G, 0.41 G

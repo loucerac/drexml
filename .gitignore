@@ -295,3 +295,4 @@ examples/fanconi_anemia/results/tmp/
 examples/codeocean/results/tmp/
 debug/
 .debug/
+examples/benchmark/experiments/

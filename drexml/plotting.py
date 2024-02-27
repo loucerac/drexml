@@ -240,7 +240,7 @@ class RepurposingResult:
         else:  # pragma: no cover
             plt.show()
 
-    def plot_metrics(self, width=2.735, output_folder=None):
+    def plot_metrics(self, width=3.3, output_folder=None):
         """
         Read the drexml results TSV file and plot it. The R^2 confidence interval for the
         mean go to y-axis, whereas the x-axis shows the 95% interval for the Nogueiras's
@@ -296,9 +296,9 @@ class RepurposingResult:
             label="Stability 95% CI",
         )
 
-        ax.axvspan(0, 0.4, color="red", alpha=0.1)
-        ax.axvspan(0.4, 0.75, color="y", alpha=0.1)
-        ax.axvspan(0.75, 1.0, color="g", alpha=0.1)
+        ax.axvspan(0, 0.4, color="red", alpha=0.1, label="Stab. Low")
+        ax.axvspan(0.4, 0.75, color="y", alpha=0.1, label="Stab. Medium")
+        ax.axvspan(0.75, 1.0, color="g", alpha=0.1, label="Stab. High")
         ax.set_xticks([0, 0.4, 0.75, 1])
 
         plt.xlabel("Stability")

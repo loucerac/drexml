@@ -1,0 +1,13 @@
+"","single_target","pert_id","pert_iname","moa","norm_cs","mean_abs_shap","circuits_above_zero"
+"5","EGFR","BRD-K73293050","WZ-3146","EGFR inhibitor",-2.1544,0.00192081948264966,4
+"8","HMGCR","BRD-K22134346","simvastatin","HMGCR inhibitor",-2.1484,0.00429187111853705,1
+"2","BTK","BRD-A35869383","ibrutinib","BTK inhibitor",-2.1411,0.158110735307196,77
+"10","PIK3CG","BRD-K42191735","buparlisib","PI3K inhibitor",-2.1402,0.000554823236848676,1
+"3","CA12","BRD-K30466858","ellagic-acid","Glutathione transferase inhibitor|Aldose reductase inhibitor|Beta secretase inhibitor|HCV inhibitor|HIV inhibitor|Quorum sensing signaling modulator|Reverse transcriptase inhibitor",-2.1296,0.00420185007724679,1
+"12","SYK","BRD-K30466858","ellagic-acid","Glutathione transferase inhibitor|Aldose reductase inhibitor|Beta secretase inhibitor|HCV inhibitor|HIV inhibitor|Quorum sensing signaling modulator|Reverse transcriptase inhibitor",-2.1296,0.0443061716448727,41
+"11","SCN8A","BRD-A53952395","prilocaine","Anesthetic - local",1.8987,0.112027305470754,36
+"4","DGAT2","BRD-K60237333","niacin","NADPH inhibitor|Vitamin B",1.9472,0.0300902366702115,8
+"7","HCAR3","BRD-K60237333","niacin","NADPH inhibitor|Vitamin B",1.9472,0.10287141689928,70
+"9","NNMT","BRD-K60237333","niacin","NADPH inhibitor|Vitamin B",1.9472,0.0321309864449068,10
+"1","ALOX5","BRD-A87479750","tenidap","Cyclooxygenase inhibitor",1.9523,0.170377769583405,83
+"6","HCAR2","BRD-K92428153","mycophenolate-mofetil","Inosine monophosphate dehydrogenase inhibitor|Dehydrogenase inhibitor|Hydroxycarboxylic acid receptor agonist|Immunosuppressant|Inositol monophosphatase inhibitor",2.0831,0.183379771963352,87
