@@ -1,8 +1,33 @@
-[![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439) [![PyPI version](https://badge.fury.io/py/drexml.svg)](https://badge.fury.io/py/drexml) [![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm.fming.dev)
+[![DOI](https://zenodo.org/badge/362395439.svg)](https://zenodo.org/badge/latestdoi/362395439) [![PyPI version](https://badge.fury.io/py/drexml.svg)](https://badge.fury.io/py/drexml) [![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm.fming.dev)[![DOI](https://img.shields.io/badge/DOI-10.1016/j.csbj.2024.02.027__5-FAB70C?logo=doi)](https://doi.org/10.1016/j.csbj.2024.02.027)
 
 # Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction
 
 Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using eXplainable Machine Learning and Mechanistic Models of signal transduction
+
+## Citation
+
+Find the associated publication here:
+
+```
+[1] Esteban-Medina M, de la Oliva Roque VM, Herráiz-Gil S, Peña-Chilet M, Dopazo J, Loucera C. drexml: A command line tool and Python package for drug repurposing. Computational and Structural Biotechnology Journal 2024. https://doi.org/10.1016/j.csbj.2024.02.027.
+
+```
+
+And the `BIB` file:
+
+```
+@article{EstebanMedina2024,
+  title = {drexml: A command line tool and Python package for drug repurposing},
+  ISSN = {2001-0370},
+  url = {http://dx.doi.org/10.1016/j.csbj.2024.02.027},
+  DOI = {10.1016/j.csbj.2024.02.027},
+  journal = {Computational and Structural Biotechnology Journal},
+  publisher = {Elsevier BV},
+  author = {Esteban-Medina,  Marina and de la Oliva Roque,  Víctor Manuel and Herráiz-Gil,  Sara and Peña-Chilet,  María and Dopazo,  Joaquín and Loucera,  Carlos},
+  year = {2024},
+  month = mar 
+}
+```
 
 ## Setup
 
