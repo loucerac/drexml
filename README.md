@@ -39,7 +39,7 @@ The article was written using `drexml` version `v1.1.0`. Install it using:
 ```
 pip install drexml==1.1.0
 ```
-Version `v1.1.1` improves the `README` by including a reference to the published article for easier access.
+Version `v1.1.1` improves the documentation and `README` by including a reference to the published article for easier access.
 
 ## Setup
 

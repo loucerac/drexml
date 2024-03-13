@@ -9,6 +9,33 @@ and signaling circuits.
 
    Holistic Drug REpurposing Model
 
+Citation
+========
+
+Find `here <https://doi.org/10.1016/j.csbj.2024.02.027>`_ the published article in Computational and Structural Biotechnology Journal's special issue on `Intelligent Biology and Medicine <https://www.sciencedirect.com/science/journal/20010370/vsi/10XRHM1G1LS>`_:
+
+.. code:: text
+
+   Esteban-Medina M, de la Oliva Roque VM, Herráiz-Gil S, Peña-Chilet M, Dopazo J, Loucera C. drexml: A command line tool and Python package for drug repurposing. Computational and Structural Biotechnology Journal 2024;23:1129–43. https://doi.org/10.1016/j.csbj.2024.02.027.
+
+And the ``BIB`` file:
+
+.. code:: text
+
+   @article{ESTEBANMEDINA20241129,
+   title = {drexml: A command line tool and Python package for drug repurposing},
+   journal = {Computational and Structural Biotechnology Journal},
+   volume = {23},
+   pages = {1129-1143},
+   year = {2024},
+   issn = {2001-0370},
+   doi = {https://doi.org/10.1016/j.csbj.2024.02.027},
+   url = {https://www.sciencedirect.com/science/article/pii/S2001037024000515}
+   }
+
+
+The article was written using ``drexml`` version ``v1.1.0``.
+
 Installation
 =============
 
