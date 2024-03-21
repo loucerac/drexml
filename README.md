@@ -149,7 +149,7 @@ The recommended setup is:
 - use `pipx` to install `nox`
 - run `pdm config venv.backend conda`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
-- (Recommended): For GPU development, clear the cache using `pdm clean cache` first
+- (Recommended): For GPU development, clear the cache using `pdm cache clear` first
 
 ## Documentation
 
