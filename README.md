@@ -77,10 +77,11 @@ To run the program for a disease map that uses circuits from the preprocessed `K
 seed_genes=2175,2176,2189
 ```
 
-- using the following template if you want to use the DisGeNET [1] curated gene-disease associations as seeds.
+- using the following template if you want to use the DisGeNET [1] curated gene-disease associations as seeds. Genes may be selected based on gene-disease association (GDA) score alone (`"gda"`) or relevance score (`"relevance"`), which transforms the GDA score positively by specificity and evidence indexes and negatively by pleiotropy index in order to enrich the selection in disease-focused genes.
 
 ```
 disease_id="C0015625"
+disgenet_score_type="gda"
 ```
 
 - using the following template if you know which circuits to include (the disease map):
