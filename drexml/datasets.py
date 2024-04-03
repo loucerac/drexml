@@ -5,6 +5,7 @@ IO module for DREXML.
 import pathlib
 
 import pandas as pd
+import numpy as np
 import pystow
 from pandas.errors import ParserError
 from requests.exceptions import ConnectTimeout
@@ -78,7 +79,13 @@ def load_disgenet():
             "diseaseName": "disease_name",
             "score": "dga_score",
         }
-    ).loc[:, ["disease_name", "disease_id", "entrez_id", "dga_score"]]
+    ).loc[:, ["disease_name", 
+              "disease_id", 
+              "entrez_id", 
+              "dga_score",
+              "DPI",
+              "DSI",
+              "EI"]]
 
     return disgenet
 
@@ -103,6 +110,41 @@ def get_gda(disease_id, k_top=40):
     disgenet = load_disgenet()
     disgenet = disgenet.loc[disgenet["disease_id"] == disease_id]
     disgenet = disgenet.nlargest(k_top, "dga_score")
+
+    return disgenet.entrez_id.astype(str).unique().tolist()
+
+
+def get_disgenet_comb_score(disease_id, q=0.9):
+    """Retrieve the list of genes associated to a disease according to the Disgenet
+    curated list of gene-disease associations. This function is based on GDA score, 
+    Disease Specificity Index (DSI), Disease Pleiotropy Index (DPI) and Evidence index 
+    (EI).
+
+    Parameters
+    ----------
+    disease_id : str
+        Disease ID.
+
+    q: float
+        Retrieve genes above q quantile combined score.
+
+    Returns
+    -------
+    list
+        List of gene IDs.
+    """
+    disgenet = load_disgenet()
+    disgenet = disgenet.loc[disgenet["disease_id"] == disease_id]
+
+    disgenet['comb_sc'] = disgenet['dga_score'] / disgenet['DPI'] \
+        * disgenet['DSI'] \
+        * disgenet['EI']
+    
+    disgenet.replace([np.inf, -np.inf], np.nan, inplace=True)
+    disgenet.dropna(subset=['comb_sc'], inplace=True)
+
+    th = disgenet.quantile(q = q)['comb_sc']
+    disgenet = disgenet.loc[disgenet['comb_sc'] >= th]
 
     return disgenet.entrez_id.astype(str).unique().tolist()
 
