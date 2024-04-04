@@ -5,6 +5,7 @@ authors = [
     { name = "Maria Pena-Chilet", email = "maria.pena.chilet.ext@juntadeandalucia.es.com" },
     { name = "Víctor Manuel de la Oliva Roque", email = "victorm.oliva@juntadeandalucia.es" },
     { name = "Sara Herráiz-Gil ", email = "sherraiz@ing.uc3m.es" },
+    { name = "Miriam Payá-Milans", email = "miriam.paya@juntadeandalucia.es" },
 ]
 requires-python = ">=3.8,<3.11"
 dependencies = [
