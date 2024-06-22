@@ -53,7 +53,12 @@ dev = [
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--ff -ra -v"
+addopts = [
+    "--ff",
+    "-ra",
+    "-v",
+    "--import-mode=importlib",
+]
 python_functions = [
     "test_*",
 ]
