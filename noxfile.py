@@ -27,7 +27,5 @@ def tests(session):
 
             pdm_env["PDM_NO_BINARY"] = "shap"
 
-    #session.conda_install("pytest=7", "-c", "conda-forge")
-
     session.run("pdm", "install", "-vd", external=True, env=pdm_env)
     session.run("pdm", "run", "pytest", external=True, env=pdm_env)
