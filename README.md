@@ -11,9 +11,9 @@ Repository for the `drexml` python package: (DRExM³L) Drug REpurposing using eX
 
 Find the associated publication [here](https://doi.org/10.1016/j.csbj.2024.02.027):
 
-```
+
 Esteban-Medina M, de la Oliva Roque VM, Herráiz-Gil S, Peña-Chilet M, Dopazo J, Loucera C. drexml: A command line tool and Python package for drug repurposing. Computational and Structural Biotechnology Journal 2024;23:1129–43. https://doi.org/10.1016/j.csbj.2024.02.027.
-```
+
 
 Part of the [Intelligent Biology and Medicine](https://www.sciencedirect.com/science/journal/20010370/vsi/10XRHM1G1LS) special issue:
 
@@ -23,15 +23,18 @@ https://www.sciencedirect.com/journal/computational-and-structural-biotechnology
 And the `BIB` file:
 
 ```
-@article{ESTEBANMEDINA20241129,
-title = {drexml: A command line tool and Python package for drug repurposing},
-journal = {Computational and Structural Biotechnology Journal},
-volume = {23},
-pages = {1129-1143},
-year = {2024},
-issn = {2001-0370},
-doi = {https://doi.org/10.1016/j.csbj.2024.02.027},
-url = {https://www.sciencedirect.com/science/article/pii/S2001037024000515}
+@article{EstebanMedina2024,
+  title = {drexml: A command line tool and Python package for drug repurposing},
+  volume = {23},
+  ISSN = {2001-0370},
+  url = {http://dx.doi.org/10.1016/j.csbj.2024.02.027},
+  DOI = {10.1016/j.csbj.2024.02.027},
+  journal = {Computational and Structural Biotechnology Journal},
+  publisher = {Elsevier BV},
+  author = {Esteban-Medina,  Marina and de la Oliva Roque,  Víctor Manuel and Herráiz-Gil,  Sara and Peña-Chilet,  María and Dopazo,  Joaquín and Loucera,  Carlos},
+  year = {2024},
+  month = dec,
+  pages = {1129–1143}
 }
 ```
 
@@ -149,7 +152,7 @@ The recommended setup is:
 - use `pipx` to install `nox`
 - run `pdm config venv.backend conda`
 - run `make`, if you want to use a CUDA enabled GPU, use `make gpu=1`
-- (Recommended): For GPU development, clear the cache using `pdm clean cache` first
+- (Recommended): For GPU development, clear the cache using `pdm cache clear` first
 
 ## Documentation
 

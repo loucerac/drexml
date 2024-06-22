@@ -28,4 +28,4 @@ def tests(session):
             pdm_env["PDM_NO_BINARY"] = "shap"
 
     session.run("pdm", "install", "-vd", external=True, env=pdm_env)
-    session.run("pytest")
+    session.run("pdm", "run", "pytest", external=True, env=pdm_env)
