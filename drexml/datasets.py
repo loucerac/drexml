@@ -55,21 +55,9 @@ def load_disgenet():
         Disgenet curated dataset of gene-disease associations.
     """
 
-    url = "/".join(
-        [
-            "https:/",
-            "www.disgenet.org",
-            "static",
-            "disgenet_ap1",
-            "files",
-            "downloads",
-            "curated_gene_disease_associations.tsv.gz",
-        ]
-    )
+    fpath = get_resource_path("curated_gene_disease_associations.tsv.gz")
 
-    disgenet: pd.DataFrame = pystow.ensure_csv(
-        "drexml", "datasets", url=url, read_csv_kwargs={"sep": "\t"}
-    )
+    disgenet: pd.DataFrame = pd.read_csv(fpath, sep="\t")
 
     disgenet = disgenet.rename(
         columns={
