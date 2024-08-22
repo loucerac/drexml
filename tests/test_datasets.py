@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from pandas.errors import ParserError
 
-from drexml.datasets import get_disease_data, load_df
+from drexml.datasets import get_disease_data, load_df, load_disgenet
 
 from .test_utils import make_disease_config
 
@@ -63,3 +63,17 @@ def test_load_df_fails_feather():
     _, tmp_file = mkstemp()
     pd.DataFrame().reset_index(names="vader").to_feather(tmp_file)
     load_df(tmp_file)
+
+
+def test_load_disgenet():
+    """Unit test load_disgenet."""
+
+    disgenet = load_disgenet()
+
+    assert disgenet.shape[0] > 0
+    assert all(
+        [
+            x in ["disease_name", "disease_id", "entrez_id", "dga_score"]
+            for x in disgenet.columns
+        ]
+    )
