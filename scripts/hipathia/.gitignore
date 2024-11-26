@@ -1,0 +1,5 @@
+
+# pixi environments
+.pixi
+*.egg-info
+GTEx_Analysis_v10_RNASeQCv2.4.2_gene_reads.gct.gz

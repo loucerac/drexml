@@ -1,0 +1,17 @@
+[project]
+authors = ["Carlos Loucera <carlos.loucera@juntadeandalucia.es>"]
+channels = ["conda-forge", "bioconda"]
+description = "Add a short description here"
+name = "hipathia"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+bioconductor-hipathia = ">=3.2.0,<4"
+"r-data.table" = ">=1.15.4,<2"
+bioconductor-edger = ">=4.0.16,<5"
+r-feather = ">=0.3.5,<0.4"
+r-here = ">=1.0.1,<2"
+r-base = ">=4.3.3,<4.4"
