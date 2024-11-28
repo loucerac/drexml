@@ -2,8 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 gtex_fname <- file.path(args[1])
-vers <- args[2]
-output <- file.path(args[3])
+output <- file.path(args[2])
 
 #########################################
 ### Processing GTEx V8 datasets #####
@@ -18,7 +17,7 @@ library("R.utils")
 save_feather <- function(x, path) {
   df <- data.frame(index = row.names(x), x)
 
-  write_feather(df, path)
+  feather::write_feather(df, path)
 }
 
 AnnotationHub::setAnnotationHubOption("ASK", FALSE)
