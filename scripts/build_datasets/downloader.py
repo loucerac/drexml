@@ -6,9 +6,9 @@ import requests
 
 THIS_VERSION = 1.0
 
+
 def build_gtex_url(version, qcv="RNASeQCv2.4.2"):
-    """ Build gtex url from versions.
-    """
+    """Build gtex url from versions."""
 
     url_parts = [
         "https://storage.googleapis.com",
@@ -16,7 +16,7 @@ def build_gtex_url(version, qcv="RNASeQCv2.4.2"):
         "bulk-gex",
         f"v{version}",
         "rna-seq",
-        f"GTEx_Analysis_v{version}_{qcv}_gene_reads.gct.gz"
+        f"GTEx_Analysis_v{version}_{qcv}_gene_reads.gct.gz",
     ]
 
     return "/".join(url_parts)
@@ -27,6 +27,7 @@ def main():
     """Data downloader for drexml."""
 
     print(f"Running data downloader {THIS_VERSION}")
+
 
 @main.command()
 @click.option("--version", default="10", help="GTeX version.")
@@ -49,6 +50,7 @@ def download_gtex(version, output):
 
     except requests.exceptions.RequestException as e:
         click.echo(f"Error downloading GTeX rnaseq database: {e}")
+
 
 if __name__ == "__main__":
     main()

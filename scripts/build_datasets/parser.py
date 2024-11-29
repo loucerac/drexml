@@ -7,20 +7,17 @@ Adaptaed from https://github.com/babelomics/drexml-retinitis.git
 """
 
 import collections
-import gzip
+import configparser
 import re
-import xml.etree.ElementTree as ET
-from datetime import datetime
-from pathlib import Path
 import sys
-import click
-import requests
+import xml.etree.ElementTree as ET
 import zipfile
+from pathlib import Path
+
 import click
 import pandas as pd
+import requests
 from biothings_client import get_client
-
-import configparser
 
 THIS_VERSION = 1.0
 
@@ -255,7 +252,7 @@ def parse(xml_path, output, use_groups):
     print("Running XML parser.")
     xml_path = Path(xml_path)
     with zipfile.ZipFile(xml_path) as this_zip_file:
-        with this_zip_file.open('full database.xml') as xml_file:
+        with this_zip_file.open("full database.xml") as xml_file:
             tree = ET.parse(xml_file)
     root = tree.getroot()
 
