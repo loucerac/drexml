@@ -24,6 +24,11 @@ rule all:
             "data/gtex_v{gtex_version}.gct.gz", gtex_version=config["gtex"]["versions"]
         ),
         expand(
+            "data/genesasrows_gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+        ),
+        expand(
             "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
             gtex_version=config["gtex"]["versions"],
             edger_version=config["edger"]["versions"],
@@ -42,8 +47,16 @@ rule all:
         ),
 
 
+rule setup:
+    log:
+        "pixi.log",
+    shell:
+        "pixi install --all"
+
+
 rule download_drugbank:
     input:
+        rules.setup.log,
         script="parser.py",
     output:
         "data/drugbank_v{db_version}.zip",
@@ -86,7 +99,8 @@ rule translate_drugbank:
 
 rule download_gtex:
     input:
-        script="downloader.py"
+        rules.setup.log,
+        script="downloader.py",
     output:
         "data/gtex_v{gtex_version}.gct.gz",
     shell:
@@ -95,10 +109,11 @@ rule download_gtex:
 
 rule normalize_gexp:
     input:
+        rules.setup.log,
         gexp=rules.download_gtex.output,
         script="normalize_gexp.R",
     output:
-        "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
+        "data/genesasrows_gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
     shell:
         "pixi run -e r Rscript --vanilla {input.script} {input.gexp} {output}"
 
@@ -112,3 +127,13 @@ rule compute_hipathia:
         pathvals_norm="data/pathvals_gtex-v{gtex_version}_edger-v{edger_version}_hipathia-norm-v{hipathia_version}.feather",
     shell:
         "pixi run -e r Rscript --vanilla {input.script} {input.gexp_norm} {output.pathvals} {output.pathvals_norm}"
+
+
+rule transpose_gtex:
+    input:
+        gex=rules.normalize_gexp.output,
+        script="transpose_gtex.R",
+    output:
+        "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
+    shell:
+        "pixi run -e r Rscript --vanilla {input.script} {input.gex} {output}"
