@@ -163,3 +163,10 @@ https://loucerac.github.io/drexml/
 
 ## References
 [1] Janet Piñero, Juan Manuel Ramírez-Anguita, Josep Saüch-Pitarch, Francesco Ronzano, Emilio Centeno, Ferran Sanz, Laura I Furlong. The DisGeNET knowledge platform for disease genomics: 2019 update. Nucl. Acids Res. (2019) doi:10.1093/nar/gkz1021
+
+
+## Note on Dataset Construction
+
+This repository includes a basic Snakemake/Pixi workflow for building the Zenodo datasets using the latest versions. You can find it at `scripts/build_datasets`.
+
+However, we are actively developing a more robust and scalable Nextflow/Docker solution for all our repurposing tools. Stay tuned for updates! Or ask @erdanieee .
