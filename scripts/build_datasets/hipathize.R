@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+# Adaptaed from Adaptaed from https://github.com/babelomics/drexml-retinitis.git
 args = commandArgs(trailingOnly=TRUE)
 
 input_path <- file.path(args[1])

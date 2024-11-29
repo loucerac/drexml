@@ -3,6 +3,7 @@
 """
 Drugbank parser.
 Adapted from https://github.com/dhimmel/drugbank/blob/gh-pages/parse.ipynb
+Adaptaed from https://github.com/babelomics/drexml-retinitis.git
 """
 
 import collections

@@ -1,4 +1,6 @@
 #!/usr/bin/env Rscript
+# Adapted from Adaptaed from https://github.com/babelomics/drexml-retinitis.git
+
 args = commandArgs(trailingOnly=TRUE)
 
 gtex_fname <- file.path(args[1])
