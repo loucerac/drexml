@@ -9,9 +9,6 @@ version = "0.1.0"
 [system-requirements]
 linux = "4"
 
-[feature.r.activation]
-scripts = ["env_setup.sh"]
-
 [feature.r.dependencies]
 bioconductor-hipathia = ">=3.2.0,<4"
 r-here = ">=1.0.1,<2"
@@ -22,6 +19,9 @@ bioconductor-biocversion = "3.18.*"
 r-base = "4.3.*"
 "r-r.utils" = ">=2.12.3,<3"
 bioconductor-genomeinfodbdata = ">=1.2.11,<2"
+
+[feature.r.activation]
+scripts = ["env_setup.sh"]
 
 [feature.py.dependencies]
 click = "*"
