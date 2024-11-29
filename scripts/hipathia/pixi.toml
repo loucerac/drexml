@@ -1,17 +1,102 @@
 [project]
 authors = ["Carlos Loucera <carlos.loucera@juntadeandalucia.es>"]
-channels = ["conda-forge", "bioconda"]
+channels = ["conda-forge", "bioconda", "anaconda"]
 description = "Add a short description here"
 name = "hipathia"
 platforms = ["linux-64"]
 version = "0.1.0"
 
-[tasks]
+[system-requirements]
+linux = "4"
 
-[dependencies]
+
+[feature.r.tasks]
+setup = "mkdir -p data/raw && mkdir -p data/interim && mkdir -p data/final"
+download = { cmd = [
+    "wget",
+    "-P",
+    "data/raw",
+    "$URL",
+], depends_on = [
+    "setup",
+], outputs = [
+    "data/raw/GTEx_Analysis_v10_RNASeQCv2.4.2_gene_reads.gct.gz",
+], env = { URL = "https://storage.googleapis.com/adult-gtex/bulk-gex/v10/rna-seq/GTEx_Analysis_v10_RNASeQCv2.4.2_gene_reads.gct.gz" } }
+check = { cmd = [
+    "cd",
+    "data/raw",
+    "&&",
+    "sha256sum",
+    "-c",
+    "GTEx_Analysis_v10_RNASeQCv2.4.2_gene_reads.gct.gz.sha256",
+], depends_on = [
+    "download",
+] }
+hipathia = { cmd = [
+    "Rscript",
+    "--vanilla",
+    "run_hipathia.R",
+    "GTEx_Analysis_v10_RNASeQCv2.4.2_gene_reads.gct.gz",
+    "v10",
+], depends_on = [
+    "check",
+] }
+
+[feature.py.tasks]
+
+download_drugbank = {cmd = ["python",  "parser.py", "download-drugbank"], outputs = ["data/raw/drugbank_v*.zip"]}
+
+check_drugbank = { cmd = [
+    "cd",
+    "data/raw",
+    "&&",
+    "sha256sum",
+    "-c",
+    "drugbank_v*.zip.sha256",
+], depends_on = [
+    "download_drugbank",
+] }
+
+parse_drugbank = { cmd = [
+    "python",
+    "parser.py",
+    "parse"
+], depends_on = [
+    "check_drugbank",
+], outputs = [
+    "data/final/drugbank_v*.zip",
+]}
+
+translate_drugbank = { cmd = [
+    "python",
+    "parser.py",
+    "translate",
+    "--kind",
+    "drugbank"
+], depends_on = ["parse_drugbank"], outputs = ["data/final/genes_drugbank-*.tsv.gz"]}
+
+
+[feature.r.dependencies]
 bioconductor-hipathia = ">=3.2.0,<4"
-"r-data.table" = ">=1.15.4,<2"
-bioconductor-edger = ">=4.0.16,<5"
-r-feather = ">=0.3.5,<0.4"
 r-here = ">=1.0.1,<2"
-r-base = ">=4.3.3,<4.4"
+"r-data.table" = ">=1.15.4,<2"
+r-feather = ">=0.3.5,<0.4"
+bioconductor-edger = ">=4.0.16,<5"
+bioconductor-biocversion = "3.18.*"
+r-base = "4.3.*"
+"r-r.utils" = ">=2.12.3,<3"
+bioconductor-genomeinfodbdata = ">=1.2.11,<2"
+
+[feature.r.activation]
+scripts = ["env_setup.sh"]
+
+[feature.py.dependencies]
+click = "*"
+pandas = "*"
+biothings_client = "*"
+
+
+[environments]
+# all environments include the default feature
+py = ["py"]
+r = ["r"]

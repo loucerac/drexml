@@ -31,7 +31,8 @@ expreset_raw <- fread(
 ) %>% as.data.frame(.)
 
 rownames(expreset_raw) <- expreset_raw$Name
-expreset_raw <- expreset_raw[, -(1:2)]
+expreset_raw[c("Name", "Description")] <- list(NULL)
+#expreset_raw <- expreset_raw[, -(1:2)]
 
 # Normalization by TMM with "edgeR" package
 dge <- DGEList(counts = expreset_raw)

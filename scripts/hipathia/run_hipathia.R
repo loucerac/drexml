@@ -1,21 +1,14 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) == 0) {
-  gtex_fname <- "GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_reads.gct.gz"
-  vers <- "v8"
-} else if (length(args) == 1) {
-  gtex_fname <- args[1]
-  vers <- "v8"
-} else {
-  gtex_fname <- args[1]
-  vers <- args[2]
-}
+
+gtex_fname <- args[1]
+vers <- args[2]
+output <- args[3]
 
 #########################################
 ### Processing GTEx V8 datasets #####
 #########################################
 
-library(here)
 library(hipathia)
 library(feather)
 library(edgeR)
@@ -49,7 +42,7 @@ logcpm <- cpm(tmm, prior.count = 3, log = TRUE)
 print("dge...done")
 
 # eliminate from rownames the ".number", beacuse Hipathia does not process them well
-rownames(logcpm) <- gsub("\\..*", "", rownames(logcpm))
+# rownames(logcpm) <- gsub("\\..*", "", rownames(logcpm))
 print("normalization 1...done")
 
 
@@ -68,7 +61,7 @@ pathways <- load_pathways("hsa")
 
 results <- hipathia(exp_data, pathways, decompose = FALSE, verbose = FALSE)
 path_vals <- get_paths_data(results, matrix = TRUE)
-path_vas_norm <- normalize_paths(path_vals, pathways)
+path_vals_norm <- normalize_paths(path_vals, pathways)
 
 save_feather <- function(x, path) {
   df <- data.frame(index = row.names(x), x)
@@ -90,7 +83,7 @@ save_feather(
 )
 
 save_feather(
-  t(path_vas_norm),
+  t(path_vals_norm),
   here("data", "final", paste0("pathvals_gtex-", vers, "_edger-", edger_vers, "_hipathia-norm-", hipathia_vers, ".feather"))
 )
 

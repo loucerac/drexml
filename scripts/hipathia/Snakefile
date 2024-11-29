@@ -1,0 +1,114 @@
+configfile: "config.yaml"
+
+
+rule all:
+    input:
+        expand(
+            "data/drugbank_v{db_version}.zip",
+            db_version=config["drugbank"]["versions"],
+        ),
+        expand(
+            "data/drugbank_v{db_version}.checked",
+            db_version=config["drugbank"]["versions"],
+        ),
+        expand(
+            "data/drugbank_v{db_version}.tsv.gz",
+            db_version=config["drugbank"]["versions"],
+        ),
+        expand(
+            "data/genes_drugbank-{db_version}_mygene-{mg_version}.tsv.gz",
+            db_version=config["drugbank"]["versions"],
+            mg_version=config["mygene"]["versions"],
+        ),
+        expand(
+            "data/gtex_v{gtex_version}.gct.gz", gtex_version=config["gtex"]["versions"]
+        ),
+        expand(
+            "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+        ),
+        expand(
+            "data/pathvals_gtex-v{gtex_version}_edger-v{edger_version}_hipathia-v{hipathia_version}.feather",
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+            hipathia_version=config["hipathia"]["versions"],
+        ),
+        expand(
+            "data/pathvals_gtex-v{gtex_version}_edger-v{edger_version}_hipathia-norm-v{hipathia_version}.feather",
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+            hipathia_version=config["hipathia"]["versions"],
+        ),
+
+
+rule download_drugbank:
+    input:
+        script="parser.py",
+    output:
+        "data/drugbank_v{db_version}.zip",
+    shell:
+        "pixi run -e py python {input.script} download-drugbank --version {wildcards.db_version} --filename {output}"
+
+
+rule check_drugbank_integrity:
+    input:
+        xml="data/drugbank_v{db_version}.zip",
+        sha="versions/drugbank_v{db_version}.zip.sha256",
+        downloaded_file=rules.download_drugbank.output,
+    output:
+        "data/drugbank_v{db_version}.checked",
+    shell:
+        "sha256sum -c <(awk '{{print $1 \"  {input.xml}\"}}' {input.sha}) > {output}"
+
+
+rule parse_drugbank:
+    input:
+        xml="data/drugbank_v{db_version}.zip",
+        downloaded_file=rules.check_drugbank_integrity.output,
+        script="parser.py",
+    output:
+        "data/drugbank_v{db_version}.tsv.gz",
+    shell:
+        "pixi run -e py python {input.script} parse {input.xml} {output}"
+
+
+rule translate_drugbank:
+    input:
+        xml="data/drugbank_v{db_version}.tsv.gz",
+        downloaded_file=rules.parse_drugbank.output,
+        script="parser.py",
+    output:
+        "data/genes_drugbank-{db_version}_mygene-{mg_version}.tsv.gz",
+    shell:
+        "pixi run -e py python {input.script} translate --kind drugbank {input.xml} {output}"
+
+
+rule download_gtex:
+    input:
+        script="downloader.py"
+    output:
+        "data/gtex_v{gtex_version}.gct.gz",
+    shell:
+        "pixi run -e py python {input.script} download-gtex --version {wildcards.gtex_version} --output {output}"
+
+
+rule normalize_gexp:
+    input:
+        gexp=rules.download_gtex.output,
+        script="normalize_gexp.R",
+    output:
+        "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
+    shell:
+        "pixi run -e r Rscript --vanilla {input.script} {input.gexp} {output}"
+
+
+rule compute_hipathia:
+    input:
+        gexp_norm=rules.normalize_gexp.output,
+        script="hipathize.R",
+    output:
+        pathvals="data/pathvals_gtex-v{gtex_version}_edger-v{edger_version}_hipathia-v{hipathia_version}.feather",
+        pathvals_norm="data/pathvals_gtex-v{gtex_version}_edger-v{edger_version}_hipathia-norm-v{hipathia_version}.feather",
+    shell:
+        "pixi run -e r Rscript --vanilla {input.script} {input.gexp_norm} {output.pathvals} {output.pathvals_norm}"
