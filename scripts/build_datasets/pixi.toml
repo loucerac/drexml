@@ -27,7 +27,7 @@ scripts = ["env_setup.sh"]
 click = "*"
 pandas = "*"
 biothings_client = "*"
-
+pyarrow = "*"
 
 [environments]
 # all environments include the default feature
