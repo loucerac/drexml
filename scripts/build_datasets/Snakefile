@@ -178,7 +178,7 @@ rule filter_drugbank:
         gtex_genes=rules.translate_gtex.output,
         script="parser.py",
     output:
-        genes_filt="genes-drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+        genes_filt="data/genes-drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
         db_filt="data/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
     shell:
-        "pixi run -e py python {input.script} --drugbank-path {input.dbank} filter --drugbank-genes-path {input.dbank_genes} --gtex-genes-path {input.gtex_genes} {output.db_filt} {output.genes_filt}"
+        "pixi run -e py python {input.script} filter-db --drugbank-path {input.dbank} --drugbank-genes-path {input.dbank_genes} --gtex-genes-path {input.gtex_genes} {output.db_filt} {output.genes_filt}"
