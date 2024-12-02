@@ -16,7 +16,7 @@ rule all:
             db_version=config["drugbank"]["versions"],
         ),
         expand(
-            "data/genes_drugbank-{db_version}_mygene-{mg_version}.tsv.gz",
+            "data/genes_drugbank-v{db_version}_mygene-v{mg_version}.tsv.gz",
             db_version=config["drugbank"]["versions"],
             mg_version=config["mygene"]["versions"],
         ),
@@ -45,18 +45,40 @@ rule all:
             edger_version=config["edger"]["versions"],
             hipathia_version=config["hipathia"]["versions"],
         ),
+        expand(
+            "data/genes_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+            mg_version=config["mygene"]["versions"],
+        ),
+        expand(
+            "data/genes_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+            db_version=config["drugbank"]["versions"],
+            gtex_version=config["gtex"]["versions"],
+            edger_version=config["edger"]["versions"],
+            mg_version=config["mygene"]["versions"],
+        ),
+        expand(
+            "data/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+            db_version=config["drugbank"]["versions"],
+            gtex_version=config["gtex"]["versions"],
+            mg_version=config["mygene"]["versions"],
+            edger_version=config["edger"]["versions"],
+        ),
 
 
 rule setup:
     log:
         "pixi.log",
+    output:
+        touch("data/pixi_install.done")
     shell:
         "pixi install --all"
 
 
 rule download_drugbank:
     input:
-        rules.setup.log,
+        rules.setup.output,
         script="parser.py",
     output:
         "data/drugbank_v{db_version}.zip",
@@ -92,14 +114,14 @@ rule translate_drugbank:
         downloaded_file=rules.parse_drugbank.output,
         script="parser.py",
     output:
-        "data/genes_drugbank-{db_version}_mygene-{mg_version}.tsv.gz",
+        "data/genes_drugbank-v{db_version}_mygene-v{mg_version}.tsv.gz",
     shell:
         "pixi run -e py python {input.script} translate --kind drugbank {input.xml} {output}"
 
 
 rule download_gtex:
     input:
-        rules.setup.log,
+        rules.setup.output,
         script="downloader.py",
     output:
         "data/gtex_v{gtex_version}.gct.gz",
@@ -109,7 +131,7 @@ rule download_gtex:
 
 rule normalize_gexp:
     input:
-        rules.setup.log,
+        rules.setup.output,
         gexp=rules.download_gtex.output,
         script="normalize_gexp.R",
     output:
@@ -137,3 +159,26 @@ rule transpose_gtex:
         "data/gexp_gtex-v{gtex_version}_edger-v{edger_version}.feather",
     shell:
         "pixi run -e r Rscript --vanilla {input.script} {input.gex} {output}"
+
+
+rule translate_gtex:
+    input:
+        gex=rules.transpose_gtex.output,
+        script="parser.py",
+    output:
+        "data/genes_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz"
+    shell:
+        "pixi run -e py python {input.script} translate --kind gtex {input.gex} {output}"
+
+
+rule filter_drugbank:
+    input:
+        dbank=rules.parse_drugbank.output,
+        dbank_genes=rules.translate_drugbank.output,
+        gtex_genes=rules.translate_gtex.output,
+        script="parser.py",
+    output:
+        genes_filt="genes-drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+        db_filt="data/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
+    shell:
+        "pixi run -e py python {input.script} --drugbank-path {input.dbank} filter --drugbank-genes-path {input.dbank_genes} --gtex-genes-path {input.gtex_genes} {output.db_filt} {output.genes_filt}"
