@@ -76,8 +76,12 @@ rule all:
             hipathia_version=config["hipathia"]["versions"],
         ),
         expand(
-            ["results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
-            "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
+            [
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/stability_results_symbol.tsv",
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/metrics.pdf",
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/relevance_heatmap_filtered.pdf",
             ],
             db_version=config["drugbank"]["versions"],
             gtex_version=config["gtex"]["versions"],
@@ -91,7 +95,7 @@ rule all:
 
 rule setup:
     output:
-        touch("data/pixi_install.done")
+        touch("data/pixi_install.done"),
     shell:
         "pixi install --all"
 
@@ -186,7 +190,7 @@ rule translate_gtex:
         gex=rules.transpose_gtex.output,
         script="parser.py",
     output:
-        "data/genes_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz"
+        "data/genes_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
     shell:
         "pixi run -e py python {input.script} translate --kind gtex {input.gex} {output}"
 
@@ -208,7 +212,7 @@ rule build_disease:
     input:
         genes=rules.filter_drugbank.output.genes_filt,
         gex=rules.transpose_gtex.output,
-        pathvals=rules.compute_hipathia.output.pathvals
+        pathvals=rules.compute_hipathia.output.pathvals,
     output:
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/disease.env",
     shell:
@@ -219,11 +223,29 @@ rule repurpouse:
     input:
         disease=rules.build_disease.output,
     output:
-        out1="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
-        out2="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
-        tmp=temp(directory("results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/tmp"))
+        rel="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
+        sel="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
+        res="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/stability_results_symbol.tsv",
+        tmp=temp(
+            directory(
+                "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/tmp"
+            )
+        ),
     shell:
         "pixi run -e py drexml run {input.disease}"
+
+
+rule plot_drexml:
+    input:
+        out="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}",
+        rel=rules.repurpouse.output.rel,
+        sel=rules.repurpouse.output.sel,
+        res=rules.repurpouse.output.res,
+    output:
+        "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/metrics.pdf",
+        "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/relevance_heatmap_filtered.pdf",
+    shell:
+        "pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {input.out}"
 
 
 # rule clean:
