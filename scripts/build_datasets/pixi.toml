@@ -24,10 +24,17 @@ bioconductor-genomeinfodbdata = ">=1.2.11,<2"
 scripts = ["env_setup.sh"]
 
 [feature.py.dependencies]
-click = "*"
-pandas = "*"
+python = "3.10.*"
+# click = "*"
+# pandas = "*"
+# biothings_client = "*"
+#pyarrow = "*"
+
+[feature.py.pypi-dependencies]
+drexml = "*"
 biothings_client = "*"
-pyarrow = "*"
+pandas = "*"
+click = "*"
 
 [environments]
 # all environments include the default feature
