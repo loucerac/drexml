@@ -65,11 +65,31 @@ rule all:
             mg_version=config["mygene"]["versions"],
             edger_version=config["edger"]["versions"],
         ),
+        expand(
+            "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/disease.env",
+            db_version=config["drugbank"]["versions"],
+            gtex_version=config["gtex"]["versions"],
+            mg_version=config["mygene"]["versions"],
+            edger_version=config["edger"]["versions"],
+            drexml_version=config["drexml"]["versions"],
+            disease_id=config["disease"]["ids"],
+            hipathia_version=config["hipathia"]["versions"],
+        ),
+        expand(
+            ["results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
+            "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
+            ],
+            db_version=config["drugbank"]["versions"],
+            gtex_version=config["gtex"]["versions"],
+            mg_version=config["mygene"]["versions"],
+            edger_version=config["edger"]["versions"],
+            drexml_version=config["drexml"]["versions"],
+            disease_id=config["disease"]["ids"],
+            hipathia_version=config["hipathia"]["versions"],
+        ),
 
 
 rule setup:
-    log:
-        "pixi.log",
     output:
         touch("data/pixi_install.done")
     shell:
@@ -182,3 +202,33 @@ rule filter_drugbank:
         db_filt="data/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}.tsv.gz",
     shell:
         "pixi run -e py python {input.script} filter-db --drugbank-path {input.dbank} --drugbank-genes-path {input.dbank_genes} --gtex-genes-path {input.gtex_genes} {output.db_filt} {output.genes_filt}"
+
+
+rule build_disease:
+    input:
+        genes=rules.filter_drugbank.output.genes_filt,
+        gex=rules.transpose_gtex.output,
+        pathvals=rules.compute_hipathia.output.pathvals
+    output:
+        "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/disease.env",
+    shell:
+        "echo -e 'disease_id={wildcards.disease_id}\nuse_physio=false\npathvals={input.pathvals}\ngene_exp={input.gex}\ngenes={input.genes}' > {output}"
+
+
+rule repurpouse:
+    input:
+        disease=rules.build_disease.output,
+    output:
+        out1="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_summary_symbol.tsv",
+        out2="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/shap_selection_symbol.tsv",
+        tmp=temp(directory("results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/tmp"))
+    shell:
+        "pixi run -e py drexml run {input.disease}"
+
+
+# rule clean:
+#     input:
+#         rules.repurpouse.output.out1,
+#         tmp="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/tmp"
+#     shell:
+#         "rm -rf {input.tmp}"
