@@ -237,7 +237,7 @@ rule repurpouse:
 
 rule plot_drexml:
     input:
-        out="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}",
+        out="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results",
         rel=rules.repurpouse.output.rel,
         sel=rules.repurpouse.output.sel,
         res=rules.repurpouse.output.res,
