@@ -249,12 +249,4 @@ rule plot_drexml:
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/metrics.pdf",
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/relevance_heatmap_filtered.pdf",
     shell:
-        "echo 'out {params.out}' && pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {params.out}"
-
-
-# rule clean:
-#     input:
-#         rules.repurpouse.output.out1,
-#         tmp="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/tmp"
-#     shell:
-#         "rm -rf {input.tmp}"
+        "pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {params.out}"
