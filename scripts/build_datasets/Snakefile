@@ -1,3 +1,6 @@
+import os.path
+
+
 configfile: "config.yaml"
 
 
@@ -237,7 +240,7 @@ rule repurpouse:
 
 rule plot_drexml:
     input:
-        out="results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results",
+        out=os.path.dirname(rules.repurpouse.output.rel),
         rel=rules.repurpouse.output.rel,
         sel=rules.repurpouse.output.sel,
         res=rules.repurpouse.output.res,
@@ -245,7 +248,7 @@ rule plot_drexml:
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/metrics.pdf",
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/relevance_heatmap_filtered.pdf",
     shell:
-        "pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {input.out}"
+        "echo 'out {input.out}' && pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {input.out}"
 
 
 # rule clean:
