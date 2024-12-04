@@ -240,15 +240,16 @@ rule repurpouse:
 
 rule plot_drexml:
     input:
-        out=os.path.dirname(rules.repurpouse.output.rel),
         rel=rules.repurpouse.output.rel,
         sel=rules.repurpouse.output.sel,
         res=rules.repurpouse.output.res,
+    params:
+        out=os.path.dirname(rules.repurpouse.output.rel)
     output:
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/metrics.pdf",
         "results/drugbank-v{db_version}_gtex-v{gtex_version}_edger-v{edger_version}_mygene-v{mg_version}_v{hipathia_version}_drexml-v{drexml_version}/{disease_id}/results/relevance_heatmap_filtered.pdf",
     shell:
-        "echo 'out {input.out}' && pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {input.out}"
+        "echo 'out {params.out}' && pixi run -e py drexml plot {input.sel} {input.rel} {input.res} {params.out}"
 
 
 # rule clean:
