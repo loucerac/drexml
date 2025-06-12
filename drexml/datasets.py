@@ -106,9 +106,7 @@ def load_physiological_circuits():
     """
     fpath = get_resource_path("circuit_names.tsv.gz")
     circuit_names = pd.read_csv(fpath, sep="\t").set_index("circuit_id")
-    circuit_names.index = circuit_names.index.str.replace("-", ".").str.replace(
-        " ", "."
-    )
+    
     return circuit_names.index[circuit_names["is_physiological"]].tolist()
 
 
@@ -276,6 +274,7 @@ def preprocess_frame(res, env, key):
         print("key dict")
         print(env["circuits_dict"])
         circuits_dict = load_df(env["circuits_dict"])
+        print(circuits_dict.head())
         circuits_dict = preprocess_frame_(circuits_dict, key)
         return preprocess_map(
             res, gene_list, env["circuits_column"], env["use_physio"], circuits_dict
@@ -313,7 +312,6 @@ def preprocess_gexp(frame):
     and returns the resulting data frame.
     """
 
-    frame.columns = frame.columns.str.replace("X", "")
     return frame
 
 
@@ -346,7 +344,6 @@ def preprocess_activities(frame):
     frame with periods and returns the resulting data frame.
 
     """
-    frame.columns = frame.columns.str.replace("-", ".").str.replace(" ", ".")
     return frame
 
 
@@ -382,16 +379,12 @@ def preprocess_map(
     This function replaces hyphens and spaces in the index names of the input data frame
       with periods and returns the resulting list of circuits.
     """
-    frame.index = frame.index.str.replace("-", ".").str.replace(" ", ".")
     circuit_list = []
     if disease_seed_genes:
         print("cdict")
         print(circuits_dict)
         print("genes")
         print(disease_seed_genes)
-        circuits_dict.index = circuits_dict.index.str.replace("-", ".").str.replace(
-            " ", "."
-        )
         disease_seed_genes = circuits_dict.columns.intersection(disease_seed_genes)
         circuit_list += circuits_dict.index[
             circuits_dict[disease_seed_genes].any(axis=1)
@@ -402,7 +395,7 @@ def preprocess_map(
         frame[circuits_column] = frame[circuits_column].astype(bool)
         circuit_list += frame.index[frame[circuits_column]].tolist()
         print("by hip")
-        print(circuit_list)
+        print(circuit_list[:3])
 
     # remove duplicated
     circuit_list = list(set(circuit_list))
@@ -446,7 +439,7 @@ def preprocess_genes(frame, genes_column):
     specified genes column and returns the resulting data frame.
     """
 
-    frame = frame.loc[frame[genes_column]]
+    frame = frame.loc[frame[genes_column].astype(bool)]
     return frame
 
 
@@ -476,8 +469,10 @@ def get_disease_data(disease):
 
     gene_exp = fetch_file(key="gene_exp", env=env, version="latest")
     pathvals = fetch_file(key="pathvals", env=env, version="latest")
+    print(pathvals.head())
     circuits = fetch_file(key="circuits", env=env, version="latest")
     genes = fetch_file(key="genes", env=env, version="latest")
+    print(genes.head())
 
     # gene_exp = gene_exp[genes.index[genes[genes_column]]]
 
@@ -488,6 +483,7 @@ def get_disease_data(disease):
 
     usable_genes = genes.index.intersection(gtex_entrez)
 
+    print("here: ", circuits[:3])
     gene_exp = gene_exp[usable_genes]
     pathvals = pathvals[circuits]
 
