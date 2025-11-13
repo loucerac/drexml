@@ -487,7 +487,7 @@ def get_disease_data(disease):
     gene_exp = gene_exp[usable_genes]
     pathvals = pathvals[circuits]
 
-    print(pathvals.shape)
+    print(f"Loaded pathway activities: {pathvals.shape[0]} samples × {pathvals.shape[1]} circuits")
 
     return gene_exp, pathvals, circuits, genes
 
@@ -517,7 +517,9 @@ def get_data(disease, debug):
     """
     gene_xpr, pathvals, circuits, genes = get_disease_data(disease)
 
-    print(gene_xpr.shape, pathvals.shape)
+    print(f"\nData Summary:")
+    print(f"  Gene expression (features): {gene_xpr.shape[0]} samples × {gene_xpr.shape[1]} drug target genes")
+    print(f"  Pathway activities (targets): {pathvals.shape[0]} samples × {pathvals.shape[1]} circuits")
 
     if debug:
         size = 9
