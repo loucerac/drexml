@@ -304,13 +304,24 @@ def explain(**kwargs):
 @click.pass_context
 def run(ctx, **kwargs):
     """Run the full procedure."""
-    # ctx = build_ctx(kwargs, step=None)
-    # orchestrate(kwargs["disease_path"], **orchestrate_ctx)
-    ctx.forward(orchestrate)
-    ctx.forward(stability, mode="train")
-    ctx.forward(stability, mode="explain")
-    ctx.forward(stability, mode="score")
-    ctx.forward(explain)
+    # Use ctx.invoke with explicit kwargs so that boolean flag pairs like
+    # --debug/--no-debug are forwarded correctly.  ctx.forward does not
+    # propagate the value when it matches the default (Click 8.x bug).
+    shared = dict(
+        debug=kwargs["debug"],
+        verbosity=kwargs["verbosity"],
+        disease_path=kwargs["disease_path"],
+    )
+    compute = dict(
+        n_iters=kwargs["n_iters"],
+        n_gpus=kwargs["n_gpus"],
+        n_cpus=kwargs["n_cpus"],
+    )
+    ctx.invoke(orchestrate, **shared)
+    ctx.invoke(stability, mode="train", **shared, **compute)
+    ctx.invoke(stability, mode="explain", **shared, **compute)
+    ctx.invoke(stability, mode="score", **shared, **compute)
+    ctx.invoke(explain, add=kwargs["add"], **shared, **compute)
 
 
 @main.command()
