@@ -307,21 +307,11 @@ def run(ctx, **kwargs):
     # Use ctx.invoke with explicit kwargs so that boolean flag pairs like
     # --debug/--no-debug are forwarded correctly.  ctx.forward does not
     # propagate the value when it matches the default (Click 8.x bug).
-    shared = dict(
-        debug=kwargs["debug"],
-        verbosity=kwargs["verbosity"],
-        disease_path=kwargs["disease_path"],
-    )
-    compute = dict(
-        n_iters=kwargs["n_iters"],
-        n_gpus=kwargs["n_gpus"],
-        n_cpus=kwargs["n_cpus"],
-    )
-    ctx.invoke(orchestrate, **shared)
-    ctx.invoke(stability, mode="train", **shared, **compute)
-    ctx.invoke(stability, mode="explain", **shared, **compute)
-    ctx.invoke(stability, mode="score", **shared, **compute)
-    ctx.invoke(explain, add=kwargs["add"], **shared, **compute)
+    ctx.invoke(orchestrate, **kwargs)
+    ctx.invoke(stability, mode="train", **kwargs)
+    ctx.invoke(stability, mode="explain", **kwargs)
+    ctx.invoke(stability, mode="score", **kwargs)
+    ctx.invoke(explain, **kwargs)
 
 
 @main.command()
